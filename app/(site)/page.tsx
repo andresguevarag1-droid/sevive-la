@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { lead, week, features, videos, beneficios } from "@/lib/content";
+import { getHomeContent } from "@/lib/sanity/queries";
 import { LeadStory } from "@/components/lead-story";
 import { SectionHead } from "@/components/section-head";
 import { WeekIndex } from "@/components/week-index";
@@ -18,7 +18,10 @@ const quickFilters = [
   { label: "Cerca de mí", href: "/agenda" },
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  // Contenido desde Sanity (con fallback a mock por sección).
+  const { lead, week, features, videos, beneficios } = await getHomeContent();
+
   return (
     <>
       {/* ── Barra de servicio: búsqueda + filtros rápidos ── */}

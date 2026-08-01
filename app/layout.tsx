@@ -2,8 +2,6 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { site } from "@/lib/site";
-import { Masthead } from "@/components/masthead";
-import { MobileNav } from "@/components/mobile-nav";
 
 // Fuentes self-hosted (Fontsource) — builds deterministas, cero fetch externo.
 const fraunces = localFont({
@@ -45,6 +43,10 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
+/**
+ * Layout raíz: solo html/body y fuentes. El "chrome" del sitio (masthead,
+ * navegación) vive en app/(site)/layout.tsx, para que /studio se renderice limpio.
+ */
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -52,11 +54,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" className={`${fraunces.variable} ${inter.variable}`}>
-      <body>
-        <Masthead />
-        <main className="min-h-dvh pb-20 md:pb-0">{children}</main>
-        <MobileNav />
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
