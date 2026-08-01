@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getEventosProximos, type EventoAgenda } from "@/lib/sanity/listados";
 import { WeekIndex } from "@/components/week-index";
+import { JsonLd } from "@/components/json-ld";
+import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Agenda",
@@ -86,8 +88,38 @@ export default async function AgendaPage({
     grupos.set(key, lista);
   }
 
+  // Eventos con fecha real → datos estructurados (SEO enriquecido + GEO)
+  const conFecha = eventos.filter((e) => e.inicio);
+
   return (
     <section className="mx-auto max-w-6xl px-4 py-10 md:py-14">
+      {conFecha.length > 0 ? (
+        <JsonLd
+          data={{
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            name: "Agenda de eventos en Costa Rica",
+            itemListElement: conFecha.slice(0, 20).map((e, i) => ({
+              "@type": "ListItem",
+              position: i + 1,
+              item: {
+                "@type": "Event",
+                name: e.title,
+                startDate: e.inicio,
+                eventStatus: "https://schema.org/EventScheduled",
+                location: e.lugarNombre
+                  ? {
+                      "@type": "Place",
+                      name: e.lugarNombre,
+                      address: { "@type": "PostalAddress", addressCountry: "CR" },
+                    }
+                  : undefined,
+                organizer: { "@type": "Organization", name: site.name, url: site.url },
+              },
+            })),
+          }}
+        />
+      ) : null}
       <header>
         <p className="label text-brand">Qué hacer</p>
         <h1 className="mt-2 text-[clamp(2.4rem,7vw,4.5rem)]">Agenda</h1>

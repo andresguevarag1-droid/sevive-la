@@ -18,7 +18,7 @@
   --color-lilac-soft: #cabce9; /* lila claro para separadores */
   --color-ink: #1a1526; /* texto/titulares (tinta con matiz) */
   --color-muted: #5a5568; /* secundario */
-  --color-faint: #8a8595; /* terciario / metadatos */
+  --color-faint: #666174; /* terciario / metadatos (AA: 4.9:1 sobre papel) */
   --color-rule: rgba(45, 15, 99, 0.16); /* regla de pelo (lila) */
   --color-rule-soft: rgba(45, 15, 99, 0.09);
 

@@ -1,7 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import { site } from "@/lib/site";
+import { site, socialLinks } from "@/lib/site";
+import { JsonLd } from "@/components/json-ld";
 
 // Fuentes self-hosted (Fontsource) — builds deterministas, cero fetch externo.
 const fraunces = localFont({
@@ -33,6 +34,11 @@ export const metadata: Metadata = {
     title: `${site.name} · ${site.tagline}`,
     description: site.description,
   },
+  twitter: {
+    card: "summary_large_image",
+    title: `${site.name} · ${site.tagline}`,
+    description: site.description,
+  },
 };
 
 export const viewport: Viewport = {
@@ -54,7 +60,36 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" className={`${fraunces.variable} ${inter.variable}`}>
-      <body>{children}</body>
+      <body>
+        {/* Entidad y sitio para SEO/GEO (motores de búsqueda y de IA) */}
+        <JsonLd
+          data={{
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            name: site.name,
+            url: site.url,
+            logo: `${site.url}/logo.svg`,
+            description: site.description,
+            areaServed: { "@type": "Country", name: "Costa Rica" },
+            sameAs: socialLinks.map((s) => s.href),
+          }}
+        />
+        <JsonLd
+          data={{
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            name: site.name,
+            url: site.url,
+            inLanguage: site.locale,
+            potentialAction: {
+              "@type": "SearchAction",
+              target: `${site.url}/buscar?q={search_term_string}`,
+              "query-input": "required name=search_term_string",
+            },
+          }}
+        />
+        {children}
+      </body>
     </html>
   );
 }

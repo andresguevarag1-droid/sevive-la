@@ -1,0 +1,26 @@
+# SeViveLa
+
+> Plataforma de descubrimiento de Costa Rica: experiencias, entretenimiento, cultura, gastronomía, turismo y estilo de vida. Guía viva editada en español (es-CR) por una redacción local. Los eventos incluyen fecha, hora y lugar; las dinámicas (giveaways) son siempre gratuitas.
+
+## Secciones
+
+- [Experiencias](https://sevive.la/experiencias): tours, talleres, aventuras y planes de fin de semana.
+- [Entretenimiento](https://sevive.la/entretenimiento): conciertos, fiestas, shows, vida nocturna y festivales.
+- [Cultura](https://sevive.la/cultura): arte, teatro, música local, historia, tradición y ferias.
+- [Gastronomía](https://sevive.la/gastronomia): restaurantes, bares, cafeterías, food trucks y rutas.
+- [Turismo](https://sevive.la/turismo): destinos, playas, volcanes, hospedaje y escapadas.
+- [Estilo de vida](https://sevive.la/estilo-de-vida): bienestar, moda, tendencias, personas y comunidad.
+
+## Clave
+
+- [Agenda](https://sevive.la/agenda): eventos próximos en Costa Rica ordenados por fecha, con filtros de hoy y fin de semana.
+- [Dinámicas](https://sevive.la/dinamicas): giveaways con premios de marcas aliadas; participación siempre gratuita, bases legales públicas.
+- [Videos](https://sevive.la/videos): reels verticales de planes y lugares.
+- [Beneficios](https://sevive.la/promociones): descuentos de marcas aliadas; el contenido patrocinado se etiqueta.
+- [Buscar](https://sevive.la/buscar): búsqueda por texto en todo el contenido.
+
+## Organización
+
+- [Nosotros](https://sevive.la/nosotros): qué es SeViveLa.
+- [Para marcas](https://sevive.la/marcas): formatos publicitarios y audiencias segmentadas.
+- [Privacidad](https://sevive.la/legal/privacidad): tratamiento de datos según la Ley 8968 de Costa Rica.

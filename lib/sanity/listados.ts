@@ -22,7 +22,7 @@ import {
 
 /* ── Agenda ── */
 
-export type EventoAgenda = Story & { inicio: string };
+export type EventoAgenda = Story & { inicio: string; lugarNombre?: string };
 
 /**
  * Eventos próximos (desde hace 12h hasta +60 días), ordenados por inicio.
@@ -45,6 +45,7 @@ export async function getEventosProximos(): Promise<EventoAgenda[]> {
     const items = (raw ?? []).map((e) => ({
       ...eventoToStory(e),
       inicio: e.inicio,
+      lugarNombre: e.lugar,
     }));
     return items.length ? items : mockWeek.map((s) => ({ ...s, inicio: "" }));
   } catch (err) {

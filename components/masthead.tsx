@@ -12,7 +12,7 @@ export function Masthead() {
     <>
       <header className="border-b border-black/10 bg-lilac pt-safe">
         {/* fila de servicio */}
-        <div className="mx-auto hidden max-w-6xl items-center justify-between px-4 py-1.5 text-[11px] text-ink/60 md:flex">
+        <div className="mx-auto hidden max-w-6xl items-center justify-between px-4 py-1.5 text-[11px] text-ink/85 md:flex">
           <span className="tnum uppercase tracking-wider">San José, Costa Rica</span>
           <span className="uppercase tracking-wider">Guía viva de la región</span>
         </div>

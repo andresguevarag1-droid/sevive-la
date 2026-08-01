@@ -9,7 +9,7 @@ import Link from "next/link";
  */
 import { useState, type FormEvent } from "react";
 import { CONSENT_NEWSLETTER } from "@/lib/consent";
-import { subscribeSchema } from "@/lib/validation/subscribe";
+import { isValidEmail } from "@/lib/validation/client";
 import { TurnstileWidget } from "@/components/turnstile";
 
 type Status = "idle" | "sending" | "ok" | "error";
@@ -26,18 +26,17 @@ export function SubscribeEditorial() {
     if (status === "sending") return;
     setError("");
 
-    // Validación en cliente (el servidor SIEMPRE re-valida con el mismo esquema).
+    // Validación ligera en cliente; el servidor re-valida con Zod (fuente de verdad).
     const honeypot =
       (new FormData(e.currentTarget).get("website") as string) || "";
-    const parsed = subscribeSchema.safeParse({
-      email,
-      consent,
-      turnstileToken,
-      website: honeypot,
-    });
-    if (!parsed.success) {
+    if (!isValidEmail(email)) {
       setStatus("error");
-      setError(parsed.error.issues[0]?.message ?? "Revisá los datos.");
+      setError("Escribí un correo válido.");
+      return;
+    }
+    if (!consent) {
+      setStatus("error");
+      setError("Necesitamos tu consentimiento para suscribirte.");
       return;
     }
 
@@ -46,7 +45,12 @@ export function SubscribeEditorial() {
       const res = await fetch("/api/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(parsed.data),
+        body: JSON.stringify({
+          email: email.trim().toLowerCase(),
+          consent: true,
+          turnstileToken,
+          website: honeypot,
+        }),
       });
       const data = (await res.json().catch(() => null)) as
         | { ok: boolean; error?: string }

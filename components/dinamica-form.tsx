@@ -8,7 +8,7 @@ import Link from "next/link";
  */
 import { useState, type FormEvent } from "react";
 import { consentDinamica } from "@/lib/consent";
-import { dinamicaEntrySchema } from "@/lib/validation/dinamica";
+import { isValidEmail, isValidPhone } from "@/lib/validation/client";
 import { TurnstileWidget } from "@/components/turnstile";
 
 type Status = "idle" | "sending" | "ok" | "error";
@@ -39,21 +39,27 @@ export function DinamicaForm({
     if (status === "sending") return;
     setError("");
 
+    // Validación ligera en cliente; el servidor re-valida con Zod (fuente de verdad).
     const honeypot =
       (new FormData(e.currentTarget).get("website") as string) || "";
-    const parsed = dinamicaEntrySchema.safeParse({
-      slug,
-      firstName,
-      email,
-      phone,
-      answer,
-      consent,
-      turnstileToken,
-      website: honeypot,
-    });
-    if (!parsed.success) {
+    if (firstName.trim().length < 2) {
       setStatus("error");
-      setError(parsed.error.issues[0]?.message ?? "Revisá los datos.");
+      setError("Contanos tu nombre.");
+      return;
+    }
+    if (!isValidEmail(email)) {
+      setStatus("error");
+      setError("Escribí un correo válido.");
+      return;
+    }
+    if (!isValidPhone(phone)) {
+      setStatus("error");
+      setError("Escribí un teléfono válido.");
+      return;
+    }
+    if (!consent) {
+      setStatus("error");
+      setError("Necesitamos tu consentimiento para participar.");
       return;
     }
 
@@ -62,7 +68,16 @@ export function DinamicaForm({
       const res = await fetch("/api/dinamica", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(parsed.data),
+        body: JSON.stringify({
+          slug,
+          firstName: firstName.trim(),
+          email: email.trim().toLowerCase(),
+          phone: phone.trim(),
+          answer: answer.trim(),
+          consent: true,
+          turnstileToken,
+          website: honeypot,
+        }),
       });
       const data = (await res.json().catch(() => null)) as
         | { ok: boolean; error?: string; yaParticipaba?: boolean }

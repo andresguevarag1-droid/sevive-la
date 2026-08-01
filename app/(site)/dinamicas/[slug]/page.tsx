@@ -7,6 +7,8 @@ import { getVertical } from "@/lib/site";
 import { DinamicaForm } from "@/components/dinamica-form";
 import { EditorialImage } from "@/components/editorial-image";
 import { CategoryLabel } from "@/components/kicker";
+import { JsonLd } from "@/components/json-ld";
+import { site } from "@/lib/site";
 
 type Params = { slug: string };
 
@@ -61,6 +63,33 @@ export default async function DinamicaPage({
 
   return (
     <article className="mx-auto max-w-3xl px-4 py-10 md:py-14">
+      {/* Datos estructurados: la dinámica como evento gratuito (SEO/GEO) */}
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "Event",
+          name: d.title,
+          description: `Participá gratis: ${d.premio}`,
+          startDate: d.inicio,
+          endDate: d.cierre,
+          eventAttendanceMode: "https://schema.org/OnlineEventAttendanceMode",
+          eventStatus: "https://schema.org/EventScheduled",
+          location: { "@type": "VirtualLocation", url: `${site.url}/dinamicas/${d.slug}` },
+          image: d.imagen,
+          isAccessibleForFree: true,
+          offers: {
+            "@type": "Offer",
+            price: 0,
+            priceCurrency: "CRC",
+            availability:
+              estado === "abierta"
+                ? "https://schema.org/InStock"
+                : "https://schema.org/SoldOut",
+            url: `${site.url}/dinamicas/${d.slug}`,
+          },
+          organizer: { "@type": "Organization", name: site.name, url: site.url },
+        }}
+      />
       {/* ── Cabecera ── */}
       <header>
         <CategoryLabel vertical={d.vertical} />

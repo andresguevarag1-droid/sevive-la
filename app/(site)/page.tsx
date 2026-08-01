@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { getHomeContent } from "@/lib/sanity/queries";
 import { LeadStory } from "@/components/lead-story";
@@ -9,6 +10,10 @@ import { VideoRow } from "@/components/video-row";
 import { Beneficios } from "@/components/beneficios";
 import { SubscribeEditorial } from "@/components/subscribe-editorial";
 import { SearchIcon } from "@/components/icons";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 const quickFilters = [
   { label: "Hoy", href: "/agenda?f=hoy" },

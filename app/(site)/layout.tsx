@@ -13,8 +13,15 @@ export default function SiteLayout({
 }>) {
   return (
     <>
+      {/* Salto al contenido para navegación por teclado / lectores */}
+      <a
+        href="#contenido"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:bg-brand focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-brand-ink"
+      >
+        Saltar al contenido
+      </a>
       <Masthead />
-      <main className="min-h-dvh pb-20 md:pb-0">
+      <main id="contenido" className="min-h-dvh pb-20 md:pb-0">
         {children}
         <SiteFooter />
       </main>
