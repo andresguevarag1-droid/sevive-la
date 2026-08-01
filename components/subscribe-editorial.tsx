@@ -68,13 +68,20 @@ export function SubscribeEditorial() {
   }
 
   return (
-    <section id="boletin" className="scroll-mt-20 px-4 py-12 md:py-16">
+    <section id="boletin" className="scroll-mt-20 px-4 pb-14 pt-12 md:pb-16">
+      <div className="mx-auto mb-6 max-w-6xl">
+        {/* mismo divisor numerado que el resto de la portada (ritmo) */}
+        <div className="flex items-baseline gap-3 border-b border-ink pb-2">
+          <span className="label tnum text-brand">06</span>
+          <h2 className="label text-ink">Boletín</h2>
+        </div>
+      </div>
       <div
         className="mx-auto max-w-6xl rounded-[var(--radius-xl)] px-6 py-12 text-paper md:px-14 md:py-16"
         style={{ background: "var(--color-deep)" }}
       >
         <div className="max-w-2xl">
-          <span className="label text-paper/55">Boletín · cada jueves</span>
+          <span className="label text-paper/55">Cada jueves</span>
           <h2 className="mt-3 text-[clamp(1.9rem,4vw,3rem)] font-medium leading-[1.05] text-paper">
             Los mejores planes del fin de semana, en tu correo.
           </h2>
@@ -160,6 +167,10 @@ export function SubscribeEditorial() {
                   ⚠ {error}
                 </p>
               ) : null}
+
+              <p className="label mt-6 text-paper/40">
+                Cero spam · Un correo por semana · Baja cuando quieras
+              </p>
             </form>
           )}
         </div>

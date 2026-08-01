@@ -49,6 +49,19 @@ function fmtFecha(iso: string): string {
   }).format(date);
 }
 
+/** Días restantes (redondeo hacia arriba); null si la fecha no es válida. */
+function diasRestantes(iso: string): number | null {
+  const fin = new Date(iso).getTime();
+  if (Number.isNaN(fin)) return null;
+  return Math.max(0, Math.ceil((fin - Date.now()) / 86400000));
+}
+
+const pasos = [
+  { n: "1", texto: "Dejá tus datos" },
+  { n: "2", texto: "Cruzá los dedos" },
+  { n: "3", texto: "Te avisamos por correo" },
+];
+
 export default async function DinamicaPage({
   params,
 }: {
@@ -92,11 +105,13 @@ export default async function DinamicaPage({
       />
       {/* ── Cabecera ── */}
       <header>
-        <CategoryLabel vertical={d.vertical} />
-        <h1 className="mt-3 text-[clamp(2rem,6vw,3.4rem)]">{d.title}</h1>
-        <p className="mt-3 text-lg leading-relaxed text-muted">
-          <span className="font-semibold text-ink">Premio:</span> {d.premio}
-        </p>
+        <div className="flex flex-wrap items-center gap-2">
+          <CategoryLabel vertical={d.vertical} />
+          <span className="label text-brand">Gratis</span>
+        </div>
+        <h1 className="mt-3 text-[clamp(2.2rem,6.5vw,3.8rem)] leading-[1.0]">
+          {d.title}
+        </h1>
         {d.patrocinado && d.marca ? (
           <p className="label mt-3 text-faint">
             Contenido patrocinado · en alianza con {d.marca}
@@ -112,18 +127,63 @@ export default async function DinamicaPage({
         </div>
       ) : null}
 
-      {/* ── Ventana de participación ── */}
-      <p className="label tnum mt-6 border-y border-rule py-3 text-muted">
-        {estado === "proximamente"
-          ? `Abre el ${fmtFecha(d.inicio)} · cierra el ${fmtFecha(d.cierre)}`
-          : `Participá hasta el ${fmtFecha(d.cierre)}`}
-      </p>
+      {/* ── El premio, protagonista ── */}
+      <div className="card mt-6 flex gap-4 px-6 py-6 md:px-8">
+        <span aria-hidden className="w-1 shrink-0 rounded-full bg-brand" />
+        <div>
+          <p className="label text-faint">El premio</p>
+          <p className="headline mt-1.5 text-[clamp(1.3rem,3vw,1.7rem)] text-ink">
+            {d.premio}
+          </p>
+        </div>
+      </div>
+
+      {/* ── Urgencia: ventana de participación ── */}
+      <div className="mt-6 flex flex-wrap items-baseline justify-between gap-2 border-y-2 border-ink py-3">
+        <p className="label tnum text-ink">
+          {estado === "proximamente"
+            ? `Abre el ${fmtFecha(d.inicio)}`
+            : estado === "cerrada"
+              ? `Cerró el ${fmtFecha(d.cierre)}`
+              : `Cierra el ${fmtFecha(d.cierre)}`}
+        </p>
+        {estado === "abierta" ? (
+          (() => {
+            const dias = diasRestantes(d.cierre);
+            return dias !== null ? (
+              <p className="label tnum text-brand">
+                {dias === 0
+                  ? "¡Último día!"
+                  : dias === 1
+                    ? "Queda 1 día"
+                    : `Quedan ${dias} días`}
+              </p>
+            ) : null;
+          })()
+        ) : null}
+      </div>
 
       {/* ── Descripción editorial ── */}
       {d.descripcion?.length ? (
         <div className="prose-editorial measure mt-6 leading-relaxed text-ink/90">
           <PortableText value={d.descripcion} />
         </div>
+      ) : null}
+
+      {/* ── Cómo participar (solo si está abierta) ── */}
+      {estado === "abierta" ? (
+        <ol className="mt-8 grid grid-cols-3 gap-3">
+          {pasos.map((p) => (
+            <li key={p.n} className="text-center">
+              <span className="tnum mx-auto flex h-9 w-9 items-center justify-center rounded-full border-2 border-ink text-sm font-bold text-ink">
+                {p.n}
+              </span>
+              <p className="mt-2 text-[13px] font-medium leading-snug text-muted">
+                {p.texto}
+              </p>
+            </li>
+          ))}
+        </ol>
       ) : null}
 
       {/* ── Formulario según estado ── */}

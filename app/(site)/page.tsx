@@ -62,7 +62,7 @@ export default async function HomePage() {
       </section>
 
       {/* ── Esta semana ── */}
-      <section className="mx-auto max-w-6xl px-4 py-10 md:py-12">
+      <section className="mx-auto max-w-6xl px-4 py-10 md:py-14">
         <SectionHead index="01" label="Esta semana" href="/agenda" action="Agenda completa" />
         <WeekIndex items={week} />
       </section>
@@ -76,7 +76,7 @@ export default async function HomePage() {
       </section>
 
       {/* ── Destacado ── */}
-      <section className="mx-auto max-w-6xl px-4 py-10 md:py-12">
+      <section className="mx-auto max-w-6xl px-4 py-12 md:py-14">
         <SectionHead index="03" label="Destacado" href="/cultura" action="Más notas" />
         <div className="grid gap-x-8 gap-y-10 md:grid-cols-3">
           {features.map((s) => (
@@ -85,14 +85,16 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── En video ── */}
-      <section className="mx-auto max-w-6xl px-4 py-10 md:py-12">
-        <SectionHead index="04" label="En video" href="/videos" action="Videoteca" />
-        <VideoRow items={videos} />
+      {/* ── En video (banda de tinta: las miniaturas mandan) ── */}
+      <section style={{ background: "var(--color-ink)" }}>
+        <div className="mx-auto max-w-6xl px-4 py-12 md:py-16">
+          <SectionHead index="04" label="En video" href="/videos" action="Videoteca" tone="dark" />
+          <VideoRow items={videos} />
+        </div>
       </section>
 
       {/* ── Beneficios ── */}
-      <section className="mx-auto max-w-6xl px-4 py-10 md:py-12">
+      <section className="mx-auto max-w-6xl px-4 py-12 md:py-14">
         <SectionHead index="05" label="Beneficios" href="/promociones" action="Todas las promos" />
         <Beneficios items={beneficios} />
       </section>

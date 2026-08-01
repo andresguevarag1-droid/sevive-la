@@ -119,7 +119,8 @@ export function DinamicaForm({
       aria-busy={status === "sending"}
       className="card px-6 py-8 md:px-10 md:py-10"
     >
-      <p className="label text-faint">Participá gratis</p>
+      <p className="label text-brand">Participá gratis</p>
+      <h3 className="mt-2 text-2xl">Dejá tus datos y listo.</h3>
       <div className="mt-6 grid gap-6 sm:grid-cols-2">
         <label>
           <span className="label text-faint">Nombre *</span>
@@ -222,10 +223,13 @@ export function DinamicaForm({
       <button
         type="submit"
         disabled={status === "sending"}
-        className="pressable mt-6 min-h-11 w-full bg-brand px-6 py-3 text-sm font-semibold uppercase tracking-wide text-brand-ink transition-colors hover:bg-brand-hover disabled:cursor-wait disabled:opacity-70 sm:w-auto"
+        className="pressable mt-6 min-h-12 w-full bg-brand px-6 py-3.5 text-sm font-semibold uppercase tracking-wide text-brand-ink transition-colors hover:bg-brand-hover disabled:cursor-wait disabled:opacity-70"
       >
-        {status === "sending" ? "Enviando…" : "Participar"}
+        {status === "sending" ? "Enviando…" : "Participar gratis"}
       </button>
+      <p className="label mt-3 text-center text-faint">
+        Sin costo · Una participación por persona
+      </p>
     </form>
   );
 }

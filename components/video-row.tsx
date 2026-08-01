@@ -17,7 +17,7 @@ export function VideoRow({ items }: { items: Story[] }) {
           <Link
             key={v.id}
             href="/videos"
-            className="pressable group block w-[172px] md:w-[208px]"
+            className="pressable group block w-[188px] md:w-[224px]"
           >
             <div
               className="imgzoom relative overflow-hidden rounded-[var(--radius-lg)] bg-paper-2 shadow-[var(--shadow-card)]"
