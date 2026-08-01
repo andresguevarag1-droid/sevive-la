@@ -2,66 +2,68 @@
 
 /*
   ─────────────────────────────────────────────────────────────
-  SEVIVELA · SISTEMA DE DISEÑO BASE
-  Editorial cinematográfico · dark-mode por defecto.
-  Paleta confirmada desde el manual de marca (PALETA SEVIVELA.pdf).
-  Roles de color decididos por contraste WCAG sobre el fondo #08080A:
-    - Morado #2D0F63 (1.3:1) y Petróleo #104153 (1.81:1) → SOLO superficie/gradiente.
-    - Magenta #EA2889 (4.92:1) → CTA / acción de marca.
-    - El resto → acentos e identidad por vertical.
+  SEVIVELA · SISTEMA DE DISEÑO — EDITORIAL CLARO
+  Revista de cultura contemporánea: fondo papel cálido, tinta casi negra,
+  magenta de marca como acento, serif editorial (Playfair) para destaques.
+  Roles de color decididos por contraste WCAG sobre el fondo #FBFAF8.
+  Cada vertical conserva su MATIZ de marca; solo se ajusta la luminosidad
+  para que sea legible sobre claro (dot/label >= 3:1).
   ─────────────────────────────────────────────────────────────
 */
 
 @theme {
-  /* ── Superficies (dark por defecto) ── */
-  --color-canvas: #08080a; /* fondo base — el contenido visual manda */
-  --color-surface: #121215; /* tarjetas, sheets */
-  --color-surface-2: #1c1c21; /* elevación secundaria */
-  --color-ink: #fafafa; /* texto principal */
-  --color-muted: #a1a1aa; /* texto secundario */
-  --color-line: rgba(255, 255, 255, 0.08); /* bordes sutiles */
+  /* ── Superficies (light) ── */
+  --color-canvas: #fbfaf8; /* papel cálido */
+  --color-surface: #ffffff; /* tarjetas */
+  --color-surface-2: #f3f1ec; /* bloques sutiles */
+  --color-ink: #14121a; /* texto principal (17.8:1) */
+  --color-muted: #6b6b72; /* texto secundario (5.07:1) */
+  --color-line: rgba(20, 18, 26, 0.1); /* bordes */
+  --color-line-strong: rgba(20, 18, 26, 0.16);
 
   /* ── Marca ── */
-  --color-brand: #ea2889; /* magenta — CTA / acción */
-  --color-brand-hover: #c71e70; /* magenta oscurecido — hover/pressed */
-  --color-brand-ink: #08080a; /* texto sobre superficies de marca */
-  --color-deep-purple: #2d0f63; /* estructura / gradiente — nunca texto */
-  --color-petrol: #104153; /* estructura / gradiente — nunca texto */
+  --color-brand: #c71e70; /* magenta accesible — CTA / acento (5.2:1) */
+  --color-brand-bright: #ea2889; /* magenta vivo — decorativo / halos */
+  --color-brand-hover: #a81860; /* pressed */
+  --color-brand-ink: #ffffff; /* texto sobre marca (5.5:1) */
+  --color-deep-purple: #2d0f63; /* tono profundo — gradientes/acentos */
+  --color-petrol: #104153; /* tono profundo — gradientes/acentos */
 
   /* ── Estados ── */
-  --color-success: #22c55e;
-  --color-danger: #ef4444;
-  --color-warning: #ff8103; /* naranja — urgencia (countdowns, "vence en") */
+  --color-success: #15803d;
+  --color-danger: #dc2626;
+  --color-warning: #c25e00; /* naranja profundo — urgencia */
 
-  /* ── Identidad por vertical (color = orientación instantánea) ── */
-  /* * gastronomía y estilo usan tintes derivados; pendiente de confirmación de la marca (brief §26 q6) */
-  --color-experiencias: #ff8103; /* naranja */
-  --color-entretenimiento: #ffec4a; /* amarillo */
-  --color-cultura: #a190d2; /* lila */
-  --color-turismo: #55a2b9; /* azul claro */
-  --color-gastronomia: #ff5c7a; /* coral derivado * */
-  --color-estilo: #8b6fd8; /* morado-light derivado * */
+  /* ── Identidad por vertical (matiz de marca, luminosidad para claro) ── */
+  --color-experiencias: #c25e00; /* naranja profundo */
+  --color-entretenimiento: #9a6a12; /* dorado profundo */
+  --color-cultura: #6d4fb0; /* lila profundo */
+  --color-gastronomia: #c42b52; /* coral profundo */
+  --color-turismo: #0e6e86; /* azul petróleo */
+  --color-estilo: #3b1f87; /* morado */
 
   /* ── Radios ── */
   --radius-sm: 10px;
-  --radius-md: 16px;
-  --radius-lg: 24px;
-  --radius-xl: 32px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
   --radius-full: 9999px;
 
-  /* ── Movimiento ── */
-  --ease-brand: cubic-bezier(0.22, 1, 0.36, 1);
+  /* ── Movimiento (curvas fuertes, estilo Emil Kowalski) ── */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 
-  /* ── Tipografía (variables inyectadas por next/font en layout.tsx) ── */
+  /* ── Tipografía (inyectada por next/font en layout.tsx) ── */
   --font-display: var(--font-archivo), "Arial Black", sans-serif;
   --font-body: var(--font-inter), system-ui, sans-serif;
+  --font-serif: var(--font-playfair), Georgia, serif;
 }
 
 /* ── Reset / base ── */
 html {
-  color-scheme: dark;
+  color-scheme: light;
   -webkit-text-size-adjust: 100%;
-  scrollbar-color: var(--color-surface-2) transparent;
 }
 
 body {
@@ -73,26 +75,34 @@ body {
   min-height: 100dvh;
 }
 
-/* Titulares con la display, jerarquía audaz */
+/* Titulares con la display, jerarquía audaz (revista) */
 h1,
 h2,
 h3 {
   font-family: var(--font-display);
   font-weight: 800;
-  line-height: 1.02;
-  letter-spacing: -0.02em;
+  line-height: 1;
+  letter-spacing: -0.03em;
 }
 
-/* Los inputs a 16px evitan el auto-zoom de iOS */
+::selection {
+  background: var(--color-brand);
+  color: #fff;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+}
+
 input,
 textarea,
 select {
-  font-size: 16px;
+  font-size: 16px; /* evita el auto-zoom de iOS */
 }
 
 /* ── Utilidades propias ── */
 @layer utilities {
-  /* safe-area para notch de iPhone (bottom-nav, headers, sheets) */
   .pb-safe {
     padding-bottom: env(safe-area-inset-bottom);
   }
@@ -100,10 +110,26 @@ select {
     padding-top: env(safe-area-inset-top);
   }
 
-  /* rail horizontal con scroll-snap y sin scrollbar visible */
+  /* eyebrow / kicker editorial */
+  .kicker {
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  /* cita/acento serif editorial */
+  .serif-italic {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 500;
+  }
+
+  /* rail horizontal con scroll-snap, sin scrollbar */
   .rail {
     display: flex;
-    gap: 0.75rem;
+    gap: 0.875rem;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
@@ -118,22 +144,65 @@ select {
     flex: 0 0 auto;
   }
 
-  /* corta el texto a n líneas */
   .clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
+  .clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* feedback de pulsación (Emil: los botones deben sentirse) */
+  .pressable {
+    transition: transform 160ms var(--ease-out);
+  }
+  .pressable:active {
+    transform: scale(0.97);
+  }
+
+  /* aparición escalonada al cargar (stagger sutil) */
+  .reveal {
+    opacity: 0;
+    transform: translateY(10px);
+    animation: reveal 520ms var(--ease-out) forwards;
+  }
+  @keyframes reveal {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 }
 
-/* Respeta a quien pide menos movimiento */
+/* Elevación al hover solo en dispositivos con puntero fino */
+@media (hover: hover) and (pointer: fine) {
+  .lift {
+    transition:
+      transform 240ms var(--ease-out),
+      box-shadow 240ms var(--ease-out);
+  }
+  .lift:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px -12px rgba(20, 18, 26, 0.25);
+  }
+}
+
+/* Respeta a quien pide menos movimiento (mantiene opacidad, quita traslados) */
 @media (prefers-reduced-motion: reduce) {
+  .reveal {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
 }

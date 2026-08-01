@@ -1,9 +1,21 @@
 import Link from "next/link";
 import { verticals, site } from "@/lib/site";
+import {
+  pasandoAhora,
+  videos,
+  editorial,
+  promos,
+} from "@/lib/content";
 import { VerticalCard } from "@/components/vertical-card";
+import { PosterCard } from "@/components/poster-card";
+import { VideoCard } from "@/components/video-card";
+import { PromoCard } from "@/components/promo-card";
+import { EditorialFeature } from "@/components/editorial-feature";
+import { AgendaWeek } from "@/components/agenda-week";
+import { SubscribeBlock } from "@/components/subscribe-block";
+import { Section, SectionHeader } from "@/components/section";
 import { SearchIcon } from "@/components/icons";
 
-// Chips de acceso rápido del hero — comunican "plataforma", no "revista".
 const quickChips = [
   { label: "Hoy", href: "/agenda/hoy" },
   { label: "Este fin de semana", href: "/agenda/fin-de-semana" },
@@ -14,44 +26,39 @@ const quickChips = [
 export default function HomePage() {
   return (
     <>
-      {/* ─────────────── HERO CINEMATOGRÁFICO ─────────────── */}
-      <section className="relative isolate overflow-hidden px-4 pt-28 pb-14 md:pt-40 md:pb-20">
-        {/* gradiente de marca: morado/petróleo como estructura (nunca texto) */}
+      {/* ─────────────── HERO EDITORIAL ─────────────── */}
+      <section className="relative isolate overflow-hidden px-4 pt-24 pb-10 md:pt-32 md:pb-14">
+        {/* tinte de marca sutil sobre papel — mantiene el aire claro */}
         <div
           aria-hidden
           className="absolute inset-0 -z-10"
           style={{
             background:
-              "radial-gradient(120% 90% at 15% 0%, var(--color-deep-purple) 0%, transparent 55%), radial-gradient(120% 90% at 100% 20%, var(--color-petrol) 0%, transparent 50%), var(--color-canvas)",
+              "radial-gradient(90% 60% at 100% 0%, color-mix(in srgb, var(--color-brand-bright) 12%, transparent) 0%, transparent 60%), radial-gradient(80% 60% at 0% 0%, color-mix(in srgb, var(--color-petrol) 10%, transparent) 0%, transparent 55%)",
           }}
-        />
-        <div
-          aria-hidden
-          className="absolute -bottom-24 left-1/2 -z-10 h-72 w-[120%] -translate-x-1/2 rounded-full opacity-20 blur-3xl"
-          style={{ background: "var(--color-brand)" }}
         />
 
         <div className="mx-auto max-w-3xl">
-          <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-line bg-surface/60 px-3 py-1 text-xs font-medium text-muted backdrop-blur">
-            <span className="h-1.5 w-1.5 rounded-full bg-brand" />
-            Cultura, planes y experiencias en Costa Rica
+          <p className="kicker reveal mb-4 text-brand">
+            Guía viva de Costa Rica
           </p>
 
-          <h1 className="text-[clamp(2.6rem,11vw,5.5rem)] font-black leading-[0.95] tracking-tight text-ink">
-            Descubrí qué
-            <br />
-            <span className="text-brand">vivir</span> hoy.
+          <h1 className="reveal text-[clamp(2.7rem,11vw,5.5rem)] font-black leading-[0.94] tracking-tight text-ink">
+            Descubrí qué{" "}
+            <span className="serif-italic font-medium text-brand">vivir</span>{" "}
+            hoy.
           </h1>
 
-          <p className="mt-5 max-w-xl text-lg text-muted">
-            {site.name} es la plataforma donde la gente encuentra qué hacer,
-            dónde comer, a dónde ir y qué se está viviendo en la región.
+          <p className="reveal mt-5 max-w-xl text-lg text-muted" style={{ animationDelay: "60ms" }}>
+            La plataforma donde la gente encuentra qué hacer, dónde comer, a
+            dónde ir y qué se está viviendo en la región.
           </p>
 
-          {/* Buscador prominente — comunica "plataforma" */}
+          {/* Buscador prominente */}
           <form
             action="/buscar"
-            className="mt-7 flex items-center gap-2 rounded-[var(--radius-full)] border border-line bg-surface/80 p-2 pl-5 backdrop-blur"
+            className="reveal mt-7 flex items-center gap-2 rounded-[var(--radius-full)] border border-line bg-surface p-2 pl-5 shadow-[0_10px_30px_-18px_rgba(20,18,26,0.4)]"
+            style={{ animationDelay: "120ms" }}
           >
             <SearchIcon className="shrink-0 text-muted" width={22} height={22} />
             <input
@@ -63,19 +70,18 @@ export default function HomePage() {
             />
             <button
               type="submit"
-              className="shrink-0 rounded-[var(--radius-full)] bg-brand px-5 py-2.5 font-semibold text-brand-ink transition-colors hover:bg-brand-hover"
+              className="pressable shrink-0 rounded-[var(--radius-full)] bg-brand px-5 py-2.5 font-semibold text-brand-ink transition-colors hover:bg-brand-hover"
             >
               Buscar
             </button>
           </form>
 
-          {/* Chips de acceso rápido */}
-          <div className="rail mt-4 -mx-4 px-4 md:mx-0 md:flex-wrap md:px-0">
+          <div className="rail reveal mt-4 -mx-4 px-4 md:mx-0 md:flex-wrap md:px-0" style={{ animationDelay: "180ms" }}>
             {quickChips.map((c) => (
               <Link
                 key={c.label}
                 href={c.href}
-                className="rounded-[var(--radius-full)] border border-line bg-surface/60 px-4 py-2 text-sm font-medium text-ink transition-colors hover:border-brand hover:text-brand"
+                className="pressable rounded-[var(--radius-full)] border border-line bg-surface px-4 py-2 text-sm font-medium text-ink transition-colors hover:border-brand hover:text-brand"
               >
                 {c.label}
               </Link>
@@ -84,47 +90,99 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ─────────────── PASANDO AHORA ─────────────── */}
+      <Section>
+        <SectionHeader
+          kicker="Pasando ahora"
+          title="Lo que no te podés perder"
+          href="/agenda/hoy"
+        />
+        <div className="rail -mx-4 px-4 md:mx-0 md:px-0">
+          {pasandoAhora.map((item) => (
+            <PosterCard key={item.id} item={item} />
+          ))}
+        </div>
+      </Section>
+
       {/* ─────────────── NAVEGADOR DE VERTICALES ─────────────── */}
-      <section className="px-4 py-10">
-        <div className="mx-auto max-w-6xl">
-          <div className="mb-5 flex items-end justify-between gap-4">
-            <div>
-              <h2 className="text-2xl font-extrabold text-ink md:text-3xl">
-                Explorá por interés
-              </h2>
-              <p className="mt-1 text-sm text-muted">
-                Seis mundos, una sola plataforma.
-              </p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-            {verticals.map((v) => (
-              <VerticalCard key={v.slug} vertical={v} />
-            ))}
-          </div>
+      <Section>
+        <SectionHeader
+          kicker="Explorá por interés"
+          title="Seis mundos, una plataforma"
+          accent="var(--color-cultura)"
+        />
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+          {verticals.map((v) => (
+            <VerticalCard key={v.slug} vertical={v} />
+          ))}
         </div>
-      </section>
+      </Section>
 
-      {/* ─────────────── AVISO DE CONSTRUCCIÓN (temporal) ─────────────── */}
-      <section className="px-4 pb-16">
-        <div className="mx-auto max-w-6xl rounded-[var(--radius-lg)] border border-line bg-surface p-6 text-sm text-muted">
-          <p className="font-semibold text-ink">Estamos construyendo.</p>
-          <p className="mt-1">
-            Sistema de diseño base en marcha. Próximo: rails de contenido,
-            agenda, videoteca y comunidad.
-          </p>
+      {/* ─────────────── AGENDA DE LA SEMANA ─────────────── */}
+      <Section>
+        <SectionHeader
+          kicker="Agenda"
+          title="Tu semana en un vistazo"
+          href="/agenda"
+          accent="var(--color-turismo)"
+        />
+        <AgendaWeek />
+      </Section>
+
+      {/* ─────────────── VIDEOS Y REELS ─────────────── */}
+      <Section>
+        <SectionHeader
+          kicker="Videos y reels"
+          title="Mirá la región"
+          href="/videos"
+          accent="var(--color-experiencias)"
+        />
+        <div className="rail -mx-4 px-4 md:mx-0 md:px-0">
+          {videos.map((item) => (
+            <VideoCard key={item.id} item={item} />
+          ))}
         </div>
-      </section>
+      </Section>
+
+      {/* ─────────────── EDITORIAL DESTACADO ─────────────── */}
+      <Section>
+        <SectionHeader
+          kicker="Editorial"
+          title="Para leer con calma"
+          href="/cultura"
+          accent="var(--color-gastronomia)"
+        />
+        <EditorialFeature items={editorial} />
+      </Section>
+
+      {/* ─────────────── PROMOCIONES ─────────────── */}
+      <Section>
+        <SectionHeader
+          kicker="Beneficios"
+          title="Promos de marcas aliadas"
+          href="/promociones"
+          accent="var(--color-entretenimiento)"
+        />
+        <div className="rail -mx-4 px-4 md:mx-0 md:px-0">
+          {promos.map((item) => (
+            <PromoCard key={item.id} item={item} />
+          ))}
+        </div>
+      </Section>
+
+      {/* ─────────────── SUSCRIPCIÓN ─────────────── */}
+      <SubscribeBlock />
 
       {/* ─────────────── FOOTER ─────────────── */}
-      <footer className="border-t border-line px-4 py-10">
-        <div className="mx-auto flex max-w-6xl flex-col gap-6 md:flex-row md:items-start md:justify-between">
-          <div>
-            <p className="text-lg font-extrabold text-ink">{site.name}</p>
-            <p className="mt-1 max-w-xs text-sm text-muted">{site.tagline}</p>
+      <footer className="border-t border-line px-4 py-12">
+        <div className="mx-auto flex max-w-6xl flex-col gap-8 md:flex-row md:items-start md:justify-between">
+          <div className="max-w-xs">
+            <p className="text-xl font-extrabold text-ink">{site.name}</p>
+            <p className="mt-2 text-sm text-muted">
+              Descubrí, viví y compartí lo mejor de la región.
+            </p>
           </div>
-          <nav className="grid grid-cols-2 gap-x-10 gap-y-2 text-sm text-muted">
+          <nav className="grid grid-cols-2 gap-x-10 gap-y-2.5 text-sm font-medium text-muted">
             {verticals.map((v) => (
               <Link
                 key={v.slug}
@@ -136,7 +194,7 @@ export default function HomePage() {
             ))}
           </nav>
         </div>
-        <p className="mx-auto mt-8 max-w-6xl text-xs text-muted">
+        <p className="mx-auto mt-10 max-w-6xl text-xs text-muted">
           © {new Date().getFullYear()} {site.name} · Hecho en Costa Rica
         </p>
       </footer>

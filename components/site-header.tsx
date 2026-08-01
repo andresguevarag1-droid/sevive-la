@@ -31,15 +31,9 @@ export function SiteHeader() {
     >
       <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-4">
         <Link href="/" aria-label="SeViveLa · Inicio" className="shrink-0 text-ink">
-          {/* logo vectorial (currentColor = blanco sobre dark) */}
+          {/* logo vectorial negro sobre fondo claro */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/logo.svg"
-            alt="SeViveLa"
-            width={40}
-            height={40}
-            className="h-9 w-9 [filter:invert(1)]"
-          />
+          <img src="/logo.svg" alt="SeViveLa" width={40} height={40} className="h-9 w-9" />
         </Link>
 
         {/* verticales — solo desktop */}

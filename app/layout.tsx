@@ -21,6 +21,15 @@ const inter = localFont({
   display: "swap",
 });
 
+// Serif editorial (solo destaques y citas — carga mínima).
+const playfair = localFont({
+  src: "./fonts/playfair-italic-var.woff2",
+  variable: "--font-playfair",
+  weight: "400 800",
+  style: "italic",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: {
@@ -53,7 +62,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className={`${archivo.variable} ${inter.variable}`}>
+    <html
+      lang="es"
+      className={`${archivo.variable} ${inter.variable} ${playfair.variable}`}
+    >
       <body>
         <SiteHeader />
         {/* padding inferior deja espacio al bottom-nav móvil */}

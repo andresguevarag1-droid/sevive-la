@@ -37,7 +37,7 @@ export function BottomNav() {
     <nav
       aria-label="Navegación principal"
       data-hidden={hidden}
-      className="fixed inset-x-0 bottom-0 z-50 border-t border-line bg-canvas/85 pb-safe backdrop-blur-lg transition-transform duration-300 ease-[var(--ease-brand)] data-[hidden=true]:translate-y-full md:hidden"
+      className="fixed inset-x-0 bottom-0 z-50 border-t border-line bg-canvas/90 pb-safe backdrop-blur-lg transition-transform duration-300 ease-[var(--ease-drawer)] data-[hidden=true]:translate-y-full md:hidden"
     >
       <ul className="mx-auto flex h-16 max-w-lg items-stretch justify-around">
         {bottomNav.map((item) => {
