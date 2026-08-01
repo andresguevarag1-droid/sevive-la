@@ -3,20 +3,19 @@ import { verticals } from "@/lib/site";
 import { SearchIcon, MenuIcon } from "@/components/icons";
 
 /**
- * Cabecera tipo masthead de revista:
- * fila de servicio (dateline / edición), logotipo, y navegación de secciones
- * separada por reglas de pelo. Fija arriba, sobre papel.
+ * Masthead de revista sobre banda lila de marca (#A190D2):
+ * fila de servicio, logotipo y navegación de secciones. Fija arriba.
  */
 export function Masthead() {
   return (
-    <header className="sticky top-0 z-40 border-b border-rule bg-paper/95 pt-safe backdrop-blur-sm">
+    <header className="sticky top-0 z-40 border-b border-[color:var(--color-lilac-soft)] bg-lilac pt-safe">
       {/* fila de servicio */}
-      <div className="mx-auto hidden max-w-6xl items-center justify-between px-4 py-1.5 text-[11px] text-faint md:flex">
+      <div className="mx-auto hidden max-w-6xl items-center justify-between px-4 py-1.5 text-[11px] text-ink/60 md:flex">
         <span className="tnum uppercase tracking-wider">San José, Costa Rica</span>
         <span className="uppercase tracking-wider">Guía viva de la región</span>
       </div>
 
-      <div className="border-t border-rule-soft md:border-t-0">
+      <div className="border-t border-black/10 md:border-t-0">
         <div className="mx-auto flex h-14 max-w-6xl items-center gap-4 px-4">
           <Link href="/" aria-label="SeViveLa · Inicio" className="shrink-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -28,7 +27,7 @@ export function Masthead() {
               <Link
                 key={v.slug}
                 href={`/${v.slug}`}
-                className="ulink text-[13px] font-medium text-ink/80 hover:text-ink"
+                className="ulink text-[13px] font-medium text-ink/85 hover:text-ink"
               >
                 {v.name}
               </Link>
@@ -39,14 +38,14 @@ export function Masthead() {
             <Link
               href="/buscar"
               aria-label="Buscar"
-              className="flex h-10 w-10 items-center justify-center rounded-full text-ink hover:bg-paper-2"
+              className="flex h-10 w-10 items-center justify-center rounded-full text-ink hover:bg-white/25"
             >
               <SearchIcon width={20} height={20} />
             </Link>
             <button
               type="button"
               aria-label="Menú"
-              className="flex h-10 w-10 items-center justify-center rounded-full text-ink hover:bg-paper-2 md:hidden"
+              className="flex h-10 w-10 items-center justify-center rounded-full text-ink hover:bg-white/25 md:hidden"
             >
               <MenuIcon width={20} height={20} />
             </button>

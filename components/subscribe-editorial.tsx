@@ -5,7 +5,10 @@
 export function SubscribeEditorial() {
   return (
     <section className="px-4 py-12 md:py-16">
-      <div className="mx-auto max-w-6xl bg-ink px-6 py-12 text-paper md:px-14 md:py-16">
+      <div
+        className="mx-auto max-w-6xl px-6 py-12 text-paper md:px-14 md:py-16"
+        style={{ background: "var(--color-deep)" }}
+      >
         <div className="max-w-2xl">
           <span className="label text-paper/55">Boletín · cada jueves</span>
           <h2 className="mt-3 text-[clamp(1.9rem,4vw,3rem)] font-medium leading-[1.05] text-paper">

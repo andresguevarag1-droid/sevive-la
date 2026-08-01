@@ -60,10 +60,12 @@ export default function HomePage() {
         <WeekIndex items={week} />
       </section>
 
-      {/* ── Secciones ── */}
-      <section className="mx-auto max-w-6xl px-4 py-10 md:py-12">
-        <SectionHead index="02" label="Secciones" />
-        <VerticalIndex />
+      {/* ── Secciones (banda lila de marca) ── */}
+      <section style={{ background: "var(--color-paper-2)" }}>
+        <div className="mx-auto max-w-6xl px-4 py-12 md:py-14">
+          <SectionHead index="02" label="Secciones" />
+          <VerticalIndex />
+        </div>
       </section>
 
       {/* ── Destacado ── */}

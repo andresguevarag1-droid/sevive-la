@@ -11,14 +11,16 @@
 */
 
 @theme {
-  /* ── Superficies (papel) ── */
-  --color-paper: #fbfaf8; /* fondo */
-  --color-paper-2: #f4f2ec; /* bloque alterno */
-  --color-ink: #16141a; /* texto/titulares */
-  --color-muted: #55535c; /* secundario (7:1) */
-  --color-faint: #8b8992; /* terciario / metadatos */
-  --color-rule: rgba(22, 20, 26, 0.16); /* regla de pelo */
-  --color-rule-soft: rgba(22, 20, 26, 0.09);
+  /* ── Superficies (papel con tinte lila muy sutil) ── */
+  --color-paper: #f6f2fb; /* fondo — papel con matiz lila */
+  --color-paper-2: #ebe3f5; /* bloque alterno lila claro */
+  --color-lilac: #a190d2; /* lila de marca — bandas y acentos */
+  --color-lilac-soft: #cabce9; /* lila claro para separadores */
+  --color-ink: #1a1526; /* texto/titulares (tinta con matiz) */
+  --color-muted: #5a5568; /* secundario */
+  --color-faint: #8a8595; /* terciario / metadatos */
+  --color-rule: rgba(45, 15, 99, 0.16); /* regla de pelo (lila) */
+  --color-rule-soft: rgba(45, 15, 99, 0.09);
 
   /* ── Acento único ── */
   --color-brand: #c71e70; /* magenta — enlaces, CTA, activo */
@@ -33,8 +35,8 @@
   --color-turismo: #0e6e86;
   --color-estilo: #3b1f87;
 
-  /* tonos profundos para el bloque de suscripción */
-  --color-deep: #201436;
+  /* morado profundo para el bloque de suscripción */
+  --color-deep: #3a2170;
 
   /* ── Radios (mínimos — el print no redondea) ── */
   --radius-xs: 4px;
