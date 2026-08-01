@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 /**
  * Formulario de participación en una dinámica (captura de lead cualificado).
  * Consentimiento NO premarcado; el texto mostrado es EXACTAMENTE el que
@@ -184,13 +185,13 @@ export function DinamicaForm({
         />
         <span>
           {consentDef.text}{" "}
-          <a href="/legal/privacidad" className="underline">
+          <Link href="/legal/privacidad" className="underline">
             Política de Privacidad
-          </a>{" "}
+          </Link>{" "}
           ·{" "}
-          <a href={`/legal/bases/${slug}`} className="underline">
+          <Link href={`/legal/bases/${slug}`} className="underline">
             Bases de la dinámica
-          </a>
+          </Link>
           .
         </span>
       </label>

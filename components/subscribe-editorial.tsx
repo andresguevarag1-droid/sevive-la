@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 /**
  * Boletín — bloque de tinta plano (sin orbes ni degradados).
  * Inputs con subrayado editorial. Consentimiento NO premarcado (Ley 8968):
@@ -141,9 +142,9 @@ export function SubscribeEditorial() {
                 />
                 <span>
                   {CONSENT_NEWSLETTER.text}{" "}
-                  <a href="/legal/privacidad" className="underline">
+                  <Link href="/legal/privacidad" className="underline">
                     Política de Privacidad
-                  </a>
+                  </Link>
                   .
                 </span>
               </label>
