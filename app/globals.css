@@ -1,0 +1,139 @@
+@import "tailwindcss";
+
+/*
+  ─────────────────────────────────────────────────────────────
+  SEVIVELA · SISTEMA DE DISEÑO BASE
+  Editorial cinematográfico · dark-mode por defecto.
+  Paleta confirmada desde el manual de marca (PALETA SEVIVELA.pdf).
+  Roles de color decididos por contraste WCAG sobre el fondo #08080A:
+    - Morado #2D0F63 (1.3:1) y Petróleo #104153 (1.81:1) → SOLO superficie/gradiente.
+    - Magenta #EA2889 (4.92:1) → CTA / acción de marca.
+    - El resto → acentos e identidad por vertical.
+  ─────────────────────────────────────────────────────────────
+*/
+
+@theme {
+  /* ── Superficies (dark por defecto) ── */
+  --color-canvas: #08080a; /* fondo base — el contenido visual manda */
+  --color-surface: #121215; /* tarjetas, sheets */
+  --color-surface-2: #1c1c21; /* elevación secundaria */
+  --color-ink: #fafafa; /* texto principal */
+  --color-muted: #a1a1aa; /* texto secundario */
+  --color-line: rgba(255, 255, 255, 0.08); /* bordes sutiles */
+
+  /* ── Marca ── */
+  --color-brand: #ea2889; /* magenta — CTA / acción */
+  --color-brand-hover: #c71e70; /* magenta oscurecido — hover/pressed */
+  --color-brand-ink: #08080a; /* texto sobre superficies de marca */
+  --color-deep-purple: #2d0f63; /* estructura / gradiente — nunca texto */
+  --color-petrol: #104153; /* estructura / gradiente — nunca texto */
+
+  /* ── Estados ── */
+  --color-success: #22c55e;
+  --color-danger: #ef4444;
+  --color-warning: #ff8103; /* naranja — urgencia (countdowns, "vence en") */
+
+  /* ── Identidad por vertical (color = orientación instantánea) ── */
+  /* * gastronomía y estilo usan tintes derivados; pendiente de confirmación de la marca (brief §26 q6) */
+  --color-experiencias: #ff8103; /* naranja */
+  --color-entretenimiento: #ffec4a; /* amarillo */
+  --color-cultura: #a190d2; /* lila */
+  --color-turismo: #55a2b9; /* azul claro */
+  --color-gastronomia: #ff5c7a; /* coral derivado * */
+  --color-estilo: #8b6fd8; /* morado-light derivado * */
+
+  /* ── Radios ── */
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+  --radius-full: 9999px;
+
+  /* ── Movimiento ── */
+  --ease-brand: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* ── Tipografía (variables inyectadas por next/font en layout.tsx) ── */
+  --font-display: var(--font-archivo), "Arial Black", sans-serif;
+  --font-body: var(--font-inter), system-ui, sans-serif;
+}
+
+/* ── Reset / base ── */
+html {
+  color-scheme: dark;
+  -webkit-text-size-adjust: 100%;
+  scrollbar-color: var(--color-surface-2) transparent;
+}
+
+body {
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  min-height: 100dvh;
+}
+
+/* Titulares con la display, jerarquía audaz */
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+}
+
+/* Los inputs a 16px evitan el auto-zoom de iOS */
+input,
+textarea,
+select {
+  font-size: 16px;
+}
+
+/* ── Utilidades propias ── */
+@layer utilities {
+  /* safe-area para notch de iPhone (bottom-nav, headers, sheets) */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .pt-safe {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  /* rail horizontal con scroll-snap y sin scrollbar visible */
+  .rail {
+    display: flex;
+    gap: 0.75rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    scroll-padding-left: 1rem;
+  }
+  .rail::-webkit-scrollbar {
+    display: none;
+  }
+  .rail > * {
+    scroll-snap-align: start;
+    flex: 0 0 auto;
+  }
+
+  /* corta el texto a n líneas */
+  .clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+/* Respeta a quien pide menos movimiento */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
