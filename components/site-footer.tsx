@@ -2,6 +2,7 @@ import Link from "next/link";
 import { site, verticals } from "@/lib/site";
 
 const legal = [
+  { href: "/dinamicas", label: "Dinámicas" },
   { href: "/legal/privacidad", label: "Privacidad" },
   { href: "/legal/terminos", label: "Términos" },
   { href: "/legal/cookies", label: "Cookies" },

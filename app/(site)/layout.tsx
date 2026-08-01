@@ -1,8 +1,9 @@
 import { Masthead } from "@/components/masthead";
 import { MobileNav } from "@/components/mobile-nav";
+import { SiteFooter } from "@/components/site-footer";
 
 /**
- * Chrome del sitio público: masthead + contenido + bottom-nav móvil.
+ * Chrome del sitio público: masthead + contenido + footer + bottom-nav móvil.
  * Envuelve todas las rutas del sitio, pero NO al Studio (/studio).
  */
 export default function SiteLayout({
@@ -13,7 +14,10 @@ export default function SiteLayout({
   return (
     <>
       <Masthead />
-      <main className="min-h-dvh pb-20 md:pb-0">{children}</main>
+      <main className="min-h-dvh pb-20 md:pb-0">
+        {children}
+        <SiteFooter />
+      </main>
       <MobileNav />
     </>
   );

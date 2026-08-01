@@ -1,0 +1,18 @@
+/**
+ * Esquema Zod (v4) del alta al boletín — compartido entre cliente y servidor.
+ * El servidor SIEMPRE re-valida (regla dura del proyecto).
+ */
+import { z } from "zod";
+
+export const subscribeSchema = z.object({
+  email: z.email("Escribí un correo válido.").trim().toLowerCase().max(254),
+  firstName: z.string().trim().max(80).optional().or(z.literal("")),
+  /** Debe ser true: checkbox de consentimiento (nunca premarcado). */
+  consent: z.literal(true, "Necesitamos tu consentimiento para suscribirte."),
+  /** Token de Cloudflare Turnstile (si está habilitado). */
+  turnstileToken: z.string().optional(),
+  /** Honeypot anti-bot: debe venir vacío. */
+  website: z.literal("").optional(),
+});
+
+export type SubscribeInput = z.infer<typeof subscribeSchema>;

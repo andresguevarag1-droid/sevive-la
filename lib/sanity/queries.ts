@@ -36,9 +36,9 @@ const HOME_QUERY = /* groq */ `{
   }
 }`;
 
-/* ── Tipos crudos de Sanity ── */
-type SanityImage = { asset?: { _ref?: string } } | null | undefined;
-type RawCronica = {
+/* ── Tipos crudos de Sanity (compartidos con las queries por vertical) ── */
+export type SanityImage = { asset?: { _ref?: string } } | null | undefined;
+export type RawCronica = {
   _id: string;
   title: string;
   vertical: VerticalSlug;
@@ -48,7 +48,7 @@ type RawCronica = {
   lecturaMin?: number;
   imagen?: SanityImage;
 };
-type RawEvento = {
+export type RawEvento = {
   _id: string;
   title: string;
   vertical: VerticalSlug;
@@ -56,7 +56,7 @@ type RawEvento = {
   lugar?: string;
   imagen?: SanityImage;
 };
-type RawReel = {
+export type RawReel = {
   _id: string;
   title: string;
   vertical: VerticalSlug;
@@ -64,7 +64,7 @@ type RawReel = {
   miniatura?: SanityImage;
   videoUrl?: string;
 };
-type RawBeneficio = {
+export type RawBeneficio = {
   _id: string;
   title: string;
   vertical: VerticalSlug;
@@ -105,7 +105,7 @@ function fmtEvento(inicio: string): string {
 }
 
 /* ── Mappers: Sanity → Story (forma que ya consumen los componentes) ── */
-function cronicaToStory(c: RawCronica): Story {
+export function cronicaToStory(c: RawCronica): Story {
   const meta = c.formato || "Crónica";
   return {
     id: c._id,
@@ -118,7 +118,7 @@ function cronicaToStory(c: RawCronica): Story {
     img: urlForImage(c.imagen, 1400),
   };
 }
-function eventoToStory(e: RawEvento): Story {
+export function eventoToStory(e: RawEvento): Story {
   return {
     id: e._id,
     type: "evento",
@@ -128,7 +128,7 @@ function eventoToStory(e: RawEvento): Story {
     img: urlForImage(e.imagen, 800),
   };
 }
-function reelToStory(r: RawReel): Story {
+export function reelToStory(r: RawReel): Story {
   return {
     id: r._id,
     type: "video",
@@ -138,7 +138,7 @@ function reelToStory(r: RawReel): Story {
     img: urlForImage(r.miniatura, 600),
   };
 }
-function beneficioToStory(b: RawBeneficio): Story {
+export function beneficioToStory(b: RawBeneficio): Story {
   return {
     id: b._id,
     type: "promo",

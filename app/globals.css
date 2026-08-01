@@ -150,6 +150,46 @@ input {
     flex: 0 0 auto;
   }
 
+  /* cuerpo de texto largo (Portable Text): párrafos, títulos y enlaces */
+  .prose-editorial p {
+    margin-block: 0.9em;
+  }
+  .prose-editorial h2,
+  .prose-editorial h3 {
+    margin-block: 1.4em 0.5em;
+    font-family: var(--font-serif);
+    line-height: 1.15;
+  }
+  .prose-editorial h2 {
+    font-size: 1.5rem;
+  }
+  .prose-editorial h3 {
+    font-size: 1.2rem;
+  }
+  .prose-editorial a {
+    text-decoration: underline;
+  }
+  .prose-editorial ul,
+  .prose-editorial ol {
+    margin-block: 0.9em;
+    padding-inline-start: 1.4em;
+  }
+  .prose-editorial ul {
+    list-style: disc;
+  }
+  .prose-editorial ol {
+    list-style: decimal;
+  }
+  .prose-editorial li {
+    margin-block: 0.35em;
+  }
+  .prose-editorial blockquote {
+    margin-block: 1.2em;
+    border-inline-start: 2px solid var(--color-lilac);
+    padding-inline-start: 1em;
+    color: var(--color-muted);
+  }
+
   .clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
