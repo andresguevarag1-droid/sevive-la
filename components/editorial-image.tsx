@@ -18,7 +18,7 @@ export function EditorialImage({
 }) {
   return (
     <div
-      className={`relative overflow-hidden bg-paper-2 ${className}`}
+      className={`relative overflow-hidden rounded-[var(--radius-lg)] bg-paper-2 ${className}`}
       style={{ aspectRatio: ratio }}
     >
       {src ? (

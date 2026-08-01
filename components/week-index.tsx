@@ -14,7 +14,7 @@ export function WeekIndex({ items }: { items: Story[] }) {
           >
             <div className="min-w-0">
               <CategoryLabel vertical={s.vertical} className="mb-1" />
-              <h3 className="headline text-lg font-medium leading-snug text-ink transition-colors group-hover:text-brand">
+              <h3 className="text-lg font-semibold tracking-tight leading-snug text-ink transition-colors group-hover:text-brand">
                 {s.title}
               </h3>
             </div>

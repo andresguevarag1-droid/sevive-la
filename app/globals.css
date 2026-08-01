@@ -38,9 +38,17 @@
   /* morado profundo para el bloque de suscripción */
   --color-deep: #3a2170;
 
-  /* ── Radios (mínimos — el print no redondea) ── */
-  --radius-xs: 4px;
-  --radius-sm: 6px;
+  /* ── Radios (modernos — esquinas redondeadas) ── */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-full: 9999px;
+
+  /* elevación suave para tarjetas modernas */
+  --shadow-card: 0 1px 2px rgba(26, 21, 38, 0.04), 0 8px 24px -12px rgba(26, 21, 38, 0.18);
+  --shadow-card-hover: 0 2px 4px rgba(26, 21, 38, 0.06), 0 16px 36px -14px rgba(26, 21, 38, 0.26);
 
   /* ── Movimiento (curvas fuertes) ── */
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
@@ -67,10 +75,9 @@ body {
   min-height: 100dvh;
 }
 
-/* Titulares con la serif editorial (Fraunces) — peso moderado, no bloque */
+/* Serif editorial (Fraunces) para grandes titulares; las tarjetas usan sans (moderno) */
 h1,
 h2,
-h3,
 .headline {
   font-family: var(--font-serif);
   font-weight: 550;
@@ -171,11 +178,40 @@ input {
   .imgzoom img {
     transition: transform 600ms var(--ease-out);
   }
+
+  /* tarjeta moderna: superficie redondeada, borde sutil, elevación */
+  .card {
+    background: #ffffff;
+    border: 1px solid var(--color-rule-soft);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    transition:
+      transform 260ms var(--ease-out),
+      box-shadow 260ms var(--ease-out);
+  }
+
+  /* chip de categoría con color de vertical (tinte claro + texto de color) */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: var(--radius-full);
+    font-family: var(--font-sans);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    line-height: 1.4;
+  }
 }
 
 @media (hover: hover) and (pointer: fine) {
   .imgzoom:hover img {
     transform: scale(1.03);
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-card-hover);
   }
   .ulink {
     background-image: linear-gradient(currentColor, currentColor);
