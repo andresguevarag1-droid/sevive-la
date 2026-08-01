@@ -2,15 +2,14 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { site } from "@/lib/site";
-import { SiteHeader } from "@/components/site-header";
-import { BottomNav } from "@/components/bottom-nav";
+import { Masthead } from "@/components/masthead";
+import { MobileNav } from "@/components/mobile-nav";
 
-// Fuentes self-hosted (Fontsource) para builds deterministas y cero fetch externo.
-// Display agresiva para titulares; body legible. Ambas variables por eje de peso.
-const archivo = localFont({
-  src: "./fonts/archivo-var.woff2",
-  variable: "--font-archivo",
-  weight: "600 900",
+// Fuentes self-hosted (Fontsource) — builds deterministas, cero fetch externo.
+const fraunces = localFont({
+  src: "./fonts/fraunces-var.woff2",
+  variable: "--font-fraunces",
+  weight: "300 700",
   display: "swap",
 });
 
@@ -18,15 +17,6 @@ const inter = localFont({
   src: "./fonts/inter-var.woff2",
   variable: "--font-inter",
   weight: "100 900",
-  display: "swap",
-});
-
-// Serif editorial (solo destaques y citas — carga mínima).
-const playfair = localFont({
-  src: "./fonts/playfair-italic-var.woff2",
-  variable: "--font-playfair",
-  weight: "400 800",
-  style: "italic",
   display: "swap",
 });
 
@@ -48,11 +38,10 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#08080a",
-  colorScheme: "dark",
+  themeColor: "#fbfaf8",
+  colorScheme: "light",
   width: "device-width",
   initialScale: 1,
-  // permite pintar bajo el notch/safe-area (bottom-nav tipo app)
   viewportFit: "cover",
 };
 
@@ -62,15 +51,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="es"
-      className={`${archivo.variable} ${inter.variable} ${playfair.variable}`}
-    >
+    <html lang="es" className={`${fraunces.variable} ${inter.variable}`}>
       <body>
-        <SiteHeader />
-        {/* padding inferior deja espacio al bottom-nav móvil */}
-        <main className="min-h-dvh pb-24 md:pb-0">{children}</main>
-        <BottomNav />
+        <Masthead />
+        <main className="min-h-dvh pb-20 md:pb-0">{children}</main>
+        <MobileNav />
       </body>
     </html>
   );
