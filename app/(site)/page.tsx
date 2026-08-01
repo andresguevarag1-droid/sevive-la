@@ -11,10 +11,10 @@ import { SubscribeEditorial } from "@/components/subscribe-editorial";
 import { SearchIcon } from "@/components/icons";
 
 const quickFilters = [
-  { label: "Hoy", href: "/agenda/hoy" },
-  { label: "Este fin de semana", href: "/agenda/fin-de-semana" },
-  { label: "Gratis", href: "/agenda/gratis" },
-  { label: "Cerca de mí", href: "/agenda" },
+  { label: "Hoy", href: "/agenda?f=hoy" },
+  { label: "Este fin de semana", href: "/agenda?f=finde" },
+  { label: "Agenda completa", href: "/agenda" },
+  { label: "Dinámicas", href: "/dinamicas" },
 ];
 
 export default async function HomePage() {

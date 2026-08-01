@@ -49,7 +49,7 @@ export default async function BasesPage({
   if (!d) notFound();
 
   return (
-    <article className="mx-auto max-w-3xl px-4 py-10 md:py-14">
+    <article>
       <header className="border-b border-rule pb-6">
         <p className="label text-faint">Bases legales</p>
         <h1 className="mt-2 text-[clamp(1.8rem,5vw,2.8rem)]">{d.title}</h1>
