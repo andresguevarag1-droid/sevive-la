@@ -8,7 +8,6 @@ import { StoryCard } from "@/components/story-card";
 import { VideoRow } from "@/components/video-row";
 import { Beneficios } from "@/components/beneficios";
 import { SubscribeEditorial } from "@/components/subscribe-editorial";
-import { SiteFooter } from "@/components/site-footer";
 import { SearchIcon } from "@/components/icons";
 
 const quickFilters = [
@@ -95,9 +94,6 @@ export default async function HomePage() {
 
       {/* ── Boletín ── */}
       <SubscribeEditorial />
-
-      {/* ── Footer ── */}
-      <SiteFooter />
     </>
   );
 }
