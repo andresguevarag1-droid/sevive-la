@@ -1,0 +1,33 @@
+/**
+ * Textos de consentimiento (Ley 8968, Costa Rica) — fuente de verdad única.
+ * El MISMO texto que ve la persona en el formulario es el que se guarda en
+ * `consents.consent_text` con su versión. Si se cambia una palabra del texto,
+ * hay que subir la versión.
+ *
+ * Este archivo NO importa nada de servidor: se usa tanto en componentes
+ * cliente (para mostrar el texto) como en route handlers (para registrarlo).
+ */
+
+export type ConsentDefinition = {
+  /** Propósito registrado en la tabla `consents`. */
+  purpose: string;
+  /** Versión del texto (subir al cambiar el texto). */
+  version: string;
+  /** Texto EXACTO mostrado junto al checkbox (nunca premarcado). */
+  text: string;
+};
+
+export const CONSENT_NEWSLETTER: ConsentDefinition = {
+  purpose: "newsletter",
+  version: "2026-08-01.v1",
+  text: "Acepto que SeViveLa trate mis datos personales (correo electrónico y nombre) para enviarme su boletín con contenido y beneficios, según su Política de Privacidad. Puedo darme de baja en cualquier momento.",
+};
+
+/** Consentimiento de participación en dinámica; el purpose lleva el slug. */
+export function consentDinamica(slug: string): ConsentDefinition {
+  return {
+    purpose: `dinamica:${slug}`,
+    version: "2026-08-01.v1",
+    text: "Acepto que SeViveLa trate mis datos personales (nombre, correo electrónico y teléfono) para gestionar mi participación en esta dinámica, contactarme si resulto ganador(a) y enviarme información relacionada, según su Política de Privacidad y las bases de la dinámica. La participación es gratuita y puedo solicitar la eliminación de mis datos en cualquier momento.",
+  };
+}
