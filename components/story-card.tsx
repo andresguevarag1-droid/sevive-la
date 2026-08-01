@@ -14,7 +14,7 @@ export function StoryCard({ story }: { story: Story }) {
       <div className="pt-3.5">
         <CategoryLabel vertical={story.vertical} type={story.type} />
         <Link href={href} className="mt-2 block">
-          <h3 className="headline text-xl font-medium leading-snug text-ink transition-colors hover:text-brand">
+          <h3 className="text-xl font-bold tracking-tight leading-snug text-ink transition-colors hover:text-brand">
             {story.title}
           </h3>
         </Link>

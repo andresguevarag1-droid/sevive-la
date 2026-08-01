@@ -13,7 +13,7 @@ export function Beneficios({ items }: { items: Story[] }) {
           >
             <div className="min-w-0">
               <span className="label text-faint">{b.author}</span>
-              <h3 className="headline text-lg font-medium leading-snug text-ink transition-colors group-hover:text-brand">
+              <h3 className="text-lg font-semibold tracking-tight leading-snug text-ink transition-colors group-hover:text-brand">
                 {b.title}
               </h3>
             </div>
