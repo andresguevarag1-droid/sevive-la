@@ -63,7 +63,7 @@ export function SubscribeEditorial() {
   }
 
   return (
-    <section className="px-4 py-12 md:py-16">
+    <section id="boletin" className="scroll-mt-20 px-4 py-12 md:py-16">
       <div
         className="mx-auto max-w-6xl rounded-[var(--radius-xl)] px-6 py-12 text-paper md:px-14 md:py-16"
         style={{ background: "var(--color-deep)" }}

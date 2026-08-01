@@ -12,6 +12,7 @@ export const structure: StructureResolver = (S) =>
       S.documentTypeListItem("reel").title("Reels / Videos"),
       S.documentTypeListItem("evento").title("Agenda / Eventos"),
       S.documentTypeListItem("beneficio").title("Beneficios / Promos"),
+      S.documentTypeListItem("dinamica").title("Dinámicas / Giveaways"),
       S.documentTypeListItem("lugar").title("Lugares"),
       S.documentTypeListItem("galeria").title("Galerías"),
     ]);
