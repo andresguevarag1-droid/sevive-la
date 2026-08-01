@@ -79,6 +79,25 @@ export function ArrowRightIcon(p: IconProps) {
   );
 }
 
+export function InstagramIcon(p: IconProps) {
+  return (
+    <svg {...base} {...p}>
+      <rect x="3" y="3" width="18" height="18" rx="5" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="17.2" cy="6.8" r="0.6" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+export function TikTokIcon(p: IconProps) {
+  return (
+    <svg {...base} {...p}>
+      <path d="M14.5 4v9.8a3.8 3.8 0 1 1-3.2-3.76" />
+      <path d="M14.5 5.5c.6 2.3 2.3 3.9 4.5 4.2" />
+    </svg>
+  );
+}
+
 /** Mapa nombre → componente, para datos declarativos (bottomNav). */
 export const iconMap = {
   home: HomeIcon,

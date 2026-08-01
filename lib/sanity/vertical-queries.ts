@@ -40,7 +40,7 @@ const VERTICAL_QUERY = /* groq */ `{
     _id, title, vertical, duracion, miniatura, videoUrl
   },
   "beneficios": *[_type == "beneficio" && vertical == $vertical] | order(orden asc, _createdAt desc)[0...6]{
-    _id, title, vertical, marca, detalle
+    _id, title, vertical, marca, detalle, patrocinado
   },
   "lugares": *[_type == "lugar" && vertical == $vertical] | order(_createdAt desc)[0...6]{
     _id, title, vertical, ubicacion, imagen

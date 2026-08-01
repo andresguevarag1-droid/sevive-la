@@ -1,48 +1,120 @@
 import Link from "next/link";
-import { site, verticals } from "@/lib/site";
+import { site, verticals, socialLinks } from "@/lib/site";
+import { InstagramIcon, TikTokIcon } from "@/components/icons";
 
-const legal = [
-  { href: "/dinamicas", label: "Dinámicas" },
-  { href: "/legal/privacidad", label: "Privacidad" },
-  { href: "/legal/terminos", label: "Términos" },
-  { href: "/legal/cookies", label: "Cookies" },
-  { href: "/marcas", label: "Marcas" },
-  { href: "/nosotros", label: "Nosotros" },
+const columnas: { titulo: string; links: { href: string; label: string }[] }[] = [
+  {
+    titulo: "Secciones",
+    links: verticals.map((v) => ({ href: `/${v.slug}`, label: v.name })),
+  },
+  {
+    titulo: "Comunidad",
+    links: [
+      { href: "/dinamicas", label: "Dinámicas" },
+      { href: "/agenda", label: "Agenda" },
+      { href: "/videos", label: "Videos" },
+      { href: "/promociones", label: "Beneficios" },
+      { href: "/#boletin", label: "Boletín" },
+    ],
+  },
+  {
+    titulo: "SeViveLa",
+    links: [
+      { href: "/nosotros", label: "Nosotros" },
+      { href: "/marcas", label: "Para marcas" },
+      { href: "/legal/privacidad", label: "Privacidad" },
+      { href: "/legal/terminos", label: "Términos" },
+      { href: "/legal/cookies", label: "Cookies" },
+    ],
+  },
 ];
 
+const socialIcons = {
+  instagram: InstagramIcon,
+  tiktok: TikTokIcon,
+} as const;
+
+/**
+ * Footer de tinta: cierre editorial oscuro con tagline serif grande,
+ * columnas tituladas, redes sociales y colofón. Texto papel sobre tinta.
+ */
 export function SiteFooter() {
   return (
-    <footer className="border-t border-ink px-4 py-12">
+    <footer
+      className="mt-12 px-4 pb-10 pt-12 text-paper md:pt-16"
+      style={{ background: "var(--color-ink)" }}
+    >
       <div className="mx-auto max-w-6xl">
-        <div className="flex flex-col gap-8 md:flex-row md:items-start md:justify-between">
-          <div className="max-w-xs">
+        {/* ── Marca + tagline ── */}
+        <div className="grid gap-10 md:grid-cols-[1.2fr_2fr] md:gap-16">
+          <div>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo.svg" alt="SeViveLa" width={40} height={40} className="h-9 w-9" />
-            <p className="mt-3 text-sm leading-relaxed text-muted">
+            <img
+              src="/logo.svg"
+              alt="SeViveLa"
+              width={44}
+              height={44}
+              className="h-10 w-10 invert"
+            />
+            <p className="headline mt-5 text-[clamp(1.6rem,3.5vw,2.2rem)] leading-tight text-paper">
+              {site.tagline}
+            </p>
+            <p className="mt-3 max-w-xs text-sm leading-relaxed text-paper/60">
               Guía viva de experiencias, cultura y gastronomía de Costa Rica.
             </p>
+
+            {/* redes sociales */}
+            <div className="mt-6 flex gap-2">
+              {socialLinks.map((s) => {
+                const Icon = socialIcons[s.icon];
+                return (
+                  <a
+                    key={s.name}
+                    href={s.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`${site.name} en ${s.name}`}
+                    className="pressable flex h-11 w-11 items-center justify-center rounded-full border border-paper/20 text-paper/80 transition-colors hover:border-paper/50 hover:text-paper"
+                  >
+                    <Icon width={19} height={19} />
+                  </a>
+                );
+              })}
+            </div>
           </div>
 
-          <nav className="grid grid-cols-2 gap-x-12 gap-y-2 text-sm">
-            {verticals.map((v) => (
-              <Link key={v.slug} href={`/${v.slug}`} className="ulink text-ink/80 hover:text-ink">
-                {v.name}
-              </Link>
-            ))}
-          </nav>
-
-          <nav className="flex flex-col gap-2 text-sm">
-            {legal.map((l) => (
-              <Link key={l.href} href={l.href} className="ulink text-muted hover:text-ink">
-                {l.label}
-              </Link>
+          {/* ── Columnas de navegación ── */}
+          <nav
+            aria-label="Mapa del sitio"
+            className="grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-3"
+          >
+            {columnas.map((col) => (
+              <div key={col.titulo}>
+                <p className="label text-paper/40">{col.titulo}</p>
+                <ul className="mt-4 space-y-2.5">
+                  {col.links.map((l) => (
+                    <li key={l.href}>
+                      <Link
+                        href={l.href}
+                        className="ulink text-sm text-paper/80 hover:text-paper"
+                      >
+                        {l.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             ))}
           </nav>
         </div>
 
-        <p className="label mt-10 text-faint">
-          © {new Date().getFullYear()} {site.name} · Hecho en Costa Rica
-        </p>
+        {/* ── Colofón ── */}
+        <div className="mt-12 flex flex-col gap-2 border-t border-paper/15 pt-6 md:flex-row md:items-baseline md:justify-between">
+          <p className="label text-paper/40">
+            © {new Date().getFullYear()} {site.name} · Hecho en Costa Rica
+          </p>
+          <p className="label text-paper/40">Descubrí qué vivir</p>
+        </div>
       </div>
     </footer>
   );

@@ -78,6 +78,12 @@ export const verticals: Vertical[] = [
   },
 ];
 
+/** Redes sociales de la marca (confirmar handles con el equipo). */
+export const socialLinks = [
+  { name: "Instagram", href: "https://www.instagram.com/sevive.la", icon: "instagram" },
+  { name: "TikTok", href: "https://www.tiktok.com/@sevive.la", icon: "tiktok" },
+] as const;
+
 /** Ítems del bottom-nav móvil (tipo app). Orden = orden en pantalla. */
 export const bottomNav = [
   { href: "/", label: "Inicio", icon: "home" },

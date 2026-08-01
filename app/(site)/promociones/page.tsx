@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getBeneficiosTodos } from "@/lib/sanity/listados";
-import { CategoryLabel } from "@/components/kicker";
+import { Beneficios } from "@/components/beneficios";
 
 export const metadata: Metadata = {
   title: "Beneficios",
@@ -34,29 +34,11 @@ export default async function PromocionesPage() {
           </h2>
         </div>
       ) : (
-        <ul className="mt-8 border-t border-rule">
-          {beneficios.map((b) => (
-            <li key={b.id} className="border-b border-rule py-4">
-              <div className="flex items-baseline justify-between gap-6">
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <CategoryLabel vertical={b.vertical} />
-                    {b.patrocinado ? (
-                      <span className="label text-faint">Patrocinado</span>
-                    ) : null}
-                  </div>
-                  {b.author ? (
-                    <p className="label mt-2 text-faint">{b.author}</p>
-                  ) : null}
-                  <h2 className="mt-1 text-lg font-semibold tracking-tight leading-snug text-ink">
-                    {b.title}
-                  </h2>
-                </div>
-                <span className="label tnum shrink-0 text-brand">{b.meta}</span>
-              </div>
-            </li>
-          ))}
-        </ul>
+        <div className="mt-8">
+          <Beneficios
+            items={beneficios.map((b) => ({ ...b, sponsored: b.patrocinado }))}
+          />
+        </div>
       )}
     </section>
   );

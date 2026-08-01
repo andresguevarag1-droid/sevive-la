@@ -32,7 +32,7 @@ const HOME_QUERY = /* groq */ `{
     _id, title, vertical, duracion, miniatura, videoUrl
   },
   "beneficios": *[_type == "beneficio"] | order(orden asc, _createdAt desc)[0...6]{
-    _id, title, vertical, marca, detalle
+    _id, title, vertical, marca, detalle, patrocinado
   }
 }`;
 
@@ -70,6 +70,7 @@ export type RawBeneficio = {
   vertical: VerticalSlug;
   marca?: string;
   detalle?: string;
+  patrocinado?: boolean;
 };
 type RawHome = {
   portada: RawCronica | null;
@@ -146,6 +147,7 @@ export function beneficioToStory(b: RawBeneficio): Story {
     title: b.title,
     author: b.marca,
     meta: b.detalle || "",
+    sponsored: b.patrocinado,
   };
 }
 
