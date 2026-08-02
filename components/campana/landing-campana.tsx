@@ -71,10 +71,7 @@ export function CampanaLanding({
       >
         <div className="mx-auto grid max-w-4xl items-center gap-6 px-4 py-10 md:grid-cols-[1.4fr_1fr] md:py-12">
           <div>
-            <span
-              className="label inline-block rounded-full px-3.5 py-1.5 text-white"
-              style={{ background: "#3b1f87" }}
-            >
+            <span className="label inline-block rounded-full bg-lilac px-3.5 py-1.5 text-ink">
               Dinámica · Participá gratis
             </span>
             <h1 className="mt-4 font-sans text-[clamp(2rem,6vw,3.4rem)] font-black uppercase leading-[0.95] tracking-tight text-white [text-wrap:balance]">
