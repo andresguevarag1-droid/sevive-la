@@ -15,13 +15,13 @@ const FLYER_PALETTE: Record<
 > = {
   experiencias: {
     bg: "#f7941d", // naranja
-    text: "var(--color-ink)",
-    sub: "rgba(26,21,38,0.78)",
+    text: "#ffffff",
+    sub: "rgba(255,255,255,0.92)",
   },
   entretenimiento: {
     bg: "#ffd200", // amarillo
-    text: "var(--color-ink)",
-    sub: "rgba(26,21,38,0.78)",
+    text: "#ffffff",
+    sub: "rgba(255,255,255,0.95)",
   },
   cultura: {
     bg: "#7a1f6e", // morado
@@ -35,8 +35,8 @@ const FLYER_PALETTE: Record<
   },
   turismo: {
     bg: "#a190d2", // lila de marca
-    text: "var(--color-ink)",
-    sub: "rgba(26,21,38,0.78)",
+    text: "#ffffff",
+    sub: "rgba(255,255,255,0.92)",
   },
   "estilo-de-vida": {
     bg: "#c71e70", // magenta
