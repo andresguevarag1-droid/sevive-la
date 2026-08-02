@@ -96,8 +96,10 @@ const at = (days, hour = 18) => {
   return d.toISOString();
 };
 /** Fecha fija "YYYY-MM-DD" a la hora CR dada (por defecto mediodía). */
-const el = (ymd, hourCR = 12) =>
-  new Date(`${ymd}T${String(hourCR + 6).padStart(2, "0")}:00:00.000Z`).toISOString();
+const el = (ymd, hourCR = 12, minCR = 0) =>
+  new Date(
+    `${ymd}T${String(hourCR + 6).padStart(2, "0")}:${String(minCR).padStart(2, "0")}:00.000Z`
+  ).toISOString();
 
 async function run() {
   console.log(`Sembrando en ${projectId}/${dataset}…`);
@@ -250,63 +252,86 @@ async function run() {
       imagen: imageRef(img.street, "Mercado urbano de diseño con puestos"),
     },
 
-    /* ── Agenda real de agosto 2026 (investigada; sin inventar horas/precios:
-          horaPorConfirmar=true y sin precioDesde cuando no hay dato oficial) ── */
+    /* ── Agenda real de agosto 2026 (fechas y horas verificadas en fuentes
+          públicas; donde no hay hora oficial: horaPorConfirmar=true.
+          Sin inventar precios: precioDesde solo con dato verificado) ── */
     ...[
       {
         id: "arjona-seco-tour",
         title: "Ricardo Arjona — Seco Tour",
         vertical: "entretenimiento",
-        inicio: el("2026-08-14"),
-        fin: el("2026-08-15", 23),
+        inicio: el("2026-08-14", 19),
+        fin: el("2026-08-15", 22),
+        horaConfirmada: true,
         lugar: "Estadio Nacional, La Sabana",
         descripcion: "La gira 'Seco Tour' del cantautor guatemalteco, con dos fechas en San José.",
-        enlace: "https://www.eticket.cr",
+        cuerpo: [
+          "Dos funciones: viernes 14 y sábado 15 de agosto, ambas a las 7:00 p.m. La segunda fecha se abrió tras agotarse la primera.",
+        ],
+        enlace: "https://www.eticket.cr/masinformacion.aspx?idevento=9175",
       },
       {
         id: "romeo-santos-prince-royce",
         title: "Romeo Santos & Prince Royce",
         vertical: "entretenimiento",
-        inicio: el("2026-08-18"),
+        inicio: el("2026-08-18", 19),
+        horaConfirmada: true,
         lugar: "Estadio Nacional, La Sabana",
         descripcion: "Gira conjunta 'Mejor Tarde Que Nunca Tour 2026': una noche entera de bachata.",
-        enlace: "https://www.eticket.cr",
+        cuerpo: ["Martes 18 de agosto, 7:00 p.m., en el Estadio Nacional."],
+        enlace: "https://www.eticket.cr/masinformacion.aspx?idevento=9321",
+        precioDesde: "Desde ₡41.700",
       },
       {
         id: "yandel-sinfonico",
         title: "Yandel Sinfónico",
         vertical: "entretenimiento",
-        inicio: el("2026-08-30"),
+        inicio: el("2026-08-30", 19),
+        horaConfirmada: true,
         lugar: "Parque Viva, Alajuela",
-        descripcion: "Los éxitos de Yandel en formato sinfónico. Apto para mayores de 12 años.",
-        enlace: "https://www.eticket.cr",
+        descripcion: "Los éxitos de Yandel reinterpretados con orquesta. Apto para mayores de 12 años.",
+        cuerpo: [
+          "Domingo 30 de agosto, 7:00 p.m. Yandel repasa su carrera acompañado por una orquesta sinfónica. Evento para mayores de 12 años.",
+        ],
+        enlace: "https://www.eticket.cr/masinformacion.aspx?idevento=9429",
       },
       {
         id: "greeicy-candela",
         title: "Greeicy — Candela World Tour",
         vertical: "entretenimiento",
-        inicio: el("2026-08-29"),
+        inicio: el("2026-08-29", 19),
+        horaConfirmada: true,
         lugar: "Centro de Eventos Pedregal, Belén",
         descripcion: "La gira mundial 'Candela' de la artista colombiana: pop y urbano.",
-        enlace: "https://www.eticket.cr",
+        cuerpo: ["Sábado 29 de agosto, 7:00 p.m., en el Centro de Eventos Pedregal."],
+        enlace: "https://www.eticket.cr/masinformacion.aspx?idevento=9419",
       },
       {
         id: "expovino",
         title: "EXPOVINO",
         vertical: "gastronomia",
-        inicio: el("2026-08-28"),
-        fin: el("2026-08-29", 22),
+        inicio: el("2026-08-28", 15),
+        fin: el("2026-08-29", 21),
+        horaConfirmada: true,
         lugar: "Centro de Convenciones de Costa Rica",
-        descripcion: "La feria del vino: catas, bodegas internacionales y maridajes (día institucional: 27 de agosto).",
+        descripcion: "La feria del vino: más de 500 bodegas, catas y maridajes. Viernes y sábado de 3 a 9 p.m.",
+        cuerpo: [
+          "Viernes 28 y sábado 29 de agosto, de 3:00 p.m. a 9:00 p.m. (jueves 27 exclusivo para compradores profesionales, de 2:00 a 8:00 p.m.).",
+          "La entrada incluye una copa para recorrer libremente más de 500 bodegas representadas por más de 25 distribuidores e importadores.",
+        ],
         enlace: "https://expovinocr.com",
       },
       {
         id: "ballet-gala-fragmentos",
         title: "Ballet Nacional — Gala Fragmentos",
         vertical: "cultura",
-        inicio: el("2026-08-29"),
+        inicio: el("2026-08-29", 19),
+        horaConfirmada: true,
         lugar: "Teatro Melico Salazar",
         descripcion: "Fragmentos de 'El lago de los cisnes', 'Don Quijote' y 'El corsario', con bailarines invitados del American Ballet Theatre.",
+        cuerpo: [
+          "Sábado 29 de agosto, 7:00 p.m., en el marco del Festival Internacional de Ballet en el Teatro Popular Melico Salazar.",
+        ],
         enlace: "https://tiquetshow.cr",
       },
       {
@@ -314,10 +339,15 @@ async function run() {
         title: "Orquesta Sinfónica Nacional — VII Concierto de Temporada",
         vertical: "cultura",
         inicio: el("2026-08-21"),
+        fin: el("2026-08-23", 13),
         lugar: "Teatro Nacional",
-        descripcion: "La temporada oficial 2026 de la OSN en el Teatro Nacional.",
+        descripcion: "La temporada oficial 2026 de la OSN, dedicada a las playas de Costa Rica.",
+        cuerpo: [
+          "Funciones el viernes 21 y el domingo 23 de agosto en el Teatro Nacional. Horarios en la boletería oficial.",
+        ],
         enlace: "https://www.teatronacional.go.cr",
         organizador: "Orquesta Sinfónica Nacional",
+        precioDesde: "Desde ₡2.200",
       },
       {
         id: "mujercitas-teatro",
@@ -326,26 +356,37 @@ async function run() {
         inicio: el("2026-08-08"),
         fin: el("2026-08-09", 21),
         lugar: "Teatro Nacional",
-        descripcion: "Adaptación teatral del clásico de Louisa May Alcott.",
-        enlace: "https://www.teatronacional.go.cr",
+        descripcion: "La adaptación teatral del clásico de Louisa May Alcott, en nueva temporada.",
+        cuerpo: [
+          "Las aventuras de las hermanas March en el escenario del Teatro Nacional. Funciones el fin de semana del 8 y 9 de agosto; horarios en la boletería oficial.",
+        ],
+        enlace: "https://boleteria.teatronacional.go.cr",
       },
       {
         id: "musica-inclusiva-sifais",
         title: "Música Inclusiva en Concierto — SIFAIS",
         vertical: "entretenimiento",
-        inicio: el("2026-08-13"),
-        lugar: "Parque Viva, Alajuela",
-        descripcion: "Concierto benéfico de SIFAIS con Debi Nova, Gandhi, Malpaís y más artistas nacionales.",
-        organizador: "SIFAIS",
+        inicio: el("2026-08-13", 19, 30),
+        horaConfirmada: true,
+        lugar: "Anfiteatro Coca-Cola, Parque Viva",
+        descripcion: "Concierto benéfico por los 15 años de SIFAIS con Debi Nova, Gandhi, Malpaís y 150 músicos de La Carpio.",
+        cuerpo: [
+          "Jueves 13 de agosto, 7:30 p.m. Debi Nova, Gandhi y Malpaís comparten escenario por primera vez, junto a 150 músicos formados en los programas de la Fundación SIFAIS y la banda Balance.",
+          "Lo recaudado apoya la educación musical en comunidades en riesgo social.",
+        ],
+        enlace: "https://www.eticket.cr/masinformacion.aspx?idevento=9467",
+        organizador: "Fundación SIFAIS",
       },
       {
         id: "blessd-parque-viva",
         title: "BLESSD",
         vertical: "entretenimiento",
-        inicio: el("2026-08-08"),
+        inicio: el("2026-08-08", 19),
+        horaConfirmada: true,
         lugar: "Parque Viva, Alajuela",
-        descripcion: "El artista urbano colombiano llega con su reggaetón y trap.",
-        enlace: "https://www.eticket.cr",
+        descripcion: "El artista urbano colombiano llega con su reggaetón y trap. Para mayores de 15 años.",
+        cuerpo: ["Sábado 8 de agosto, 7:00 p.m. Evento para mayores de 15 años."],
+        enlace: "https://www.eticket.cr/masinformacion.aspx?idevento=9366",
       },
       {
         id: "safe-and-sound",
@@ -360,7 +401,7 @@ async function run() {
         title: "Final Miss Grand Costa Rica",
         vertical: "entretenimiento",
         inicio: el("2026-08-12"),
-        lugar: "Museo de los Niños",
+        lugar: "Auditorio Nacional, Museo de los Niños",
         descripcion: "La noche final del certamen nacional.",
       },
       {
@@ -396,14 +437,17 @@ async function run() {
       vertical: e.vertical,
       inicio: e.inicio,
       ...(e.fin ? { fin: e.fin } : {}),
-      horaPorConfirmar: true,
+      horaPorConfirmar: !e.horaConfirmada,
       lugar: e.lugar,
       descripcion: e.descripcion,
       cuerpo: [
-        block(e.descripcion),
-        block("Horario exacto y condiciones: confirmar con el organizador o en el punto de venta oficial."),
+        ...(e.cuerpo ?? [e.descripcion]).map((t) => block(t)),
+        ...(e.horaConfirmada
+          ? []
+          : [block("Horario exacto y condiciones: confirmar con el organizador o en el punto de venta oficial.")]),
       ],
       ...(e.enlace ? { enlace: e.enlace } : {}),
+      ...(e.precioDesde ? { precioDesde: e.precioDesde } : {}),
       ...(e.organizador ? { organizador: e.organizador } : {}),
     })),
 
