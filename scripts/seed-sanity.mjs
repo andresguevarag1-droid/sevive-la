@@ -96,10 +96,12 @@ const at = (days, hour = 18) => {
   return d.toISOString();
 };
 /** Fecha fija "YYYY-MM-DD" a la hora CR dada (por defecto mediodía). */
-const el = (ymd, hourCR = 12, minCR = 0) =>
-  new Date(
-    `${ymd}T${String(hourCR + 6).padStart(2, "0")}:${String(minCR).padStart(2, "0")}:00.000Z`
-  ).toISOString();
+const el = (ymd, hourCR = 12, minCR = 0) => {
+  const d = new Date(`${ymd}T00:00:00.000Z`);
+  // hora CR = UTC-6; setUTCHours rueda al día siguiente cuando pasa de 24
+  d.setUTCHours(hourCR + 6, minCR, 0, 0);
+  return d.toISOString();
+};
 
 async function run() {
   console.log(`Sembrando en ${projectId}/${dataset}…`);
