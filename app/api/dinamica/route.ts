@@ -37,7 +37,6 @@ async function ensureDynamicRow(
         vertical: d.vertical,
         starts_at: d.inicio,
         ends_at: d.cierre,
-        status: "live",
       },
       { onConflict: "slug" }
     )
@@ -134,6 +133,13 @@ export async function POST(req: Request) {
       source: "dinamica",
     });
 
+    // Consentimiento ANTES de la entry: la PII nunca queda sin su prueba
+    // (Ley 8968), ni siquiera si un reintento cae en el camino de duplicado.
+    await recordConsent(db, personId, consentDinamica(dinamica.slug), {
+      ip,
+      userAgent,
+    });
+
     const dynamicId = await ensureDynamicRow(db, dinamica);
 
     // Una participación por persona: el unique (dynamic_id, person_id) manda.
@@ -150,10 +156,6 @@ export async function POST(req: Request) {
       throw entryErr;
     }
 
-    await recordConsent(db, personId, consentDinamica(dinamica.slug), {
-      ip,
-      userAgent,
-    });
     await declareInterest(db, personId, dinamica.vertical, 3);
   } catch (err) {
     console.error("[dinamica] error guardando participación:", err);

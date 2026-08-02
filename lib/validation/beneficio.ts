@@ -10,7 +10,7 @@ export const reclamarSchema = z.object({
     .min(1)
     .max(96)
     .regex(/^[a-z0-9-]+$/, "Beneficio inválido."),
-  email: z.email("Escribí un correo válido.").trim().toLowerCase().max(120),
+  email: z.string().trim().toLowerCase().max(120).pipe(z.email("Escribí un correo válido.")),
   /** Checkbox de consentimiento: obligatorio, nunca premarcado. */
   consent: z.literal(true, "Necesitamos tu consentimiento para emitir el cupón."),
   turnstileToken: z.string().optional(),

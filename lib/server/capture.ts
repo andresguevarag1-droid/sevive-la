@@ -14,6 +14,12 @@ export type PersonInput = {
   phone?: string;
   /** 'boletin' | 'dinamica' | ... — solo se fija al crear la persona. */
   source: string;
+  /**
+   * Reactivar a una persona dada de baja SOLO cuando vuelve a suscribirse
+   * al boletín (nunca desde dinámicas/cupones: sería spam sin consentimiento
+   * para ese fin). 'pending' cuando hay doble opt-in.
+   */
+  reactivateTo?: "active" | "pending";
 };
 
 export type UpsertResult = {
@@ -32,46 +38,20 @@ export async function upsertPerson(
   db: SupabaseClient,
   input: PersonInput & { initialStatus?: "active" | "pending" }
 ): Promise<UpsertResult> {
-  const { data: existing, error: findErr } = await db
-    .from("people")
-    .select("id, first_name, phone, status")
-    .eq("email", input.email)
-    .maybeSingle();
+  const buscar = () =>
+    db
+      .from("people")
+      .select("id, first_name, phone, status")
+      .eq("email", input.email)
+      .maybeSingle();
+
+  const { data: found, error: findErr } = await buscar();
   if (findErr) throw findErr;
+  let existing = found;
 
-  if (existing) {
-    const patch: Record<string, unknown> = {};
-    if (!existing.first_name && input.firstName) patch.first_name = input.firstName;
-    if (!existing.phone && input.phone) patch.phone = input.phone;
-    // Reactivar si estaba de baja y vuelve a dejarnos sus datos.
-    if (existing.status === "unsubscribed") patch.status = "active";
-    if (Object.keys(patch).length > 0) {
-      const { error } = await db.from("people").update(patch).eq("id", existing.id);
-      if (error) throw error;
-    }
-    return {
-      id: existing.id as string,
-      created: false,
-      status: (patch.status as string) ?? (existing.status as string),
-    };
-  }
-
-  let status = input.initialStatus ?? "active";
-  let inserted = await db
-    .from("people")
-    .insert({
-      email: input.email,
-      first_name: input.firstName || null,
-      phone: input.phone || null,
-      source: input.source,
-      status,
-    })
-    .select("id")
-    .single();
-  // Si la migración 0003 (status 'pending') aún no se aplicó, degradar a 'active'.
-  if (inserted.error?.code === "23514" && status === "pending") {
-    status = "active";
-    inserted = await db
+  if (!existing) {
+    let status = input.initialStatus ?? "active";
+    let inserted = await db
       .from("people")
       .insert({
         email: input.email,
@@ -82,9 +62,48 @@ export async function upsertPerson(
       })
       .select("id")
       .single();
+    // Si la migración 0003 (status 'pending') aún no se aplicó, degradar a 'active'.
+    if (inserted.error?.code === "23514" && status === "pending") {
+      status = "active";
+      inserted = await db
+        .from("people")
+        .insert({
+          email: input.email,
+          first_name: input.firstName || null,
+          phone: input.phone || null,
+          source: input.source,
+          status,
+        })
+        .select("id")
+        .single();
+    }
+    if (!inserted.error) {
+      return { id: inserted.data.id as string, created: true, status };
+    }
+    if (inserted.error.code !== "23505") throw inserted.error;
+    // Carrera (doble tap): otro request creó a la persona — recuperarla.
+    const { data: again, error: againErr } = await buscar();
+    if (againErr) throw againErr;
+    if (!again) throw inserted.error;
+    existing = again;
   }
-  if (inserted.error) throw inserted.error;
-  return { id: inserted.data.id as string, created: true, status };
+
+  const patch: Record<string, unknown> = {};
+  if (!existing.first_name && input.firstName) patch.first_name = input.firstName;
+  if (!existing.phone && input.phone) patch.phone = input.phone;
+  // La baja se respeta: solo el flujo del boletín puede reactivar.
+  if (existing.status === "unsubscribed" && input.reactivateTo) {
+    patch.status = input.reactivateTo;
+  }
+  if (Object.keys(patch).length > 0) {
+    const { error } = await db.from("people").update(patch).eq("id", existing.id);
+    if (error) throw error;
+  }
+  return {
+    id: existing.id as string,
+    created: false,
+    status: (patch.status as string) ?? (existing.status as string),
+  };
 }
 
 /** Registra la prueba de consentimiento (texto exacto, versión, IP, UA). */

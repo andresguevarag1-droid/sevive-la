@@ -80,6 +80,8 @@ export function FormParticipacion({
   const [referralUrl, setReferralUrl] = useState("");
   const [contador, setContador] = useState<{ referrals: number; chances: number } | null>(null);
   const [copiado, setCopiado] = useState(false);
+  const [puedeCompartir, setPuedeCompartir] = useState(false);
+  const [restaurado, setRestaurado] = useState(false);
 
   const consentDef = consentParticipacion(campaignSlug);
   const claveLocal = `sv_refcode_${campaignSlug}`;
@@ -96,30 +98,42 @@ export function FormParticipacion({
           setReferralCode(code);
           setReferralUrl(url);
           setYaParticipaba(true);
+          setRestaurado(true);
           setStatus("ok");
         }
       }
     } catch {
       /* localStorage bloqueado (webview estricta): sin memoria, sin drama */
     }
+    setPuedeCompartir(typeof navigator !== "undefined" && "share" in navigator);
     // Solo al montar.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Contador en vivo de referidos cuando hay código.
+  // Contador en vivo: al montar, al volver a la pestaña y cada 30s.
   useEffect(() => {
     if (status !== "ok" || !referralCode) return;
     let cancelado = false;
-    fetch(`/api/dinamica/chances?slug=${campaignSlug}&code=${referralCode}`)
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        if (!cancelado && data?.ok) {
-          setContador({ referrals: data.referrals, chances: data.chances });
-        }
-      })
-      .catch(() => {});
+    const consultar = () => {
+      fetch(`/api/dinamica/chances?slug=${campaignSlug}&code=${referralCode}`)
+        .then((r) => (r.ok ? r.json() : null))
+        .then((data) => {
+          if (!cancelado && data?.ok) {
+            setContador({ referrals: data.referrals, chances: data.chances });
+          }
+        })
+        .catch(() => {});
+    };
+    consultar();
+    const alVolver = () => {
+      if (document.visibilityState === "visible") consultar();
+    };
+    const intervalo = setInterval(consultar, 30000);
+    document.addEventListener("visibilitychange", alVolver);
     return () => {
       cancelado = true;
+      clearInterval(intervalo);
+      document.removeEventListener("visibilitychange", alVolver);
     };
   }, [status, referralCode, campaignSlug]);
 
@@ -230,9 +244,8 @@ export function FormParticipacion({
 
   if (status === "ok") {
     /* ── Éxito / duplicado, con motor de referidos ── */
-    const mensajeWhatsApp = encodeURIComponent(
-      `¡Estoy participando por ${premio ?? "un premio"} en @sevive.la! Entrá con mi link y los dos sumamos chances 👉 ${referralUrl}`
-    );
+    const mensajeCompartir = `¡Estoy participando por ${premio ?? "un premio"} en @sevive.la! Entrá con mi link y los dos sumamos chances 👉 ${referralUrl}`;
+    const mensajeWhatsApp = encodeURIComponent(mensajeCompartir);
     const copiarLink = async () => {
       try {
         await navigator.clipboard.writeText(referralUrl);
@@ -243,11 +256,9 @@ export function FormParticipacion({
       }
     };
     const compartir = () => {
-      if (navigator.share) {
-        navigator
-          .share({ title: "SeViveLa", text: mensajeWhatsApp ? undefined : "", url: referralUrl })
-          .catch(() => {});
-      }
+      navigator
+        .share({ title: "SeViveLa", text: mensajeCompartir, url: referralUrl })
+        .catch(() => {});
     };
 
     return (
@@ -283,7 +294,7 @@ export function FormParticipacion({
                 value={referralUrl}
                 aria-label="Tu link personal"
                 onFocus={(e) => e.currentTarget.select()}
-                className="tnum w-full bg-transparent text-[13px] text-ink outline-none"
+                className="tnum w-full bg-transparent text-base text-ink outline-none"
               />
               <button
                 type="button"
@@ -305,13 +316,15 @@ export function FormParticipacion({
               >
                 Compartir por WhatsApp
               </a>
-              <button
-                type="button"
-                onClick={compartir}
-                className="pressable rounded-[var(--radius-full)] border border-ink px-5 py-3 text-sm font-bold text-ink"
-              >
-                Compartir…
-              </button>
+              {puedeCompartir ? (
+                <button
+                  type="button"
+                  onClick={compartir}
+                  className="pressable rounded-[var(--radius-full)] border border-ink px-5 py-3 text-sm font-bold text-ink"
+                >
+                  Compartir…
+                </button>
+              ) : null}
             </div>
 
             {/* contador en vivo */}
@@ -340,6 +353,30 @@ export function FormParticipacion({
           <InstagramIcon width={18} height={18} />
           Seguir a @sevive.la
         </a>
+
+        {restaurado ? (
+          <p className="mt-5">
+            <button
+              type="button"
+              onClick={() => {
+                try {
+                  localStorage.removeItem(claveLocal);
+                } catch {
+                  /* sin memoria local */
+                }
+                setReferralCode("");
+                setReferralUrl("");
+                setContador(null);
+                setYaParticipaba(false);
+                setRestaurado(false);
+                setStatus("idle");
+              }}
+              className="text-sm text-muted underline"
+            >
+              ¿No sos vos? Participá con otro correo
+            </button>
+          </p>
+        ) : null}
       </div>
     );
   }
@@ -484,7 +521,7 @@ export function FormParticipacion({
           checked={followsIg}
           onChange={(e) => setFollowsIg(e.target.checked)}
           disabled={status === "sending"}
-          className="mt-1 h-3.5 w-3.5 shrink-0"
+          className="mt-0.5 h-5 w-5 shrink-0"
         />
         <span>
           Ya sigo a{" "}
@@ -508,7 +545,7 @@ export function FormParticipacion({
           checked={consent}
           onChange={(e) => setConsent(e.target.checked)}
           disabled={status === "sending"}
-          className="mt-1 h-3.5 w-3.5 shrink-0"
+          className="mt-0.5 h-5 w-5 shrink-0"
         />
         <span>
           {consentDef.text}{" "}
@@ -525,7 +562,7 @@ export function FormParticipacion({
           checked={acceptsRules}
           onChange={(e) => setAcceptsRules(e.target.checked)}
           disabled={status === "sending"}
-          className="mt-1 h-3.5 w-3.5 shrink-0"
+          className="mt-0.5 h-5 w-5 shrink-0"
         />
         <span>
           He leído y acepto las{" "}

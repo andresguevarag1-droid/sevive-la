@@ -13,7 +13,7 @@ export const dinamicaEntrySchema = z.object({
     .max(96)
     .regex(/^[a-z0-9-]+$/, "Slug inválido."),
   firstName: z.string().trim().min(2, "Contanos tu nombre.").max(80),
-  email: z.email("Escribí un correo válido.").trim().toLowerCase().max(254),
+  email: z.string().trim().toLowerCase().max(254).pipe(z.email("Escribí un correo válido.")),
   phone: z
     .string()
     .trim()

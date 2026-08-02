@@ -628,11 +628,34 @@ async function run() {
     },
   ];
 
+  // La campaña la edita el equipo en el Studio (arte, fechas, bases):
+  // si ya existe, solo se crean campos nuevos que falten — NUNCA se pisa.
+  const idsCampana = docs.filter((d) => d._type === "campana").map((d) => d._id);
+  const campanasExistentes = idsCampana.length
+    ? await client.fetch(`*[_id in $ids]._id`, { ids: idsCampana })
+    : [];
+
   console.log(`Documentos (${docs.length}):`);
   let tx = client.transaction();
-  for (const doc of docs) tx = tx.createOrReplace(doc);
+  for (const doc of docs) {
+    if (doc._type === "campana" && campanasExistentes.includes(doc._id)) {
+      // Solo completar campos que no existan (setIfMissing) — respeta el Studio.
+      tx = tx.patch(doc._id, (p) =>
+        p.setIfMissing({
+          referidosActivos: doc.referidosActivos,
+          chancesMaxPorReferido: doc.chancesMaxPorReferido,
+        })
+      );
+    } else {
+      tx = tx.createOrReplace(doc);
+    }
+  }
   await tx.commit();
-  for (const doc of docs) console.log(`  ✓ ${doc._id}`);
+  for (const doc of docs) {
+    const preservada =
+      doc._type === "campana" && campanasExistentes.includes(doc._id);
+    console.log(`  ${preservada ? "· (existente, sin pisar)" : "✓"} ${doc._id}`);
+  }
 
   console.log("\n✔ Siembra completa. Revisá el contenido en /studio y la home.");
 }

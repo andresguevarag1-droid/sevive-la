@@ -38,7 +38,19 @@ export default async function MiCuponPage({
   if (!/^SV-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(code)) notFound();
 
   const db = getServiceClient();
-  if (!db) notFound();
+  if (!db) {
+    // Config ausente ≠ cupón inexistente: no confundir al cliente con un 404.
+    return (
+      <section className="mx-auto max-w-md px-4 py-20 text-center">
+        <p className="label text-faint">Un momento</p>
+        <h1 className="mt-3 text-2xl">No podemos mostrar tu cupón ahora.</h1>
+        <p className="mt-3 text-sm leading-relaxed text-muted">
+          Estamos en mantenimiento. Tu cupón sigue siendo válido — probá de
+          nuevo en unos minutos o buscá el código en tu correo.
+        </p>
+      </section>
+    );
+  }
 
   const { data: cupon } = await db
     .from("coupons")

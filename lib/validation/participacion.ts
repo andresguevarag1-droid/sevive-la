@@ -13,7 +13,7 @@ export const participacionSchema = z.object({
     .min(1)
     .max(96)
     .regex(/^[a-z0-9-]+$/, "Campaña inválida."),
-  email: z.email("Escribí un correo válido.").trim().toLowerCase().max(120),
+  email: z.string().trim().toLowerCase().max(120).pipe(z.email("Escribí un correo válido.")),
   fullName: z.string().trim().min(2, "Contanos tu nombre completo.").max(80),
   residence: z.enum(PROVINCIAS_CR, "Elegí tu provincia."),
   phone: z
@@ -29,14 +29,15 @@ export const participacionSchema = z.object({
   /** Checkboxes legales: obligatorios, nunca premarcados. */
   consent: z.literal(true, "Necesitamos tu consentimiento para participar."),
   acceptsRules: z.literal(true, "Tenés que aceptar las bases y condiciones."),
-  /** Código de referido con el que llegó (?ref=). Inválido → se ignora, no bloquea. */
+  /** Código de referido con el que llegó (?ref=). Inválido → se descarta, no bloquea. */
   ref: z
     .string()
     .trim()
     .toUpperCase()
     .regex(/^[A-Z0-9]{4,12}$/)
     .optional()
-    .or(z.literal("")),
+    .or(z.literal(""))
+    .catch(""),
   /** Token de Cloudflare Turnstile (exigido cuando está configurado). */
   turnstileToken: z.string().optional(),
   /** Honeypot anti-bot: debe venir vacío. */

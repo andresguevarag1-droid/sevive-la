@@ -55,13 +55,16 @@ export async function POST(req: NextRequest) {
   switch (body?._type) {
     case "evento":
       marcar("/agenda");
+      if (body.slug) marcar(`/agenda/${body.slug}`);
       break;
     case "reel":
       marcar("/videos");
       break;
     case "beneficio":
       marcar("/promociones");
+      if (body.slug) marcar(`/promociones/${body.slug}`);
       break;
+    case "campana":
     case "dinamica":
       marcar("/dinamicas");
       if (body.slug) {

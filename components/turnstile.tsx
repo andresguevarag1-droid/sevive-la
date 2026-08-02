@@ -6,7 +6,7 @@
  * de JS inicial. Si NEXT_PUBLIC_TURNSTILE_SITE_KEY no está configurada,
  * no renderiza nada (el servidor tampoco exige el token).
  */
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 const SCRIPT_SRC =
@@ -61,27 +61,43 @@ export function TurnstileWidget({
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const rendered = useRef(false);
+  const [fallo, setFallo] = useState(false);
+  const [reintento, setReintento] = useState(0);
 
   useEffect(() => {
     if (!SITE_KEY || !ref.current) return;
     const el = ref.current;
 
+    const montar = () => {
+      rendered.current = true;
+      loadScript()
+        .then(() => {
+          setFallo(false);
+          window.turnstile?.render(el, {
+            sitekey: SITE_KEY,
+            callback: onToken,
+            "expired-callback": () => onToken(""),
+            theme,
+            size: "flexible",
+          });
+        })
+        .catch((err) => {
+          console.error("[turnstile]", err);
+          rendered.current = false;
+          setFallo(true);
+        });
+    };
+
+    if (reintento > 0 && !rendered.current) {
+      montar();
+      return;
+    }
+
     const observer = new IntersectionObserver(
       (entries) => {
         if (!entries.some((e) => e.isIntersecting) || rendered.current) return;
-        rendered.current = true;
         observer.disconnect();
-        loadScript()
-          .then(() => {
-            window.turnstile?.render(el, {
-              sitekey: SITE_KEY,
-              callback: onToken,
-              "expired-callback": () => onToken(""),
-              theme,
-              size: "flexible",
-            });
-          })
-          .catch((err) => console.error("[turnstile]", err));
+        montar();
       },
       { rootMargin: "200px" }
     );
@@ -89,8 +105,24 @@ export function TurnstileWidget({
     return () => observer.disconnect();
     // onToken se captura una vez a propósito: el widget se renderiza una sola vez.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [theme]);
+  }, [theme, reintento]);
 
   if (!SITE_KEY) return null;
-  return <div ref={ref} className="mt-4 min-h-[65px]" />;
+  return (
+    <div className="mt-4 min-h-[65px]">
+      <div ref={ref} />
+      {fallo ? (
+        <p className={`text-sm ${theme === "dark" ? "text-paper/80" : "text-muted"}`}>
+          No se pudo cargar la verificación anti-bots.{" "}
+          <button
+            type="button"
+            onClick={() => setReintento((n) => n + 1)}
+            className="font-semibold underline"
+          >
+            Reintentar
+          </button>
+        </p>
+      ) : null}
+    </div>
+  );
 }

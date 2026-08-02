@@ -5,6 +5,8 @@
  */
 import { NextResponse, type NextRequest } from "next/server";
 import { getServiceClient } from "@/lib/supabase/server";
+import { getClientIp } from "@/lib/server/request-meta";
+import { checkRateLimit } from "@/lib/server/rate-limit";
 import {
   verificarFirma,
   enviarCorreo,
@@ -18,6 +20,9 @@ export const runtime = "nodejs";
 export async function GET(req: NextRequest) {
   const irA = (path: string) =>
     NextResponse.redirect(new URL(path, req.nextUrl.origin), 303);
+
+  const { allowed } = await checkRateLimit("confirmar", getClientIp(req));
+  if (!allowed) return irA("/confirmado?error=1");
 
   const e = req.nextUrl.searchParams.get("e");
   const t = req.nextUrl.searchParams.get("t");
@@ -34,18 +39,23 @@ export async function GET(req: NextRequest) {
   const db = getServiceClient();
   if (!db) return irA("/confirmado?error=1");
 
-  const { error } = await db
+  const { data: activadas, error } = await db
     .from("people")
     .update({ status: "active" })
     .eq("email", email)
-    .eq("status", "pending");
+    .eq("status", "pending")
+    .select("id");
   if (error) {
     console.error("[confirmar] error activando:", error);
     return irA("/confirmado?error=1");
   }
 
-  // Bienvenida + audiencia: no-fatal.
-  if (emailEnabled) {
+  // El link firmado no expira: si no había nada 'pending' (re-click, persona
+  // ya activa o dada de baja), NO se reenvía nada ni se toca la audiencia.
+  const activada = (activadas?.length ?? 0) > 0;
+
+  // Bienvenida + audiencia: no-fatal, solo en la activación real.
+  if (activada && emailEnabled) {
     try {
       await enviarCorreo(email, plantillaBienvenidaBoletin(email));
       await agregarAAudiencia(email);

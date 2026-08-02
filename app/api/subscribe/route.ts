@@ -93,6 +93,9 @@ export async function POST(req: Request) {
       firstName: parsed.data.firstName || undefined,
       source: "boletin",
       initialStatus: dobleOptIn ? "pending" : "active",
+      // Una persona dada de baja que vuelve a suscribirse: re-alta legítima
+      // (con re-confirmación si hay doble opt-in).
+      reactivateTo: dobleOptIn ? "pending" : "active",
     });
     await recordConsent(db, persona.id, CONSENT_NEWSLETTER, { ip, userAgent });
   } catch (err) {

@@ -6,12 +6,17 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getServiceClient } from "@/lib/supabase/server";
 import { verificarFirma, marcarBajaEnAudiencia } from "@/lib/server/email";
+import { getClientIp } from "@/lib/server/request-meta";
+import { checkRateLimit } from "@/lib/server/rate-limit";
 
 export const runtime = "nodejs";
 
 export async function GET(req: NextRequest) {
   const irA = (path: string) =>
     NextResponse.redirect(new URL(path, req.nextUrl.origin), 303);
+
+  const { allowed } = await checkRateLimit("baja", getClientIp(req));
+  if (!allowed) return irA("/baja?error=1");
 
   const e = req.nextUrl.searchParams.get("e");
   const t = req.nextUrl.searchParams.get("t");

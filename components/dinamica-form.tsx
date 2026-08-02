@@ -197,7 +197,7 @@ export function DinamicaForm({
           checked={consent}
           onChange={(e) => setConsent(e.target.checked)}
           disabled={status === "sending"}
-          className="mt-1 h-3.5 w-3.5 shrink-0"
+          className="mt-0.5 h-5 w-5 shrink-0"
         />
         <span>
           {consentDef.text}{" "}

@@ -44,7 +44,7 @@ function filtrar(items: EventoAgenda[], filtro: Filtro): EventoAgenda[] {
   }).format(ahora);
   const indice: Record<string, number> = { Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6, Sun: 7 };
   const dow = indice[dowCR] ?? 1;
-  const haciaViernes = dow >= 5 ? 5 - dow : 5 - dow; // negativo si ya es finde
+  const haciaViernes = 5 - dow; // negativo si ya es finde (retrocede al viernes en curso)
   const viernes = new Date(ahora.getTime() + haciaViernes * 86400000);
   const domingo = new Date(viernes.getTime() + 2 * 86400000);
   const desde = diaCR(viernes.toISOString());
@@ -59,6 +59,7 @@ function filtrar(items: EventoAgenda[], filtro: Filtro): EventoAgenda[] {
 /** "Viernes 7 de agosto" en es-CR para el encabezado de cada día. */
 function tituloDia(iso: string): string {
   const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "Próximamente";
   const s = new Intl.DateTimeFormat("es-CR", {
     weekday: "long",
     day: "numeric",
@@ -82,7 +83,7 @@ export default async function AgendaPage({
   // Agrupar por día (los eventos del mock, sin ISO, van en un solo grupo).
   const grupos = new Map<string, EventoAgenda[]>();
   for (const e of eventos) {
-    const key = e.inicio ? diaCR(e.inicio) : "proximamente";
+    const key = e.inicio && diaCR(e.inicio) ? diaCR(e.inicio) : "proximamente";
     const lista = grupos.get(key) ?? [];
     lista.push(e);
     grupos.set(key, lista);

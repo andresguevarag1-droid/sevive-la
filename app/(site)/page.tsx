@@ -44,7 +44,7 @@ export default async function HomePage() {
               type="search"
               placeholder="Buscar qué hacer, dónde comer, a dónde ir…"
               aria-label="Buscar"
-              className="w-full bg-transparent text-sm text-ink outline-none placeholder:text-faint"
+              className="w-full bg-transparent text-base text-ink outline-none placeholder:text-faint"
             />
           </form>
           <nav className="hidden shrink-0 items-center gap-3 text-[13px] text-muted md:flex">

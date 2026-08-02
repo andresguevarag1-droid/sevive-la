@@ -119,9 +119,9 @@ export const campana = defineType({
       title: "Tope de chances extra por referidos",
       type: "number",
       description:
-        "Máximo de chances bonus que puede acumular una persona (además de su chance base).",
+        "Máximo de chances bonus que puede acumular una persona (además de su chance base). Tope absoluto: 10, alineado con el sorteo y las bases.",
       initialValue: 10,
-      validation: (rule) => rule.min(0).max(100),
+      validation: (rule) => rule.min(0).max(10),
     }),
     defineField({
       name: "bases",

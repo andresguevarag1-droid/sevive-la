@@ -5,7 +5,7 @@
 import { z } from "zod";
 
 export const subscribeSchema = z.object({
-  email: z.email("Escribí un correo válido.").trim().toLowerCase().max(254),
+  email: z.string().trim().toLowerCase().max(254).pipe(z.email("Escribí un correo válido.")),
   firstName: z.string().trim().max(80).optional().or(z.literal("")),
   /** Debe ser true: checkbox de consentimiento (nunca premarcado). */
   consent: z.literal(true, "Necesitamos tu consentimiento para suscribirte."),

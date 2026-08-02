@@ -74,7 +74,7 @@ export function LeadStory({
               href={href}
               className="group flex shrink-0 items-center gap-1.5 text-sm font-semibold text-brand"
             >
-              Leer
+              Ver sección
               <ArrowRightIcon
                 width={16}
                 height={16}

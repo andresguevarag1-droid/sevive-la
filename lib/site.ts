@@ -3,10 +3,21 @@
  * Fuente de verdad para navegación, colores por vertical y metadata.
  */
 
+/**
+ * URL pública del sitio: configurable por env para que los links absolutos
+ * (correos, canonicals, sitemap, QR) funcionen en cualquier despliegue.
+ * Prioridad: NEXT_PUBLIC_SITE_URL → dominio de producción de Vercel → sevive.la.
+ */
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : "https://sevive.la");
+
 export const site = {
   name: "SeViveLa",
   domain: "sevive.la",
-  url: "https://sevive.la",
+  url: siteUrl,
   tagline: "Descubrí qué vivir en la región.",
   description:
     "Plataforma de experiencias, entretenimiento, cultura, gastronomía, turismo y estilo de vida en Costa Rica.",

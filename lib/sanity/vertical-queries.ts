@@ -39,7 +39,7 @@ const VERTICAL_QUERY = /* groq */ `{
   "reels": *[_type == "reel" && vertical == $vertical] | order(orden asc, fecha desc)[0...8]{
     _id, title, vertical, duracion, miniatura, videoUrl
   },
-  "beneficios": *[_type == "beneficio" && vertical == $vertical] | order(orden asc, _createdAt desc)[0...6]{
+  "beneficios": *[_type == "beneficio" && vertical == $vertical && (!defined(vigencia) || vigencia >= $hoy)] | order(orden asc, _createdAt desc)[0...6]{
     _id, title, vertical, marca, detalle, patrocinado, "slug": slug.current
   },
   "lugares": *[_type == "lugar" && vertical == $vertical] | order(_createdAt desc)[0...6]{
@@ -104,9 +104,10 @@ export async function getVerticalContent(
   if (!sanityConfigured) return fallbackFor(vertical);
   try {
     const desde = new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString();
+    const hoy = new Date().toISOString().slice(0, 10);
     const data = await client.fetch<RawVertical>(
       VERTICAL_QUERY,
-      { vertical, desde },
+      { vertical, desde, hoy },
       { next: { revalidate: 60 } }
     );
 

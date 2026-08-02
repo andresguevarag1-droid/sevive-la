@@ -39,8 +39,10 @@ export function firmarEmail(email: string): string | null {
 }
 
 export function verificarFirma(email: string, token: string): boolean {
+  // Solo hex de 32: evita RangeError de timingSafeEqual con multibyte.
+  if (!/^[a-f0-9]{32}$/.test(token)) return false;
   const esperada = firmarEmail(email);
-  if (!esperada || token.length !== esperada.length) return false;
+  if (!esperada) return false;
   return timingSafeEqual(Buffer.from(esperada), Buffer.from(token));
 }
 

@@ -13,6 +13,7 @@ type Resultado =
   | { tipo: "ya_canjeado"; redeemedAt?: string }
   | { tipo: "vencido" }
   | { tipo: "no_valido" }
+  | { tipo: "otro_local" }
   | { tipo: "local_no_autorizado" }
   | { tipo: "error" };
 
@@ -62,6 +63,8 @@ export function CanjeStaff({ codeInicial }: { codeInicial?: string }) {
         setResultado({ tipo: "ya_canjeado", redeemedAt: data.redeemedAt });
       } else if (data?.estado === "vencido") {
         setResultado({ tipo: "vencido" });
+      } else if (data?.estado === "otro_local") {
+        setResultado({ tipo: "otro_local" });
       } else if (data?.estado === "local_no_autorizado") {
         setResultado({ tipo: "local_no_autorizado" });
       } else if (data?.estado === "no_valido") {
@@ -102,11 +105,13 @@ export function CanjeStaff({ codeInicial }: { codeInicial?: string }) {
                 ? "Ya fue canjeado"
                 : resultado.tipo === "vencido"
                   ? "Cupón vencido"
-                  : resultado.tipo === "local_no_autorizado"
-                    ? "PIN de local incorrecto"
-                    : resultado.tipo === "no_valido"
-                      ? "Código no válido"
-                      : "Error de conexión"}
+                  : resultado.tipo === "otro_local"
+                    ? "Este cupón es de otra marca"
+                    : resultado.tipo === "local_no_autorizado"
+                      ? "PIN de local incorrecto"
+                      : resultado.tipo === "no_valido"
+                        ? "Código no válido"
+                        : "Error de conexión"}
           </h2>
           {resultado.tipo === "ya_canjeado" && resultado.redeemedAt ? (
             <p className="tnum mt-2 text-sm text-muted">

@@ -15,11 +15,12 @@ import { checkRateLimit } from "@/lib/server/rate-limit";
 import { verifyTurnstile } from "@/lib/server/turnstile";
 import { generarCodigoCuponUnico } from "@/lib/server/coupon";
 import { emailEnabled, enviarCorreo, plantillaCupon } from "@/lib/server/email";
-import { site } from "@/lib/site";
+import { getBaseUrl } from "@/lib/server/base-url";
 
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {
+  const baseUrl = getBaseUrl(req);
   let body: unknown;
   try {
     body = await req.json();
@@ -93,6 +94,12 @@ export async function POST(req: Request) {
       source: "beneficio",
     });
 
+    // Consentimiento ANTES del cupón: la PII nunca queda sin su prueba.
+    await recordConsent(db, personId, consentBeneficio(d.benefitSlug), {
+      ip,
+      userAgent,
+    });
+
     // Idempotente: si ya tiene cupón de este beneficio, devolver el mismo.
     const { data: existente } = await db
       .from("coupons")
@@ -102,21 +109,35 @@ export async function POST(req: Request) {
       .maybeSingle();
 
     let code: string;
+    let recienEmitido = false;
     if (existente) {
       code = existente.code as string;
     } else {
-      code = await generarCodigoCuponUnico(db);
       const expiresAt = beneficio.vigencia
         ? new Date(`${beneficio.vigencia}T23:59:59-06:00`).toISOString()
         : null;
-      const { error: insErr } = await db.from("coupons").insert({
-        benefit_slug: d.benefitSlug,
-        email: d.email,
-        person_id: personId,
-        code,
-        source: d.utm ?? {},
-        expires_at: expiresAt,
-      });
+      const insertar = async (c: string) =>
+        db.from("coupons").insert({
+          benefit_slug: d.benefitSlug,
+          email: d.email,
+          person_id: personId,
+          code: c,
+          source: d.utm ?? {},
+          expires_at: expiresAt,
+        });
+
+      code = await generarCodigoCuponUnico(db);
+      let insErr = null;
+      for (let intento = 0; intento < 2; intento++) {
+        const { error } = await insertar(code);
+        insErr = error;
+        // Colisión del código único (no del par beneficio+correo): otro código.
+        const esColisionDeCodigo =
+          error?.code === "23505" &&
+          `${error.message ?? ""}${error.details ?? ""}`.includes("coupons_code");
+        if (!esColisionDeCodigo) break;
+        code = await generarCodigoCuponUnico(db);
+      }
       if (insErr) {
         if (insErr.code === "23505") {
           // Carrera: otro request lo emitió — recuperar el existente.
@@ -126,23 +147,23 @@ export async function POST(req: Request) {
             .eq("benefit_slug", d.benefitSlug)
             .eq("email", d.email)
             .maybeSingle();
-          code = (otra?.code as string) ?? code;
+          if (!otra) throw insErr;
+          code = otra.code as string;
         } else {
           throw insErr;
         }
+      } else {
+        recienEmitido = true;
       }
 
-      await recordConsent(db, personId, consentBeneficio(d.benefitSlug), {
-        ip,
-        userAgent,
-      });
       await declareInterest(db, personId, beneficio.vertical, 3);
     }
 
-    const url = `${site.url}/mi-cupon/${code}`;
+    const url = `${baseUrl}/mi-cupon/${code}`;
 
-    // Email con el cupón: no fatal.
-    if (emailEnabled) {
+    // Email con el cupón: no fatal, y SOLO al emitirlo por primera vez
+    // (reintentar el form no debe spamear "tu cupón está listo").
+    if (emailEnabled && recienEmitido) {
       try {
         await enviarCorreo(
           d.email,
