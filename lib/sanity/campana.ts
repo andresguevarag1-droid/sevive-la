@@ -18,6 +18,8 @@ export type Campana = {
   activa: boolean;
   vertical: VerticalSlug;
   imagenHero?: string;
+  /** Variantes responsivas del arte (CDN de Sanity, AVIF/WebP automático). */
+  imagenHeroSet?: { s480: string; s800: string; s1200: string };
   imagenHeroAlt?: string;
   ogImage?: string;
   ctaTexto: string;
@@ -56,6 +58,9 @@ const CAMPANA_FIELDS = /* groq */ `
 `;
 
 function mapCampana(c: RawCampana): Campana {
+  const s480 = urlForImage(c.imagenHero, 480);
+  const s800 = urlForImage(c.imagenHero, 800);
+  const s1200 = urlForImage(c.imagenHero, 1200);
   return {
     id: c._id,
     titulo: c.titulo,
@@ -63,7 +68,9 @@ function mapCampana(c: RawCampana): Campana {
     slug: c.slug,
     activa: c.activa,
     vertical: c.vertical,
-    imagenHero: urlForImage(c.imagenHero, 1200),
+    imagenHero: s1200,
+    imagenHeroSet:
+      s480 && s800 && s1200 ? { s480, s800, s1200 } : undefined,
     imagenHeroAlt: c.imagenHero?.alt || c.titulo,
     ogImage: urlForImage(c.ogImage, 1200) ?? urlForImage(c.imagenHero, 1200),
     ctaTexto: c.ctaTexto || "Participá gratis",

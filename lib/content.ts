@@ -32,6 +32,7 @@ export type Story = {
   meta: string; // fecha / duración / lectura
   img?: string; // ruta de imagen (public/)
   sponsored?: boolean; // contenido patrocinado (siempre etiquetado)
+  href?: string; // destino del enlace (detalle); si falta, la vertical
 };
 
 /**

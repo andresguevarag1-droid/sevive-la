@@ -37,7 +37,7 @@ export async function getEventosProximos(): Promise<EventoAgenda[]> {
     const hasta = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString();
     const raw = await client.fetch<RawEvento[]>(
       /* groq */ `*[_type == "evento" && defined(inicio) && inicio >= $desde && inicio <= $hasta] | order(inicio asc)[0...48]{
-        _id, title, vertical, inicio, lugar, imagen
+        _id, title, vertical, inicio, lugar, imagen, "slug": slug.current, horaPorConfirmar
       }`,
       { desde, hasta },
       { next: { revalidate: 60 } }

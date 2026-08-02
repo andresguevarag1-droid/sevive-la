@@ -95,6 +95,9 @@ const at = (days, hour = 18) => {
   d.setUTCHours(hour + 6, 0, 0, 0); // hora CR ≈ UTC-6
   return d.toISOString();
 };
+/** Fecha fija "YYYY-MM-DD" a la hora CR dada (por defecto mediodía). */
+const el = (ymd, hourCR = 12) =>
+  new Date(`${ymd}T${String(hourCR + 6).padStart(2, "0")}:00:00.000Z`).toISOString();
 
 async function run() {
   console.log(`Sembrando en ${projectId}/${dataset}…`);
@@ -183,6 +186,7 @@ async function run() {
     {
       _id: "seed-evento-chicharron",
       _type: "evento",
+      slug: { current: "festival-del-chicharron-puriscal" },
       title: "Festival del Chicharrón",
       vertical: "gastronomia",
       inicio: at(2, 11),
@@ -193,6 +197,7 @@ async function run() {
     {
       _id: "seed-evento-sonambulo",
       _type: "evento",
+      slug: { current: "sonambulo-en-vivo-anfiteatro" },
       title: "Sonámbulo en vivo",
       vertical: "entretenimiento",
       inicio: at(3, 20),
@@ -203,6 +208,7 @@ async function run() {
     {
       _id: "seed-evento-museos",
       _type: "evento",
+      slug: { current: "noche-de-museos-barrio-amon" },
       title: "Noche de museos",
       vertical: "cultura",
       inicio: at(3, 18),
@@ -213,6 +219,7 @@ async function run() {
     {
       _id: "seed-evento-flores",
       _type: "evento",
+      slug: { current: "feria-de-las-flores-zarcero" },
       title: "Feria de las Flores",
       vertical: "experiencias",
       inicio: at(4, 9),
@@ -223,6 +230,7 @@ async function run() {
     {
       _id: "seed-evento-poas",
       _type: "evento",
+      slug: { current: "amanecer-guiado-volcan-poas" },
       title: "Amanecer guiado",
       vertical: "turismo",
       inicio: at(5, 5),
@@ -233,6 +241,7 @@ async function run() {
     {
       _id: "seed-evento-mercado",
       _type: "evento",
+      slug: { current: "mercado-de-diseno-escalante" },
       title: "Mercado de diseño local",
       vertical: "estilo-de-vida",
       inicio: at(5, 10),
@@ -240,6 +249,163 @@ async function run() {
       descripcion: "Marcas independientes, vinilos, café y comida de autor.",
       imagen: imageRef(img.street, "Mercado urbano de diseño con puestos"),
     },
+
+    /* ── Agenda real de agosto 2026 (investigada; sin inventar horas/precios:
+          horaPorConfirmar=true y sin precioDesde cuando no hay dato oficial) ── */
+    ...[
+      {
+        id: "arjona-seco-tour",
+        title: "Ricardo Arjona — Seco Tour",
+        vertical: "entretenimiento",
+        inicio: el("2026-08-14"),
+        fin: el("2026-08-15", 23),
+        lugar: "Estadio Nacional, La Sabana",
+        descripcion: "La gira 'Seco Tour' del cantautor guatemalteco, con dos fechas en San José.",
+        enlace: "https://www.eticket.cr",
+      },
+      {
+        id: "romeo-santos-prince-royce",
+        title: "Romeo Santos & Prince Royce",
+        vertical: "entretenimiento",
+        inicio: el("2026-08-18"),
+        lugar: "Estadio Nacional, La Sabana",
+        descripcion: "Gira conjunta 'Mejor Tarde Que Nunca Tour 2026': una noche entera de bachata.",
+        enlace: "https://www.eticket.cr",
+      },
+      {
+        id: "yandel-sinfonico",
+        title: "Yandel Sinfónico",
+        vertical: "entretenimiento",
+        inicio: el("2026-08-30"),
+        lugar: "Parque Viva, Alajuela",
+        descripcion: "Los éxitos de Yandel en formato sinfónico. Apto para mayores de 12 años.",
+        enlace: "https://www.eticket.cr",
+      },
+      {
+        id: "greeicy-candela",
+        title: "Greeicy — Candela World Tour",
+        vertical: "entretenimiento",
+        inicio: el("2026-08-29"),
+        lugar: "Centro de Eventos Pedregal, Belén",
+        descripcion: "La gira mundial 'Candela' de la artista colombiana: pop y urbano.",
+        enlace: "https://www.eticket.cr",
+      },
+      {
+        id: "expovino",
+        title: "EXPOVINO",
+        vertical: "gastronomia",
+        inicio: el("2026-08-28"),
+        fin: el("2026-08-29", 22),
+        lugar: "Centro de Convenciones de Costa Rica",
+        descripcion: "La feria del vino: catas, bodegas internacionales y maridajes (día institucional: 27 de agosto).",
+        enlace: "https://expovinocr.com",
+      },
+      {
+        id: "ballet-gala-fragmentos",
+        title: "Ballet Nacional — Gala Fragmentos",
+        vertical: "cultura",
+        inicio: el("2026-08-29"),
+        lugar: "Teatro Melico Salazar",
+        descripcion: "Fragmentos de 'El lago de los cisnes', 'Don Quijote' y 'El corsario', con bailarines invitados del American Ballet Theatre.",
+        enlace: "https://tiquetshow.cr",
+      },
+      {
+        id: "osn-vii-concierto",
+        title: "Orquesta Sinfónica Nacional — VII Concierto de Temporada",
+        vertical: "cultura",
+        inicio: el("2026-08-21"),
+        lugar: "Teatro Nacional",
+        descripcion: "La temporada oficial 2026 de la OSN en el Teatro Nacional.",
+        enlace: "https://www.teatronacional.go.cr",
+        organizador: "Orquesta Sinfónica Nacional",
+      },
+      {
+        id: "mujercitas-teatro",
+        title: "Mujercitas",
+        vertical: "cultura",
+        inicio: el("2026-08-08"),
+        fin: el("2026-08-09", 21),
+        lugar: "Teatro Nacional",
+        descripcion: "Adaptación teatral del clásico de Louisa May Alcott.",
+        enlace: "https://www.teatronacional.go.cr",
+      },
+      {
+        id: "musica-inclusiva-sifais",
+        title: "Música Inclusiva en Concierto — SIFAIS",
+        vertical: "entretenimiento",
+        inicio: el("2026-08-13"),
+        lugar: "Parque Viva, Alajuela",
+        descripcion: "Concierto benéfico de SIFAIS con Debi Nova, Gandhi, Malpaís y más artistas nacionales.",
+        organizador: "SIFAIS",
+      },
+      {
+        id: "blessd-parque-viva",
+        title: "BLESSD",
+        vertical: "entretenimiento",
+        inicio: el("2026-08-08"),
+        lugar: "Parque Viva, Alajuela",
+        descripcion: "El artista urbano colombiano llega con su reggaetón y trap.",
+        enlace: "https://www.eticket.cr",
+      },
+      {
+        id: "safe-and-sound",
+        title: "Safe & Sound",
+        vertical: "entretenimiento",
+        inicio: el("2026-08-08"),
+        lugar: "Hotel Intercontinental",
+        descripcion: "Evento de música y experiencia. Detalles por confirmar con el organizador.",
+      },
+      {
+        id: "final-miss-grand",
+        title: "Final Miss Grand Costa Rica",
+        vertical: "entretenimiento",
+        inicio: el("2026-08-12"),
+        lugar: "Museo de los Niños",
+        descripcion: "La noche final del certamen nacional.",
+      },
+      {
+        id: "lanzamiento-sira",
+        title: "Lanzamiento de colección SIRA",
+        vertical: "estilo-de-vida",
+        inicio: el("2026-08-01"),
+        lugar: "Tienda Octavia",
+        descripcion: "Lanzamiento de la nueva colección de la marca SIRA.",
+      },
+      {
+        id: "hilos-de-identidad",
+        title: "Hilos de identidad — trajes limonenses",
+        vertical: "cultura",
+        inicio: el("2026-08-04"),
+        lugar: "Biblioteca Nacional",
+        descripcion: "Exhibición cultural de trajes tradicionales de Limón.",
+      },
+      {
+        id: "jugo-de-pina-monge",
+        title: "Jugo de Piña — Julián Monge",
+        vertical: "cultura",
+        inicio: el("2026-08-03"),
+        fin: el("2026-08-31", 17),
+        lugar: "Biblioteca Nacional",
+        descripcion: "Exposición de arte de Julián Monge, todo el mes de agosto.",
+      },
+    ].map((e) => ({
+      _id: `seed-evento-${e.id}`,
+      _type: "evento",
+      title: e.title,
+      slug: { current: e.id },
+      vertical: e.vertical,
+      inicio: e.inicio,
+      ...(e.fin ? { fin: e.fin } : {}),
+      horaPorConfirmar: true,
+      lugar: e.lugar,
+      descripcion: e.descripcion,
+      cuerpo: [
+        block(e.descripcion),
+        block("Horario exacto y condiciones: confirmar con el organizador o en el punto de venta oficial."),
+      ],
+      ...(e.enlace ? { enlace: e.enlace } : {}),
+      ...(e.organizador ? { organizador: e.organizador } : {}),
+    })),
 
     /* ── Reels: 6 ── */
     ...[

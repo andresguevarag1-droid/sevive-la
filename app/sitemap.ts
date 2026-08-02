@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { site, verticals } from "@/lib/site";
 import { getDinamicasAbiertas } from "@/lib/sanity/dinamica";
 import { getCampanaActiva } from "@/lib/sanity/campana";
+import { getEventosProximos } from "@/lib/sanity/listados";
 
 /**
  * Sitemap: rutas estáticas + verticales + dinámicas abiertas.
@@ -32,10 +33,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   // Dinámicas abiertas (si Sanity falla, devuelve [] y el sitemap no revienta).
-  const [dinamicas, campana] = await Promise.all([
+  const [dinamicas, campana, eventos] = await Promise.all([
     getDinamicasAbiertas(),
     getCampanaActiva(),
+    getEventosProximos(),
   ]);
+  const deEventos: MetadataRoute.Sitemap = eventos
+    .filter((e) => e.href)
+    .map((e) => ({
+      url: `${site.url}${e.href}`,
+      lastModified: ahora,
+      changeFrequency: "weekly",
+      priority: 0.7,
+    }));
   const deDinamicas: MetadataRoute.Sitemap = dinamicas.map((d) => ({
     url: `${site.url}/dinamicas/${d.slug}`,
     lastModified: ahora,
@@ -53,5 +63,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ]
     : [];
 
-  return [...estaticas, ...deVerticales, ...deDinamicas, ...deCampana];
+  return [...estaticas, ...deVerticales, ...deDinamicas, ...deCampana, ...deEventos];
 }

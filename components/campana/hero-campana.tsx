@@ -79,7 +79,13 @@ export function HeroCampana({ campana }: { campana: Campana }) {
           <div className="relative mx-auto w-full max-w-xs md:max-w-sm">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={campana.imagenHero}
+              src={campana.imagenHeroSet?.s800 ?? campana.imagenHero}
+              srcSet={
+                campana.imagenHeroSet
+                  ? `${campana.imagenHeroSet.s480} 480w, ${campana.imagenHeroSet.s800} 800w, ${campana.imagenHeroSet.s1200} 1200w`
+                  : undefined
+              }
+              sizes="(min-width: 768px) 384px, 90vw"
               alt={campana.imagenHeroAlt ?? campana.titulo}
               width={480}
               height={600}

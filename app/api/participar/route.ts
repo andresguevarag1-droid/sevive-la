@@ -20,6 +20,12 @@ import {
 import { getClientIp, getUserAgent } from "@/lib/server/request-meta";
 import { checkRateLimit } from "@/lib/server/rate-limit";
 import { verifyTurnstile } from "@/lib/server/turnstile";
+import {
+  emailEnabled,
+  enviarCorreo,
+  agregarAAudiencia,
+  plantillaParticipacion,
+} from "@/lib/server/email";
 
 export const runtime = "nodejs";
 
@@ -105,7 +111,7 @@ export async function POST(req: Request) {
 
   try {
     // 1. La persona entra (o se completa) en la base de audiencia.
-    const personId = await upsertPerson(db, {
+    const { id: personId } = await upsertPerson(db, {
       email: d.email,
       firstName: d.fullName,
       phone: d.phone || undefined,
@@ -151,6 +157,16 @@ export async function POST(req: Request) {
       { ok: false, error: "No pudimos registrar tu participación. Intentá de nuevo." },
       { status: 500 }
     );
+  }
+
+  // Correo de confirmación + audiencia: no-fatal (el lead ya está en Supabase).
+  if (emailEnabled) {
+    try {
+      await enviarCorreo(d.email, plantillaParticipacion(d.email, campana.titulo));
+      await agregarAAudiencia(d.email, d.fullName);
+    } catch (err) {
+      console.error("[participar] correo/audiencia falló (no fatal):", err);
+    }
   }
 
   const eligible = d.isOver21 && d.hasPassport && d.hasUsVisa;

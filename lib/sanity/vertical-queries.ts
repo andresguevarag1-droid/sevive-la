@@ -34,7 +34,7 @@ const VERTICAL_QUERY = /* groq */ `{
     _id, title, vertical, bajada, autor, formato, lecturaMin, imagen
   },
   "eventos": *[_type == "evento" && vertical == $vertical && defined(inicio) && inicio >= $desde] | order(inicio asc)[0...8]{
-    _id, title, vertical, inicio, lugar, imagen
+    _id, title, vertical, inicio, lugar, imagen, "slug": slug.current, horaPorConfirmar
   },
   "reels": *[_type == "reel" && vertical == $vertical] | order(orden asc, fecha desc)[0...8]{
     _id, title, vertical, duracion, miniatura, videoUrl

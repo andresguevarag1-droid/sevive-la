@@ -13,7 +13,7 @@ export function WeekIndex({ items }: { items: Story[] }) {
       {items.map((s, i) => (
         <li key={s.id} className="border-b border-rule">
           <Link
-            href={`/${s.vertical}`}
+            href={s.href ?? `/${s.vertical}`}
             className="group flex items-baseline gap-4 py-4 md:gap-6"
           >
             <span className="label tnum hidden w-7 shrink-0 text-faint md:block">

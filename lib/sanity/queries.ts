@@ -26,7 +26,7 @@ const HOME_QUERY = /* groq */ `{
     _id, title, vertical, bajada, autor, formato, lecturaMin, imagen
   },
   "week": *[_type == "evento" && defined(inicio) && inicio >= $desde] | order(inicio asc)[0...6]{
-    _id, title, vertical, inicio, lugar, imagen
+    _id, title, vertical, inicio, lugar, imagen, "slug": slug.current, horaPorConfirmar
   },
   "reels": *[_type == "reel"] | order(orden asc, fecha desc)[0...8]{
     _id, title, vertical, duracion, miniatura, videoUrl
@@ -55,6 +55,8 @@ export type RawEvento = {
   inicio: string;
   lugar?: string;
   imagen?: SanityImage;
+  slug?: string;
+  horaPorConfirmar?: boolean;
 };
 export type RawReel = {
   _id: string;
@@ -85,8 +87,8 @@ function cap(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
-/** "Jue 6 · 11:00" a partir de un ISO, en hora de Costa Rica. */
-function fmtEvento(inicio: string): string {
+/** "Jue 6 · 11:00" (o "Jue 6" si la hora está por confirmar), en hora CR. */
+export function fmtEvento(inicio: string, conHora = true): string {
   const d = new Date(inicio);
   if (Number.isNaN(d.getTime())) return "";
   const dia = new Intl.DateTimeFormat("es-CR", {
@@ -96,6 +98,7 @@ function fmtEvento(inicio: string): string {
   })
     .format(d)
     .replace(/\./g, "");
+  if (!conHora) return cap(dia);
   const hora = new Intl.DateTimeFormat("es-CR", {
     hour: "2-digit",
     minute: "2-digit",
@@ -125,8 +128,9 @@ export function eventoToStory(e: RawEvento): Story {
     type: "evento",
     vertical: e.vertical,
     title: e.lugar ? `${e.title}, ${e.lugar}` : e.title,
-    meta: fmtEvento(e.inicio),
+    meta: fmtEvento(e.inicio, !e.horaPorConfirmar),
     img: urlForImage(e.imagen, 800),
+    href: e.slug ? `/agenda/${e.slug}` : undefined,
   };
 }
 export function reelToStory(r: RawReel): Story {

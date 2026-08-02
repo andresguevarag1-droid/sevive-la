@@ -90,7 +90,13 @@ export function CampanaLanding({
             <div className="mx-auto w-full max-w-56 md:max-w-64">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={campana.imagenHero}
+                src={campana.imagenHeroSet?.s480 ?? campana.imagenHero}
+                srcSet={
+                  campana.imagenHeroSet
+                    ? `${campana.imagenHeroSet.s480} 480w, ${campana.imagenHeroSet.s800} 800w`
+                    : undefined
+                }
+                sizes="(min-width: 768px) 256px, 224px"
                 alt={campana.imagenHeroAlt ?? campana.titulo}
                 width={380}
                 height={475}

@@ -1,33 +1,7 @@
 import Link from "next/link";
 import { site, verticals, socialLinks } from "@/lib/site";
+import { getCampanaActiva } from "@/lib/sanity/campana";
 import { InstagramIcon, TikTokIcon } from "@/components/icons";
-
-const columnas: { titulo: string; links: { href: string; label: string }[] }[] = [
-  {
-    titulo: "Secciones",
-    links: verticals.map((v) => ({ href: `/${v.slug}`, label: v.name })),
-  },
-  {
-    titulo: "Comunidad",
-    links: [
-      { href: "/dinamicas", label: "Dinámicas" },
-      { href: "/agenda", label: "Agenda" },
-      { href: "/videos", label: "Videos" },
-      { href: "/promociones", label: "Beneficios" },
-      { href: "/#boletin", label: "Boletín" },
-    ],
-  },
-  {
-    titulo: "SeViveLa",
-    links: [
-      { href: "/nosotros", label: "Nosotros" },
-      { href: "/marcas", label: "Para marcas" },
-      { href: "/legal/privacidad", label: "Privacidad" },
-      { href: "/legal/terminos", label: "Términos" },
-      { href: "/legal/cookies", label: "Cookies" },
-    ],
-  },
-];
 
 const socialIcons = {
   instagram: InstagramIcon,
@@ -37,8 +11,41 @@ const socialIcons = {
 /**
  * Footer de tinta: cierre editorial oscuro con tagline serif grande,
  * columnas tituladas, redes sociales y colofón. Texto papel sobre tinta.
+ * Enlaza las bases de la campaña activa (si hay).
  */
-export function SiteFooter() {
+export async function SiteFooter() {
+  const campana = await getCampanaActiva();
+
+  const columnas: { titulo: string; links: { href: string; label: string }[] }[] = [
+    {
+      titulo: "Secciones",
+      links: verticals.map((v) => ({ href: `/${v.slug}`, label: v.name })),
+    },
+    {
+      titulo: "Comunidad",
+      links: [
+        { href: "/dinamicas", label: "Dinámicas" },
+        ...(campana
+          ? [{ href: `/legal/bases/${campana.slug}`, label: "Bases de la dinámica" }]
+          : []),
+        { href: "/agenda", label: "Agenda" },
+        { href: "/videos", label: "Videos" },
+        { href: "/promociones", label: "Beneficios" },
+        { href: "/#boletin", label: "Boletín" },
+      ],
+    },
+    {
+      titulo: "SeViveLa",
+      links: [
+        { href: "/nosotros", label: "Nosotros" },
+        { href: "/marcas", label: "Para marcas" },
+        { href: "/legal/privacidad", label: "Privacidad" },
+        { href: "/legal/terminos", label: "Términos" },
+        { href: "/legal/cookies", label: "Cookies" },
+      ],
+    },
+  ];
+
   return (
     <footer
       className="mt-12 px-4 pb-10 pt-12 text-paper md:pt-16"

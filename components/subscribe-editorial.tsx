@@ -20,6 +20,7 @@ export function SubscribeEditorial() {
   const [turnstileToken, setTurnstileToken] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
+  const [porConfirmar, setPorConfirmar] = useState(false);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -53,9 +54,10 @@ export function SubscribeEditorial() {
         }),
       });
       const data = (await res.json().catch(() => null)) as
-        | { ok: boolean; error?: string }
+        | { ok: boolean; error?: string; confirmar?: boolean }
         | null;
       if (res.ok && data?.ok) {
+        setPorConfirmar(Boolean(data.confirmar));
         setStatus("ok");
       } else {
         setStatus("error");
@@ -94,11 +96,14 @@ export function SubscribeEditorial() {
             /* ── Estado de éxito ── */
             <div aria-live="polite" className="mt-8">
               <p className="text-xl font-medium text-paper">
-                ¡Listo! Ya estás en la lista.
+                {porConfirmar
+                  ? "Un paso más: revisá tu correo."
+                  : "¡Listo! Ya estás en la lista."}
               </p>
               <p className="mt-2 max-w-xl text-sm leading-relaxed text-paper/70">
-                El próximo jueves te llega el primer boletín. Si no lo ves,
-                revisá la carpeta de spam y marcanos como confiables.
+                {porConfirmar
+                  ? "Te enviamos un enlace para confirmar tu suscripción. Si no lo ves, revisá la carpeta de spam."
+                  : "El próximo jueves te llega el primer boletín. Si no lo ves, revisá la carpeta de spam y marcanos como confiables."}
               </p>
             </div>
           ) : (

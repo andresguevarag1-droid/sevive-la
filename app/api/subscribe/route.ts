@@ -1,7 +1,10 @@
 /**
  * Alta al boletín. Flujo (Sección 9.1 del documento maestro):
  * honeypot → Zod → rate-limit → Turnstile → upsert people →
- * registro de consentimiento (texto exacto + versión + IP + UA) → Resend.
+ * registro de consentimiento (texto exacto + versión + IP + UA) →
+ * doble opt-in por email (Resend) cuando está configurado.
+ * El guardado en Supabase es la fuente de verdad: si Resend falla,
+ * el lead NO se pierde.
  */
 import { NextResponse } from "next/server";
 import { subscribeSchema } from "@/lib/validation/subscribe";
@@ -11,24 +14,15 @@ import { upsertPerson, recordConsent } from "@/lib/server/capture";
 import { getClientIp, getUserAgent } from "@/lib/server/request-meta";
 import { checkRateLimit } from "@/lib/server/rate-limit";
 import { verifyTurnstile } from "@/lib/server/turnstile";
+import {
+  emailEnabled,
+  plantillaConfirmacionBoletin,
+  plantillaBienvenidaBoletin,
+  enviarCorreo,
+  agregarAAudiencia,
+} from "@/lib/server/email";
 
 export const runtime = "nodejs";
-
-async function addToResend(email: string, firstName?: string): Promise<void> {
-  const apiKey = process.env.RESEND_API_KEY;
-  const audienceId = process.env.RESEND_AUDIENCE_ID;
-  if (!apiKey || !audienceId) return;
-  // Import dinámico: el SDK solo se carga si Resend está configurado.
-  const { Resend } = await import("resend");
-  const resend = new Resend(apiKey);
-  const { error } = await resend.contacts.create({
-    email,
-    firstName: firstName || undefined,
-    audienceId,
-    unsubscribed: false,
-  });
-  if (error) throw new Error(error.message);
-}
 
 export async function POST(req: Request) {
   let body: unknown;
@@ -88,13 +82,19 @@ export async function POST(req: Request) {
     );
   }
 
+  // Doble opt-in solo si podemos mandar el correo de confirmación firmado.
+  const plantillaConfirmacion = plantillaConfirmacionBoletin(parsed.data.email);
+  const dobleOptIn = emailEnabled && plantillaConfirmacion !== null;
+
+  let persona;
   try {
-    const personId = await upsertPerson(db, {
+    persona = await upsertPerson(db, {
       email: parsed.data.email,
       firstName: parsed.data.firstName || undefined,
       source: "boletin",
+      initialStatus: dobleOptIn ? "pending" : "active",
     });
-    await recordConsent(db, personId, CONSENT_NEWSLETTER, { ip, userAgent });
+    await recordConsent(db, persona.id, CONSENT_NEWSLETTER, { ip, userAgent });
   } catch (err) {
     console.error("[subscribe] error guardando en Supabase:", err);
     return NextResponse.json(
@@ -103,12 +103,27 @@ export async function POST(req: Request) {
     );
   }
 
-  // Alta en Resend: no-fatal (la persona ya quedó registrada con su consentimiento).
+  // Correos: no-fatales (la persona ya quedó registrada con su consentimiento).
   try {
-    await addToResend(parsed.data.email, parsed.data.firstName || undefined);
+    if (persona.status === "pending" && plantillaConfirmacion) {
+      // Doble opt-in: confirmar antes de activar.
+      await enviarCorreo(parsed.data.email, plantillaConfirmacion);
+    } else if (emailEnabled) {
+      // Alta directa: bienvenida + audiencia.
+      if (persona.created) {
+        await enviarCorreo(
+          parsed.data.email,
+          plantillaBienvenidaBoletin(parsed.data.email)
+        );
+      }
+      await agregarAAudiencia(
+        parsed.data.email,
+        parsed.data.firstName || undefined
+      );
+    }
   } catch (err) {
-    console.error("[subscribe] alta en Resend falló (no fatal):", err);
+    console.error("[subscribe] correo/audiencia falló (no fatal):", err);
   }
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, confirmar: persona.status === "pending" });
 }

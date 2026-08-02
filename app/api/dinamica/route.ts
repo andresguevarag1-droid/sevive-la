@@ -127,7 +127,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    const personId = await upsertPerson(db, {
+    const { id: personId } = await upsertPerson(db, {
       email: parsed.data.email,
       firstName: parsed.data.firstName,
       phone: parsed.data.phone || undefined,

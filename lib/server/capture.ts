@@ -16,6 +16,13 @@ export type PersonInput = {
   source: string;
 };
 
+export type UpsertResult = {
+  id: string;
+  /** true si la persona es nueva (primer contacto con SeViveLa). */
+  created: boolean;
+  status: string;
+};
+
 /**
  * Crea o actualiza la persona por email y devuelve su id.
  * Idempotente: un segundo alta con el mismo correo no duplica ni pisa
@@ -23,8 +30,8 @@ export type PersonInput = {
  */
 export async function upsertPerson(
   db: SupabaseClient,
-  input: PersonInput
-): Promise<string> {
+  input: PersonInput & { initialStatus?: "active" | "pending" }
+): Promise<UpsertResult> {
   const { data: existing, error: findErr } = await db
     .from("people")
     .select("id, first_name, phone, status")
@@ -42,21 +49,42 @@ export async function upsertPerson(
       const { error } = await db.from("people").update(patch).eq("id", existing.id);
       if (error) throw error;
     }
-    return existing.id as string;
+    return {
+      id: existing.id as string,
+      created: false,
+      status: (patch.status as string) ?? (existing.status as string),
+    };
   }
 
-  const { data: created, error: insErr } = await db
+  let status = input.initialStatus ?? "active";
+  let inserted = await db
     .from("people")
     .insert({
       email: input.email,
       first_name: input.firstName || null,
       phone: input.phone || null,
       source: input.source,
+      status,
     })
     .select("id")
     .single();
-  if (insErr) throw insErr;
-  return created.id as string;
+  // Si la migración 0003 (status 'pending') aún no se aplicó, degradar a 'active'.
+  if (inserted.error?.code === "23514" && status === "pending") {
+    status = "active";
+    inserted = await db
+      .from("people")
+      .insert({
+        email: input.email,
+        first_name: input.firstName || null,
+        phone: input.phone || null,
+        source: input.source,
+        status,
+      })
+      .select("id")
+      .single();
+  }
+  if (inserted.error) throw inserted.error;
+  return { id: inserted.data.id as string, created: true, status };
 }
 
 /** Registra la prueba de consentimiento (texto exacto, versión, IP, UA). */
