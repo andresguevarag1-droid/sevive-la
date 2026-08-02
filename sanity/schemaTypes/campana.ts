@@ -107,6 +107,23 @@ export const campana = defineType({
       initialValue: false,
     }),
     defineField({
+      name: "referidosActivos",
+      title: "Referidos activos",
+      type: "boolean",
+      description:
+        "ENCENDIDO: cada participante recibe un link personal y suma chances por cada amigo que participe con él. La mecánica debe estar descrita en las bases.",
+      initialValue: true,
+    }),
+    defineField({
+      name: "chancesMaxPorReferido",
+      title: "Tope de chances extra por referidos",
+      type: "number",
+      description:
+        "Máximo de chances bonus que puede acumular una persona (además de su chance base).",
+      initialValue: 10,
+      validation: (rule) => rule.min(0).max(100),
+    }),
+    defineField({
       name: "bases",
       title: "Bases y condiciones",
       type: "array",

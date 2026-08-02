@@ -35,6 +35,15 @@ export function consentParticipacion(slug: string): ConsentDefinition {
   };
 }
 
+/** Consentimiento al reclamar un cupón de beneficio; el purpose lleva el slug. */
+export function consentBeneficio(slug: string): ConsentDefinition {
+  return {
+    purpose: `beneficio:${slug}`,
+    version: "2026-08-02.v1",
+    text: "Acepto que SeViveLa trate mis datos personales (correo electrónico) para emitirme este cupón, medir su canje y enviarme información de beneficios similares, según su Política de Privacidad. Puedo darme de baja en cualquier momento.",
+  };
+}
+
 /** Consentimiento de participación en dinámica; el purpose lleva el slug. */
 export function consentDinamica(slug: string): ConsentDefinition {
   return {

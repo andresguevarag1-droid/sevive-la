@@ -128,6 +128,30 @@ export function plantillaParticipacion(
   };
 }
 
+export function plantillaCupon(
+  email: string,
+  cupon: {
+    titulo: string;
+    marca: string;
+    detalle: string;
+    code: string;
+    url: string;
+    vigencia?: string;
+  }
+): { subject: string; html: string } {
+  return {
+    subject: `Tu cupón: ${cupon.titulo} · ${cupon.marca}`,
+    html: layoutHtml(
+      `<h1 style="font-size:22px;margin:0 0 12px;">Tu cupón está listo.</h1>
+       <p style="line-height:1.6;margin:0 0 6px;"><strong>${cupon.titulo}</strong> — ${cupon.marca}<br/>${cupon.detalle}</p>
+       <p style="background:#f6f2fb;border:1px dashed #a190d2;border-radius:12px;padding:16px;text-align:center;font-size:24px;font-weight:800;letter-spacing:2px;margin:18px 0;">${cupon.code}</p>
+       ${btn(cupon.url, "Ver mi cupón (con QR)")}
+       <p style="font-size:13px;color:#666174;line-height:1.6;margin:0;">Mostrá el código o el QR en el local. Un solo uso por persona.${cupon.vigencia ? ` Válido hasta el ${cupon.vigencia}.` : ""}</p>`,
+      email
+    ),
+  };
+}
+
 /* ── Envío y audiencia ── */
 
 export async function enviarCorreo(

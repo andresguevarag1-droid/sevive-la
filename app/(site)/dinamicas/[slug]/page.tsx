@@ -18,6 +18,7 @@ type Search = {
   utm_medium?: string;
   utm_content?: string;
   utm_campaign?: string;
+  ref?: string;
 };
 
 export const revalidate = 60;
@@ -110,6 +111,7 @@ export default async function DinamicaPage({
           content: sp.utm_content,
           campaign: sp.utm_campaign,
         }}
+        refInicial={sp.ref}
       />
     );
   }

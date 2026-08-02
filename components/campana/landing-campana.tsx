@@ -40,9 +40,12 @@ function diasRestantes(iso: string): number | null {
 export function CampanaLanding({
   campana,
   utm,
+  refInicial,
 }: {
   campana: Campana;
   utm?: Utm;
+  /** Código de referido con el que llegó (?ref=). */
+  refInicial?: string;
 }) {
   const estado = estadoCampana(campana);
   const dias = diasRestantes(campana.termina);
@@ -145,7 +148,12 @@ export function CampanaLanding({
         {/* ── Formulario o estado ── */}
         <section className="mt-8" aria-label="Participación">
           {estado === "abierta" ? (
-            <FormParticipacion campaignSlug={campana.slug} utm={utm} />
+            <FormParticipacion
+              campaignSlug={campana.slug}
+              utm={utm}
+              premio={campana.premio}
+              refInicial={refInicial}
+            />
           ) : (
             <div className="card px-6 py-10 text-center md:px-10">
               <p className="label text-faint">

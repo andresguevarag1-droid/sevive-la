@@ -86,6 +86,7 @@ type RawBeneficioFull = {
   detalle?: string;
   patrocinado?: boolean;
   vigencia?: string;
+  slug?: string;
 };
 
 export async function getBeneficiosTodos(): Promise<Beneficio[]> {
@@ -94,7 +95,7 @@ export async function getBeneficiosTodos(): Promise<Beneficio[]> {
     const hoy = new Date().toISOString().slice(0, 10);
     const raw = await client.fetch<RawBeneficioFull[]>(
       /* groq */ `*[_type == "beneficio" && (!defined(vigencia) || vigencia >= $hoy)] | order(orden asc, _createdAt desc)[0...24]{
-        _id, title, vertical, marca, detalle, patrocinado, vigencia
+        _id, title, vertical, marca, detalle, patrocinado, vigencia, "slug": slug.current
       }`,
       { hoy },
       { next: { revalidate: 60 } }
@@ -108,6 +109,7 @@ export async function getBeneficiosTodos(): Promise<Beneficio[]> {
       meta: b.detalle || "",
       patrocinado: b.patrocinado,
       vigencia: b.vigencia,
+      href: b.slug ? `/promociones/${b.slug}` : undefined,
     }));
     return items.length ? items : mockBeneficios;
   } catch (err) {

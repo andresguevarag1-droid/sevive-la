@@ -29,6 +29,14 @@ export const participacionSchema = z.object({
   /** Checkboxes legales: obligatorios, nunca premarcados. */
   consent: z.literal(true, "Necesitamos tu consentimiento para participar."),
   acceptsRules: z.literal(true, "Tenés que aceptar las bases y condiciones."),
+  /** Código de referido con el que llegó (?ref=). Inválido → se ignora, no bloquea. */
+  ref: z
+    .string()
+    .trim()
+    .toUpperCase()
+    .regex(/^[A-Z0-9]{4,12}$/)
+    .optional()
+    .or(z.literal("")),
   /** Token de Cloudflare Turnstile (exigido cuando está configurado). */
   turnstileToken: z.string().optional(),
   /** Honeypot anti-bot: debe venir vacío. */

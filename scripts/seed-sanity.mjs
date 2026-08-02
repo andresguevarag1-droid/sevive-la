@@ -476,6 +476,9 @@ async function run() {
     {
       _id: "seed-beneficio-ventana",
       _type: "beneficio",
+      slug: { current: "brunch-la-ventana" },
+      cuponMedible: true,
+      instruccionesCanje: "Mostrá tu cupón en caja antes de pedir. Válido para brunch de viernes a domingo.",
       title: "Brunch de La Ventana",
       marca: "La Ventana",
       vertical: "gastronomia",
@@ -487,6 +490,9 @@ async function run() {
     {
       _id: "seed-beneficio-doka",
       _type: "beneficio",
+      slug: { current: "tour-cafe-doka" },
+      cuponMedible: true,
+      instruccionesCanje: "Presentá tu cupón en recepción al llegar. Válido de lunes a jueves.",
       title: "Tour de café Doka",
       marca: "Doka Estate",
       vertical: "experiencias",
@@ -498,6 +504,8 @@ async function run() {
     {
       _id: "seed-beneficio-nosara",
       _type: "beneficio",
+      slug: { current: "noche-en-nosara" },
+      cuponMedible: false,
       title: "Noche en Nosara",
       marca: "Bodhi Tree",
       vertical: "turismo",
@@ -545,6 +553,8 @@ async function run() {
       premio:
         "Un viaje a la 27.ª entrega de los Latin Grammys 2026 en Las Vegas, Nevada.",
       patrocinado: false,
+      referidosActivos: true,
+      chancesMaxPorReferido: 10,
       bases: [
         block("Bases y condiciones — Dinámica Latin Grammys 2026", "h2"),
         block(
@@ -560,13 +570,16 @@ async function run() {
           "4. Premio: un viaje para asistir a la 27.ª entrega anual de los Latin Grammy en Las Vegas, Nevada (fecha del evento por confirmar con la fuente oficial de la Latin Recording Academy; referencia: 12 de noviembre de 2026). El detalle de boletos, vuelos, hospedaje y viáticos incluidos se especificará antes del cierre de la dinámica."
         ),
         block(
-          "5. La persona ganadora se elegirá al azar entre las participaciones válidas recibidas dentro del período de la dinámica, y será contactada por correo electrónico. Si no responde en 5 días hábiles, o no cumple los requisitos de elegibilidad, se elegirá una nueva persona ganadora."
+          "5. Referidos: cada participante recibe un enlace personal. Por cada persona distinta que participe válidamente con ese enlace, el participante suma una (1) oportunidad adicional en el sorteo, hasta un máximo de diez (10) oportunidades adicionales. No cuentan los auto-referidos ni las participaciones duplicadas o fraudulentas, que podrán invalidarse. Participar y referir es siempre gratuito."
         ),
         block(
-          "6. El premio no es canjeable por dinero ni transferible. Gestión migratoria (pasaporte y visa) a cargo de la persona ganadora."
+          "6. La persona ganadora se elegirá al azar entre las participaciones válidas recibidas dentro del período de la dinámica, ponderando las oportunidades de cada participante (base más referidos válidos). El método y la semilla del sorteo quedarán registrados para su auditoría. Será contactada por correo electrónico; si no responde en 5 días hábiles, o no cumple los requisitos de elegibilidad, se elegirá una nueva persona ganadora."
         ),
         block(
-          "7. Los datos personales se tratan conforme a la Ley 8968 y la Política de Privacidad de SeViveLa; podés solicitar su eliminación en cualquier momento escribiendo a hola@sevive.la."
+          "7. El premio no es canjeable por dinero ni transferible. Gestión migratoria (pasaporte y visa) a cargo de la persona ganadora."
+        ),
+        block(
+          "8. Los datos personales se tratan conforme a la Ley 8968 y la Política de Privacidad de SeViveLa; podés solicitar su eliminación en cualquier momento escribiendo a hola@sevive.la."
         ),
       ],
     },

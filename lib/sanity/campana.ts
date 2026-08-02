@@ -29,6 +29,8 @@ export type Campana = {
   premio: string;
   patrocinador?: string;
   patrocinado?: boolean;
+  referidosActivos?: boolean;
+  chancesMaxPorReferido?: number;
   bases?: PortableTextBlock[];
 };
 
@@ -48,13 +50,15 @@ type RawCampana = {
   premio: string;
   patrocinador?: string;
   patrocinado?: boolean;
+  referidosActivos?: boolean;
+  chancesMaxPorReferido?: number;
   bases?: PortableTextBlock[];
 };
 
 const CAMPANA_FIELDS = /* groq */ `
   _id, titulo, subtitulo, "slug": slug.current, activa, vertical,
   imagenHero{ asset, "alt": alt }, ogImage{ asset },
-  ctaTexto, microcopy, inicia, termina, premio, patrocinador, patrocinado, bases
+  ctaTexto, microcopy, inicia, termina, premio, patrocinador, patrocinado, referidosActivos, chancesMaxPorReferido, bases
 `;
 
 function mapCampana(c: RawCampana): Campana {
@@ -80,6 +84,8 @@ function mapCampana(c: RawCampana): Campana {
     premio: c.premio,
     patrocinador: c.patrocinador,
     patrocinado: c.patrocinado,
+    referidosActivos: c.referidosActivos !== false,
+    chancesMaxPorReferido: c.chancesMaxPorReferido ?? 10,
     bases: c.bases,
   };
 }

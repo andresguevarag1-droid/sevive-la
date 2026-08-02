@@ -6,7 +6,7 @@
  * de elegibilidad. Consentimiento y bases NUNCA premarcados (Ley 8968).
  * Estados: idle → sending → ok | error. Nunca se pierde lo tipeado.
  */
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { consentParticipacion } from "@/lib/consent";
 import {
@@ -26,6 +26,15 @@ type Utm = {
   campaign?: string;
 };
 
+/** Cookie simple (respaldo del ?ref= si la persona navega antes de enviar). */
+function setCookie(name: string, value: string, dias: number) {
+  document.cookie = `${name}=${encodeURIComponent(value)};path=/;max-age=${dias * 86400};samesite=lax`;
+}
+function getCookie(name: string): string {
+  const m = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+  return m ? decodeURIComponent(m[1]) : "";
+}
+
 const inputClass =
   "mt-2 w-full border-b border-rule bg-transparent pb-2 text-ink outline-none placeholder:text-faint focus:border-ink disabled:opacity-60";
 
@@ -40,9 +49,15 @@ type PreguntaKey = (typeof preguntasElegibilidad)[number]["key"];
 export function FormParticipacion({
   campaignSlug,
   utm,
+  premio,
+  refInicial,
 }: {
   campaignSlug: string;
   utm?: Utm;
+  /** Para el mensaje de compartir por WhatsApp. */
+  premio?: string;
+  /** Código ?ref= con el que llegó la persona (de searchParams). */
+  refInicial?: string;
 }) {
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
@@ -61,8 +76,52 @@ export function FormParticipacion({
   const [error, setError] = useState("");
   const [yaParticipaba, setYaParticipaba] = useState(false);
   const [eligible, setEligible] = useState(true);
+  const [referralCode, setReferralCode] = useState("");
+  const [referralUrl, setReferralUrl] = useState("");
+  const [contador, setContador] = useState<{ referrals: number; chances: number } | null>(null);
+  const [copiado, setCopiado] = useState(false);
 
   const consentDef = consentParticipacion(campaignSlug);
+  const claveLocal = `sv_refcode_${campaignSlug}`;
+  const claveCookie = `sv_ref_${campaignSlug}`;
+
+  // Respaldar el ?ref= en cookie (30 días) y recordar si ya participó aquí.
+  useEffect(() => {
+    if (refInicial) setCookie(claveCookie, refInicial, 30);
+    try {
+      const guardado = localStorage.getItem(claveLocal);
+      if (guardado) {
+        const { code, url } = JSON.parse(guardado) as { code: string; url: string };
+        if (code && url) {
+          setReferralCode(code);
+          setReferralUrl(url);
+          setYaParticipaba(true);
+          setStatus("ok");
+        }
+      }
+    } catch {
+      /* localStorage bloqueado (webview estricta): sin memoria, sin drama */
+    }
+    // Solo al montar.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Contador en vivo de referidos cuando hay código.
+  useEffect(() => {
+    if (status !== "ok" || !referralCode) return;
+    let cancelado = false;
+    fetch(`/api/dinamica/chances?slug=${campaignSlug}&code=${referralCode}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (!cancelado && data?.ok) {
+          setContador({ referrals: data.referrals, chances: data.chances });
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelado = true;
+    };
+  }, [status, referralCode, campaignSlug]);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -127,17 +186,37 @@ export function FormParticipacion({
           followsIg,
           consent: true,
           acceptsRules: true,
+          ref: (refInicial || getCookie(claveCookie) || "").toUpperCase(),
           turnstileToken,
           website: honeypot,
           utm: utm ?? {},
         }),
       });
       const data = (await res.json().catch(() => null)) as
-        | { ok: boolean; error?: string; yaParticipaba?: boolean; eligible?: boolean }
+        | {
+            ok: boolean;
+            error?: string;
+            yaParticipaba?: boolean;
+            eligible?: boolean;
+            referralCode?: string | null;
+            referralUrl?: string | null;
+          }
         | null;
       if (res.ok && data?.ok) {
         setYaParticipaba(Boolean(data.yaParticipaba));
         setEligible(data.eligible !== false);
+        if (data.referralCode && data.referralUrl) {
+          setReferralCode(data.referralCode);
+          setReferralUrl(data.referralUrl);
+          try {
+            localStorage.setItem(
+              claveLocal,
+              JSON.stringify({ code: data.referralCode, url: data.referralUrl })
+            );
+          } catch {
+            /* sin memoria local, no pasa nada */
+          }
+        }
         setStatus("ok");
       } else {
         setStatus("error");
@@ -150,7 +229,27 @@ export function FormParticipacion({
   }
 
   if (status === "ok") {
-    /* ── Éxito / duplicado ── */
+    /* ── Éxito / duplicado, con motor de referidos ── */
+    const mensajeWhatsApp = encodeURIComponent(
+      `¡Estoy participando por ${premio ?? "un premio"} en @sevive.la! Entrá con mi link y los dos sumamos chances 👉 ${referralUrl}`
+    );
+    const copiarLink = async () => {
+      try {
+        await navigator.clipboard.writeText(referralUrl);
+        setCopiado(true);
+        setTimeout(() => setCopiado(false), 2000);
+      } catch {
+        /* clipboard bloqueado: el input queda seleccionable a mano */
+      }
+    };
+    const compartir = () => {
+      if (navigator.share) {
+        navigator
+          .share({ title: "SeViveLa", text: mensajeWhatsApp ? undefined : "", url: referralUrl })
+          .catch(() => {});
+      }
+    };
+
     return (
       <div aria-live="polite" className="card px-6 py-10 text-center md:px-10">
         <p className="label text-brand">
@@ -167,11 +266,71 @@ export function FormParticipacion({
             y visa al día — te avisaremos de dinámicas para las que sí
             califiqués.
           </p>
+        ) : null}
+
+        {referralUrl ? (
+          <div className="mx-auto mt-8 max-w-md border-t border-rule pt-6 text-left">
+            <p className="label text-ink">Sumá más chances</p>
+            <p className="mt-1.5 text-sm leading-relaxed text-muted">
+              Por cada amigo que participe con tu link, ganás una oportunidad
+              extra en el sorteo.
+            </p>
+
+            {/* link personal */}
+            <div className="mt-4 flex items-center gap-2 rounded-[var(--radius-md)] border border-rule bg-paper px-3 py-2.5">
+              <input
+                readOnly
+                value={referralUrl}
+                aria-label="Tu link personal"
+                onFocus={(e) => e.currentTarget.select()}
+                className="tnum w-full bg-transparent text-[13px] text-ink outline-none"
+              />
+              <button
+                type="button"
+                onClick={copiarLink}
+                className="pressable shrink-0 rounded-[var(--radius-full)] border border-ink px-3.5 py-1.5 text-xs font-bold uppercase tracking-wide text-ink"
+              >
+                {copiado ? "¡Copiado!" : "Copiar"}
+              </button>
+            </div>
+
+            {/* compartir: WhatsApp primero */}
+            <div className="mt-3 flex flex-wrap gap-2">
+              <a
+                href={`https://wa.me/?text=${mensajeWhatsApp}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="pressable inline-flex flex-1 items-center justify-center rounded-[var(--radius-full)] px-5 py-3 text-sm font-bold text-white"
+                style={{ background: "#25D366" }}
+              >
+                Compartir por WhatsApp
+              </a>
+              <button
+                type="button"
+                onClick={compartir}
+                className="pressable rounded-[var(--radius-full)] border border-ink px-5 py-3 text-sm font-bold text-ink"
+              >
+                Compartir…
+              </button>
+            </div>
+
+            {/* contador en vivo */}
+            {contador ? (
+              <p className="tnum mt-4 rounded-[var(--radius-md)] bg-paper-2 px-4 py-3 text-center text-sm font-semibold text-ink">
+                {contador.referrals === 0
+                  ? "Todavía nadie entró con tu link — ¡compartilo!"
+                  : `${contador.referrals} ${contador.referrals === 1 ? "amigo ya entró" : "amigos ya entraron"} con tu link`}
+                {" · "}Tenés {contador.chances}{" "}
+                {contador.chances === 1 ? "chance" : "chances"}
+              </p>
+            ) : null}
+          </div>
         ) : (
           <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted">
             Seguí a @sevive.la para enterarte del ganador.
           </p>
         )}
+
         <a
           href="https://www.instagram.com/sevive.la"
           target="_blank"

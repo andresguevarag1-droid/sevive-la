@@ -17,6 +17,14 @@ export const beneficio = defineType({
       validation: (rule) => rule.required().max(120),
     }),
     defineField({
+      name: "slug",
+      title: "Slug (URL)",
+      type: "slug",
+      options: { source: "title", maxLength: 96 },
+      description: "La página del beneficio queda en /promociones/<slug>.",
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
       name: "marca",
       title: "Marca aliada",
       type: "string",
@@ -48,6 +56,21 @@ export const beneficio = defineType({
       title: "Orden manual",
       type: "number",
       description: "Menor número aparece primero.",
+    }),
+    defineField({
+      name: "cuponMedible",
+      title: "Cupón medible (con canje en el local)",
+      type: "boolean",
+      description:
+        "ENCENDIDO: la gente reclama un cupón único (código + QR) dejando su correo, y el local lo canjea una sola vez. Genera métricas de redención para la marca.",
+      initialValue: false,
+    }),
+    defineField({
+      name: "instruccionesCanje",
+      title: "Instrucciones de canje",
+      type: "text",
+      rows: 2,
+      description: 'Ej. "Mostrá este código en caja antes de pedir. Válido de lunes a jueves."',
     }),
   ],
   orderings: [

@@ -20,6 +20,8 @@ import {
 import { getClientIp, getUserAgent } from "@/lib/server/request-meta";
 import { checkRateLimit } from "@/lib/server/rate-limit";
 import { verifyTurnstile } from "@/lib/server/turnstile";
+import { generarCodigoUnico } from "@/lib/server/referral";
+import { site } from "@/lib/site";
 import {
   emailEnabled,
   enviarCorreo,
@@ -109,6 +111,11 @@ export async function POST(req: Request) {
     );
   }
 
+  // ── Referidos (Feature A): resolver referred_by y generar código propio ──
+  const referidosActivos = campana.referidosActivos !== false;
+  let referredBy: string | null = null;
+  let referralCode: string | null = null;
+
   try {
     // 1. La persona entra (o se completa) en la base de audiencia.
     const { id: personId } = await upsertPerson(db, {
@@ -117,6 +124,21 @@ export async function POST(req: Request) {
       phone: d.phone || undefined,
       source: "dinamica",
     });
+
+    if (referidosActivos && d.ref) {
+      // El código debe pertenecer a OTRA persona de la MISMA campaña.
+      // Inválido o self-referral → null, sin bloquear la participación.
+      const { data: referrer } = await db
+        .from("campaign_entries")
+        .select("email")
+        .eq("campaign_slug", d.campaignSlug)
+        .eq("referral_code", d.ref)
+        .maybeSingle();
+      if (referrer && referrer.email !== d.email) referredBy = d.ref;
+    }
+    if (referidosActivos) {
+      referralCode = await generarCodigoUnico(db);
+    }
 
     // 2. Lead de campaña: única por correo (unique campaign_slug+email).
     const { error: entryErr } = await db.from("campaign_entries").insert({
@@ -131,14 +153,27 @@ export async function POST(req: Request) {
       has_us_visa: d.hasUsVisa,
       follows_ig: d.followsIg ?? false,
       utm: d.utm ?? {},
+      referral_code: referralCode,
+      referred_by: referredBy,
     });
     if (entryErr) {
       if (entryErr.code === "23505") {
-        // Ya participaba: no es un error para la persona, y no se duplica.
-        return NextResponse.json(
-          { ok: true, yaParticipaba: true },
-          { status: 200 }
-        );
+        // Ya participaba: devolver su código existente para que vea su link.
+        const { data: existente } = await db
+          .from("campaign_entries")
+          .select("referral_code")
+          .eq("campaign_slug", d.campaignSlug)
+          .eq("email", d.email)
+          .maybeSingle();
+        const codigo = existente?.referral_code ?? null;
+        return NextResponse.json({
+          ok: true,
+          yaParticipaba: true,
+          referralCode: codigo,
+          referralUrl: codigo
+            ? `${site.url}/dinamicas/${d.campaignSlug}?ref=${codigo}`
+            : null,
+        });
       }
       throw entryErr;
     }
@@ -170,5 +205,12 @@ export async function POST(req: Request) {
   }
 
   const eligible = d.isOver21 && d.hasPassport && d.hasUsVisa;
-  return NextResponse.json({ ok: true, eligible });
+  return NextResponse.json({
+    ok: true,
+    eligible,
+    referralCode,
+    referralUrl: referralCode
+      ? `${site.url}/dinamicas/${d.campaignSlug}?ref=${referralCode}`
+      : null,
+  });
 }
