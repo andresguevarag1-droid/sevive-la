@@ -23,6 +23,18 @@ export const CONSENT_NEWSLETTER: ConsentDefinition = {
   text: "Acepto que SeViveLa trate mis datos personales (correo electrónico y nombre) para enviarme su boletín con contenido y beneficios, según su Política de Privacidad. Puedo darme de baja en cualquier momento.",
 };
 
+/**
+ * Consentimiento de participación en CAMPAÑA (ej. Latin Grammys 2026).
+ * Texto y versión acordados con legal para esta campaña (spec lg-2026-v1).
+ */
+export function consentParticipacion(slug: string): ConsentDefinition {
+  return {
+    purpose: `dinamica:${slug}`,
+    version: "lg-2026-v1",
+    text: "Autorizo a SeViveLa a tratar mis datos personales (correo, nombre, residencia y teléfono) para gestionar mi participación en esta dinámica y enviarme comunicaciones, según su Política de Privacidad. Puedo darme de baja cuando quiera.",
+  };
+}
+
 /** Consentimiento de participación en dinámica; el purpose lleva el slug. */
 export function consentDinamica(slug: string): ConsentDefinition {
   return {

@@ -3,10 +3,38 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { PortableText } from "next-sanity";
 import { getDinamica } from "@/lib/sanity/dinamica";
+import { getCampana } from "@/lib/sanity/campana";
 
 type Params = { slug: string };
 
 export const revalidate = 60;
+
+/** Bases: sirven tanto para campañas (hero de home) como para dinámicas. */
+async function getBasesDoc(slug: string) {
+  const c = await getCampana(slug);
+  if (c) {
+    return {
+      title: c.titulo,
+      premio: c.premio,
+      inicio: c.inicia,
+      cierre: c.termina,
+      marca: c.patrocinador,
+      bases: c.bases,
+      slug: c.slug,
+    };
+  }
+  const d = await getDinamica(slug);
+  if (!d) return null;
+  return {
+    title: d.title,
+    premio: d.premio,
+    inicio: d.inicio,
+    cierre: d.cierre,
+    marca: d.marca,
+    bases: d.bases,
+    slug: d.slug,
+  };
+}
 
 export async function generateMetadata({
   params,
@@ -14,13 +42,13 @@ export async function generateMetadata({
   params: Promise<Params>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const d = await getDinamica(slug);
-  if (!d) return {};
+  const doc = await getBasesDoc(slug);
+  if (!doc) return {};
   return {
-    title: `Bases legales · ${d.title}`,
-    description: `Bases y condiciones de la dinámica "${d.title}" de SeViveLa.`,
+    title: `Bases legales · ${doc.title}`,
+    description: `Bases y condiciones de la dinámica "${doc.title}" de SeViveLa.`,
     robots: { index: false },
-    alternates: { canonical: `/legal/bases/${d.slug}` },
+    alternates: { canonical: `/legal/bases/${doc.slug}` },
   };
 }
 
@@ -45,7 +73,7 @@ export default async function BasesPage({
   params: Promise<Params>;
 }) {
   const { slug } = await params;
-  const d = await getDinamica(slug);
+  const d = await getBasesDoc(slug);
   if (!d) notFound();
 
   return (

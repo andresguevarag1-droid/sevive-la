@@ -4,6 +4,19 @@
  * (lib/validation/*.ts), que es la fuente de verdad.
  */
 
+/** Provincias de Costa Rica (dropdown de residencia en campañas). */
+export const PROVINCIAS_CR = [
+  "San José",
+  "Alajuela",
+  "Cartago",
+  "Heredia",
+  "Guanacaste",
+  "Puntarenas",
+  "Limón",
+] as const;
+
+export type ProvinciaCR = (typeof PROVINCIAS_CR)[number];
+
 export function isValidEmail(value: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value.trim());
 }

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getHomeContent } from "@/lib/sanity/queries";
+import { getCampanaActiva } from "@/lib/sanity/campana";
+import { HeroCampana } from "@/components/campana/hero-campana";
 import { LeadStory } from "@/components/lead-story";
 import { SectionHead } from "@/components/section-head";
 import { WeekIndex } from "@/components/week-index";
@@ -23,11 +25,15 @@ const quickFilters = [
 ];
 
 export default async function HomePage() {
-  // Contenido desde Sanity (con fallback a mock por sección).
-  const { lead, week, features, videos, beneficios } = await getHomeContent();
+  // Contenido desde Sanity (con fallback a mock por sección) + campaña activa.
+  const [{ lead, week, features, videos, beneficios }, campana] =
+    await Promise.all([getHomeContent(), getCampanaActiva()]);
 
   return (
     <>
+      {/* ── HERO de campaña (solo si el equipo la activó en el Studio) ── */}
+      {campana ? <HeroCampana campana={campana} /> : null}
+
       {/* ── Barra de servicio: búsqueda + filtros rápidos ── */}
       <div className="border-b border-rule">
         <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-2.5">
@@ -56,9 +62,9 @@ export default async function HomePage() {
         </div>
       </div>
 
-      {/* ── Nota líder ── */}
+      {/* ── Nota líder (h2 si el h1 lo lleva la campaña) ── */}
       <section className="mx-auto max-w-6xl px-4 pt-8 pb-12 md:pt-12 md:pb-16">
-        <LeadStory story={lead} />
+        <LeadStory story={lead} as={campana ? "h2" : "h1"} />
       </section>
 
       {/* ── Esta semana ── */}

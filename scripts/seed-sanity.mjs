@@ -317,6 +317,48 @@ async function run() {
       imagen: imageRef(img.street, "Calle de Barrio Amón con casas históricas"),
     },
 
+    /* ── Campaña Latin Grammys 2026 (hero de home + landing de captura) ── */
+    {
+      _id: "seed-campana-latin-grammys",
+      _type: "campana",
+      titulo: "Ponemos los Latin Grammys a tus pies",
+      subtitulo: "Ganate un viaje a los Latin Grammys 2026 en Las Vegas.",
+      slug: { current: "latin-grammys" },
+      activa: true,
+      vertical: "entretenimiento",
+      ctaTexto: "Participá gratis",
+      microcopy: "Válido solo para Costa Rica · Participar no cuesta nada",
+      inicia: at(-1, 8),
+      termina: at(70, 21),
+      premio:
+        "Un viaje a la 27.ª entrega de los Latin Grammys 2026 en Las Vegas, Nevada.",
+      patrocinado: false,
+      bases: [
+        block("Bases y condiciones — Dinámica Latin Grammys 2026", "h2"),
+        block(
+          "1. Organiza SeViveLa. Pueden participar personas mayores de 21 años, residentes en Costa Rica, con pasaporte y visa americana vigentes al momento del viaje."
+        ),
+        block(
+          "2. La participación es gratuita: no se exige compra ni pago alguno. Se permite una participación por persona (por correo electrónico)."
+        ),
+        block(
+          "3. Para participar hay que completar el formulario en sevive.la con nombre completo, correo, provincia de residencia y las respuestas de elegibilidad, aceptando el tratamiento de datos y estas bases."
+        ),
+        block(
+          "4. Premio: un viaje para asistir a la 27.ª entrega anual de los Latin Grammy en Las Vegas, Nevada (fecha del evento por confirmar con la fuente oficial de la Latin Recording Academy; referencia: 12 de noviembre de 2026). El detalle de boletos, vuelos, hospedaje y viáticos incluidos se especificará antes del cierre de la dinámica."
+        ),
+        block(
+          "5. La persona ganadora se elegirá al azar entre las participaciones válidas recibidas dentro del período de la dinámica, y será contactada por correo electrónico. Si no responde en 5 días hábiles, o no cumple los requisitos de elegibilidad, se elegirá una nueva persona ganadora."
+        ),
+        block(
+          "6. El premio no es canjeable por dinero ni transferible. Gestión migratoria (pasaporte y visa) a cargo de la persona ganadora."
+        ),
+        block(
+          "7. Los datos personales se tratan conforme a la Ley 8968 y la Política de Privacidad de SeViveLa; podés solicitar su eliminación en cualquier momento escribiendo a hola@sevive.la."
+        ),
+      ],
+    },
+
     /* ── Dinámica: 1, abierta 14 días ── */
     {
       _id: "seed-dinamica-cena-ventana",

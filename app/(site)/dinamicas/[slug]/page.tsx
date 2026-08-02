@@ -3,14 +3,22 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { PortableText } from "next-sanity";
 import { getDinamica, estadoDinamica } from "@/lib/sanity/dinamica";
+import { getCampana } from "@/lib/sanity/campana";
 import { getVertical } from "@/lib/site";
 import { DinamicaForm } from "@/components/dinamica-form";
+import { CampanaLanding } from "@/components/campana/landing-campana";
 import { EditorialImage } from "@/components/editorial-image";
 import { CategoryLabel } from "@/components/kicker";
 import { JsonLd } from "@/components/json-ld";
 import { site } from "@/lib/site";
 
 type Params = { slug: string };
+type Search = {
+  utm_source?: string;
+  utm_medium?: string;
+  utm_content?: string;
+  utm_campaign?: string;
+};
 
 export const revalidate = 60;
 
@@ -20,6 +28,24 @@ export async function generateMetadata({
   params: Promise<Params>;
 }): Promise<Metadata> {
   const { slug } = await params;
+
+  // Las campañas (hero de home) tienen su propia landing y metadata.
+  const c = await getCampana(slug);
+  if (c) {
+    const title = c.subtitulo.replace(/\.$/, "");
+    const description = `${c.premio} Participar no cuesta nada. Válido solo para Costa Rica.`;
+    return {
+      title,
+      description,
+      openGraph: {
+        title,
+        description,
+        images: c.ogImage ? [{ url: c.ogImage }] : undefined,
+      },
+      alternates: { canonical: `/dinamicas/${c.slug}` },
+    };
+  }
+
   const d = await getDinamica(slug);
   if (!d) return {};
   const description = `Participá gratis: ${d.premio}`;
@@ -64,10 +90,30 @@ const pasos = [
 
 export default async function DinamicaPage({
   params,
+  searchParams,
 }: {
   params: Promise<Params>;
+  searchParams: Promise<Search>;
 }) {
   const { slug } = await params;
+
+  // Campaña primero: el equipo lanza campañas nuevas desde el Studio sin deploy.
+  const campana = await getCampana(slug);
+  if (campana) {
+    const sp = await searchParams;
+    return (
+      <CampanaLanding
+        campana={campana}
+        utm={{
+          source: sp.utm_source,
+          medium: sp.utm_medium,
+          content: sp.utm_content,
+          campaign: sp.utm_campaign,
+        }}
+      />
+    );
+  }
+
   const d = await getDinamica(slug);
   if (!d) notFound();
 

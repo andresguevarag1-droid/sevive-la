@@ -9,7 +9,14 @@ import { ArrowRightIcon } from "@/components/icons";
  * Nota líder de portada — drama de revista: titular serif gigante,
  * la imagen manda, firma sobre regla de pelo y llamado a leer.
  */
-export function LeadStory({ story }: { story: Story }) {
+export function LeadStory({
+  story,
+  as: Heading = "h1",
+}: {
+  story: Story;
+  /** "h2" cuando hay una campaña activa (el hero de campaña lleva el h1). */
+  as?: "h1" | "h2";
+}) {
   const href = `/${story.vertical}`;
   const color = verticalColor(story.vertical);
 
@@ -49,9 +56,9 @@ export function LeadStory({ story }: { story: Story }) {
         <div className="md:col-span-5">
           <CategoryLabel vertical={story.vertical} type={story.type} />
           <Link href={href} className="mt-3 block">
-            <h1 className="text-[clamp(2.3rem,6vw,4.1rem)] font-medium leading-[0.99] tracking-[-0.015em]">
+            <Heading className="headline text-[clamp(2.3rem,6vw,4.1rem)] font-medium leading-[0.99] tracking-[-0.015em]">
               {story.title}
-            </h1>
+            </Heading>
           </Link>
           {story.dek ? (
             <p className="measure mt-5 text-lg leading-relaxed text-muted">
