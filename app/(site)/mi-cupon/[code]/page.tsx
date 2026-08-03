@@ -134,6 +134,22 @@ export default async function MiCuponPage({
         </div>
       </div>
 
+      {estado === "vigente" ? (
+        <div className="mt-5 text-center">
+          <a
+            href={`/mi-cupon/${code}/imagen`}
+            target="_blank"
+            rel="noopener"
+            className="pressable inline-block w-full border-2 border-ink px-6 py-3.5 text-sm font-bold uppercase tracking-wide text-ink transition-colors hover:bg-ink hover:text-paper"
+          >
+            Guardar imagen del cupón
+          </a>
+          <p className="label mt-2 text-faint">
+            Se abre como imagen: mantenela presionada para guardarla en tus fotos.
+          </p>
+        </div>
+      ) : null}
+
       <p className="mt-6 text-center">
         <Link href="/promociones" className="text-sm text-muted underline">
           Ver más beneficios
