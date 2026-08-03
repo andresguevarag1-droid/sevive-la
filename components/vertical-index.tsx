@@ -196,7 +196,8 @@ export function VerticalIndex() {
                 <span className="label mb-0.5 block md:hidden" style={{ color: p.sub }}>
                   {v.verb}
                 </span>
-                <span className="headline block text-[clamp(1.8rem,5.5vw,3rem)] leading-none">
+                {/* voz de flyer: sans negra en mayúsculas, como el hero de campaña */}
+                <span className="block font-sans text-[clamp(1.7rem,5vw,2.8rem)] font-black uppercase leading-[0.95] tracking-tight">
                   {v.name}
                 </span>
                 <span
