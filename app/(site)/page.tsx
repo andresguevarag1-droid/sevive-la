@@ -69,7 +69,7 @@ export default async function HomePage() {
 
       {/* ── Esta semana ── */}
       <section className="mx-auto max-w-6xl px-4 py-10 md:py-14">
-        <SectionHead index="01" label="Esta semana" href="/agenda" action="Agenda completa" />
+        <SectionHead index="01" label="Próximos días" href="/agenda" action="Agenda completa" />
         <WeekIndex items={week} />
       </section>
 

@@ -186,74 +186,6 @@ async function run() {
       destacada: true,
     },
 
-    /* ── Eventos: 6, esta semana ── */
-    {
-      _id: "seed-evento-chicharron",
-      _type: "evento",
-      slug: { current: "festival-del-chicharron-puriscal" },
-      title: "Festival del Chicharrón",
-      vertical: "gastronomia",
-      inicio: at(2, 11),
-      lugar: "Puriscal",
-      descripcion: "La cita anual con el chicharrón: cocina en leña, música en vivo y feria de productores.",
-      imagen: imageRef(img.food, "Chicharrones servidos en feria gastronómica"),
-    },
-    {
-      _id: "seed-evento-sonambulo",
-      _type: "evento",
-      slug: { current: "sonambulo-en-vivo-anfiteatro" },
-      title: "Sonámbulo en vivo",
-      vertical: "entretenimiento",
-      inicio: at(3, 20),
-      lugar: "Anfiteatro Coca-Cola",
-      descripcion: "La psicotropical de Sonámbulo vuelve al anfiteatro con invitados.",
-      imagen: imageRef(img.fair, "Concierto nocturno al aire libre"),
-    },
-    {
-      _id: "seed-evento-museos",
-      _type: "evento",
-      slug: { current: "noche-de-museos-barrio-amon" },
-      title: "Noche de museos",
-      vertical: "cultura",
-      inicio: at(3, 18),
-      lugar: "Barrio Amón",
-      descripcion: "Museos abiertos hasta la medianoche, con recorridos guiados gratuitos.",
-      imagen: imageRef(img.street, "Fachada de museo iluminada de noche"),
-    },
-    {
-      _id: "seed-evento-flores",
-      _type: "evento",
-      slug: { current: "feria-de-las-flores-zarcero" },
-      title: "Feria de las Flores",
-      vertical: "experiencias",
-      inicio: at(4, 9),
-      lugar: "Zarcero",
-      descripcion: "Los jardines de Zarcero en su mejor semana del año.",
-      imagen: imageRef(img.landscape, "Jardines y topiarios de Zarcero"),
-    },
-    {
-      _id: "seed-evento-poas",
-      _type: "evento",
-      slug: { current: "amanecer-guiado-volcan-poas" },
-      title: "Amanecer guiado",
-      vertical: "turismo",
-      inicio: at(5, 5),
-      lugar: "Volcán Poás",
-      descripcion: "Caminata guiada para ver salir el sol desde el mirador principal.",
-      imagen: imageRef(img.landscape, "Cráter del volcán Poás al amanecer"),
-    },
-    {
-      _id: "seed-evento-mercado",
-      _type: "evento",
-      slug: { current: "mercado-de-diseno-escalante" },
-      title: "Mercado de diseño local",
-      vertical: "estilo-de-vida",
-      inicio: at(5, 10),
-      lugar: "Barrio Escalante",
-      descripcion: "Marcas independientes, vinilos, café y comida de autor.",
-      imagen: imageRef(img.street, "Mercado urbano de diseño con puestos"),
-    },
-
     /* ── Agenda real de agosto 2026 (fechas y horas verificadas en fuentes
           públicas; donde no hay hora oficial: horaPorConfirmar=true.
           Sin inventar precios: precioDesde solo con dato verificado) ── */
@@ -635,8 +567,20 @@ async function run() {
     ? await client.fetch(`*[_id in $ids]._id`, { ids: idsCampana })
     : [];
 
+  // Eventos demo retirados (tenían fechas inventadas/rodantes): si quedaron
+  // de siembras anteriores, se eliminan. Borrar un id inexistente no falla.
+  const RETIRADOS = [
+    "seed-evento-chicharron",
+    "seed-evento-sonambulo",
+    "seed-evento-museos",
+    "seed-evento-flores",
+    "seed-evento-poas",
+    "seed-evento-mercado",
+  ];
+
   console.log(`Documentos (${docs.length}):`);
   let tx = client.transaction();
+  for (const id of RETIRADOS) tx = tx.delete(id);
   for (const doc of docs) {
     if (doc._type === "campana" && campanasExistentes.includes(doc._id)) {
       // Solo completar campos que no existan (setIfMissing) — respeta el Studio.
@@ -651,6 +595,7 @@ async function run() {
     }
   }
   await tx.commit();
+  console.log(`  ✕ eventos demo eliminados (${RETIRADOS.length}): fechas no verificadas`);
   for (const doc of docs) {
     const preservada =
       doc._type === "campana" && campanasExistentes.includes(doc._id);
