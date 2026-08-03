@@ -181,7 +181,7 @@ export default async function AgendaPage({
         <div className="mt-8">
           {[...grupos.entries()].map(([dia, items]) => (
             <section key={dia} className="mb-8">
-              <h2 className="label border-b border-ink pb-2 text-ink">
+              <h2 data-reveal className="label border-b border-ink pb-2 text-ink">
                 {dia === "proximamente" ? "Próximamente" : tituloDia(items[0].inicio)}
               </h2>
               <WeekIndex items={items} />

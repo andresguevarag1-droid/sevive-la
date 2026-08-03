@@ -207,12 +207,44 @@ input {
     overflow: hidden;
   }
 
+  /* ── Reveal editorial al scroll ──
+     Lo arma el RevealObserver SOLO en elementos bajo el pliegue (el LCP y
+     lo visible al cargar nunca se ocultan). Sin JS, nada se esconde. */
+  .reveal-armed {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  .reveal-armed[data-reveal="left"] {
+    transform: translateX(-22px);
+  }
+  .reveal-armed.in-view {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 420ms var(--ease-out) var(--reveal-delay, 0ms),
+      transform 420ms var(--ease-out) var(--reveal-delay, 0ms);
+  }
+
+  /* Titileo lento de las estrellas del hero (decorativo, GPU) */
+  @keyframes twinkle {
+    0%,
+    100% {
+      transform: scale(1) rotate(0deg);
+    }
+    50% {
+      transform: scale(0.78) rotate(14deg);
+    }
+  }
+  .twinkle {
+    animation: twinkle 4.2s ease-in-out infinite;
+  }
+
   /* feedback de pulsación (sutil) */
   .pressable {
     transition: transform 140ms var(--ease-out);
   }
   .pressable:active {
-    transform: scale(0.985);
+    transform: scale(0.97);
   }
 
   /* zoom lento de imagen editorial al hover (solo puntero fino) */

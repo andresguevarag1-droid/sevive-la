@@ -12,10 +12,12 @@ function Estrella({
   size,
   color,
   className,
+  style,
 }: {
   size: number;
   color: string;
   className?: string;
+  style?: React.CSSProperties;
 }) {
   return (
     <svg
@@ -25,6 +27,7 @@ function Estrella({
       fill={color}
       aria-hidden
       className={className}
+      style={style}
     >
       <path d="M12 0c1 6.5 4.5 10 12 12-7.5 2-11 5.5-12 12-1-6.5-4.5-10-12-12 7.5-2 11-5.5 12-12z" />
     </svg>
@@ -41,10 +44,20 @@ export function HeroCampana({ campana }: { campana: Campana }) {
           "linear-gradient(160deg, #f7941d 0%, #ef4136 38%, #c71e70 72%, #7a1f6e 100%)",
       }}
     >
-      {/* estrellas decorativas (estáticas: sin animación que respete nada) */}
-      <Estrella size={54} color="#ffd200" className="absolute left-[4%] top-8 opacity-80" />
-      <Estrella size={30} color="#ffffff" className="absolute right-[8%] top-14 opacity-60" />
-      <Estrella size={40} color="#3b1f87" className="absolute bottom-10 left-[12%] opacity-50" />
+      {/* estrellas decorativas con titileo lento (se apaga con reduced-motion) */}
+      <Estrella size={54} color="#ffd200" className="twinkle absolute left-[4%] top-8 opacity-80" />
+      <Estrella
+        size={30}
+        color="#ffffff"
+        className="twinkle absolute right-[8%] top-14 opacity-60"
+        style={{ animationDelay: "1.4s" }}
+      />
+      <Estrella
+        size={40}
+        color="#3b1f87"
+        className="twinkle absolute bottom-10 left-[12%] opacity-50"
+        style={{ animationDelay: "2.6s" }}
+      />
 
       <div className="mx-auto grid max-w-6xl items-center gap-8 px-4 py-12 md:grid-cols-[1.2fr_1fr] md:gap-12 md:py-16">
         <div className="relative">
@@ -91,7 +104,7 @@ export function HeroCampana({ campana }: { campana: Campana }) {
               height={600}
               fetchPriority="high"
               decoding="async"
-              className="w-full -rotate-2 rounded-[var(--radius-lg)] shadow-[0_24px_60px_-16px_rgba(0,0,0,0.5)]"
+              className="w-full -rotate-2 rounded-[var(--radius-lg)] shadow-[0_24px_60px_-16px_rgba(0,0,0,0.5)] transition-transform duration-500 ease-[var(--ease-out)] hover:rotate-0"
             />
           </div>
         ) : null}

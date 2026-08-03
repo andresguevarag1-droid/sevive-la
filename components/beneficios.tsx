@@ -20,6 +20,7 @@ export function Beneficios({ items }: { items: Story[] }) {
           <Link
             key={b.id}
             href={b.href ?? "/promociones"}
+            data-reveal
             className="card pressable group relative flex overflow-hidden"
           >
             {/* barra de identidad de la vertical */}

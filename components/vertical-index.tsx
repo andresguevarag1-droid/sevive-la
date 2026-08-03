@@ -166,6 +166,7 @@ export function VerticalIndex() {
           <Link
             key={v.slug}
             href={`/${v.slug}`}
+            data-reveal="left"
             style={{ background: p.bg, color: p.text }}
             className="pressable group relative block overflow-hidden rounded-[var(--radius-lg)] shadow-[var(--shadow-card)] transition-[transform,box-shadow,filter] duration-300 ease-[var(--ease-out)] hover:shadow-[var(--shadow-card-hover)] md:hover:-translate-y-0.5 md:hover:brightness-105"
           >

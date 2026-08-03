@@ -11,7 +11,7 @@ export function WeekIndex({ items }: { items: Story[] }) {
   return (
     <ul className="border-t border-rule">
       {items.map((s, i) => (
-        <li key={s.id} className="border-b border-rule">
+        <li key={s.id} data-reveal className="border-b border-rule">
           <Link
             href={s.href ?? `/${s.vertical}`}
             className="group flex items-baseline gap-4 py-4 md:gap-6"

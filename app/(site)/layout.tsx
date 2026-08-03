@@ -1,6 +1,7 @@
 import { Masthead } from "@/components/masthead";
 import { MobileNav } from "@/components/mobile-nav";
 import { SiteFooter } from "@/components/site-footer";
+import { RevealObserver } from "@/components/reveal-observer";
 
 /**
  * Chrome del sitio público: masthead + contenido + footer + bottom-nav móvil.
@@ -21,6 +22,7 @@ export default function SiteLayout({
         Saltar al contenido
       </a>
       <Masthead />
+      <RevealObserver />
       <main id="contenido" className="min-h-dvh pb-20 md:pb-0">
         {children}
         <SiteFooter />

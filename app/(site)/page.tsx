@@ -86,7 +86,9 @@ export default async function HomePage() {
         <SectionHead index="03" label="Destacado" href="/cultura" action="Más notas" />
         <div className="grid gap-x-8 gap-y-10 md:grid-cols-3">
           {features.map((s) => (
-            <StoryCard key={s.id} story={s} />
+            <div key={s.id} data-reveal>
+              <StoryCard story={s} />
+            </div>
           ))}
         </div>
       </section>

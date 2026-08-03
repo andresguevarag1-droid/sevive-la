@@ -20,6 +20,7 @@ export function SectionHead({
   const dark = tone === "dark";
   return (
     <div
+      data-reveal
       className={`mb-6 flex items-baseline gap-3 border-b pb-2 ${
         dark ? "border-paper/40" : "border-ink"
       }`}

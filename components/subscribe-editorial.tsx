@@ -70,7 +70,7 @@ export function SubscribeEditorial() {
   }
 
   return (
-    <section id="boletin" className="scroll-mt-20 px-4 pb-14 pt-12 md:pb-16">
+    <section id="boletin" data-reveal className="scroll-mt-20 px-4 pb-14 pt-12 md:pb-16">
       <div className="mx-auto mb-6 max-w-6xl">
         {/* mismo divisor numerado que el resto de la portada (ritmo) */}
         <div className="flex items-baseline gap-3 border-b border-ink pb-2">

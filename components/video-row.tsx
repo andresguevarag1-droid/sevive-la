@@ -10,7 +10,7 @@ import { PlayIcon } from "@/components/icons";
  */
 export function VideoRow({ items }: { items: Story[] }) {
   return (
-    <div className="rail -mx-4 px-4 md:mx-0 md:px-0">
+    <div data-reveal className="rail -mx-4 px-4 md:mx-0 md:px-0">
       {items.map((v) => {
         const vert = getVertical(v.vertical);
         return (
