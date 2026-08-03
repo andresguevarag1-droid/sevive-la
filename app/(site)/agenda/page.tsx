@@ -244,13 +244,15 @@ export default async function AgendaPage({
                         href={e.href ?? `/${e.vertical}`}
                         className="group flex items-baseline gap-4 py-5 md:gap-6"
                       >
-                        <span className="tnum w-14 shrink-0 md:w-16">
+                        <span className="tnum w-12 shrink-0 md:w-16">
                           {e.hora ? (
                             <span className="text-base font-bold text-ink md:text-lg">
                               {e.hora}
                             </span>
                           ) : (
-                            <span className="label text-faint">Por confirmar</span>
+                            <span aria-hidden className="text-base text-faint">
+                              —
+                            </span>
                           )}
                         </span>
                         <div className="min-w-0 flex-1">
@@ -258,8 +260,13 @@ export default async function AgendaPage({
                           <h3 className="text-lg font-semibold tracking-tight leading-snug text-ink transition-colors group-hover:text-brand md:text-xl">
                             {e.title}
                           </h3>
-                          {e.lugarNombre ? (
-                            <p className="mt-1 text-sm text-muted">{e.lugarNombre}</p>
+                          {e.lugarNombre || !e.hora ? (
+                            <p className="mt-1 text-sm text-muted">
+                              {e.lugarNombre}
+                              {!e.hora
+                                ? `${e.lugarNombre ? " · " : ""}Hora por confirmar`
+                                : ""}
+                            </p>
                           ) : null}
                         </div>
                         <ArrowRightIcon
