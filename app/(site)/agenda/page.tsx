@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getEventosProximos, type EventoAgenda } from "@/lib/sanity/listados";
-import { WeekIndex } from "@/components/week-index";
+import { CategoryLabel } from "@/components/kicker";
+import { ArrowRightIcon } from "@/components/icons";
 import { JsonLd } from "@/components/json-ld";
 import { site } from "@/lib/site";
 
@@ -56,17 +57,29 @@ function filtrar(items: EventoAgenda[], filtro: Filtro): EventoAgenda[] {
   });
 }
 
-/** "Viernes 7 de agosto" en es-CR para el encabezado de cada día. */
-function tituloDia(iso: string): string {
+/** Partes del bloque de fecha estilo calendario de pared (hora CR). */
+function partesDia(iso: string): {
+  semana: string;
+  dia: string;
+  mes: string;
+  finde: boolean;
+} | null {
   const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "Próximamente";
-  const s = new Intl.DateTimeFormat("es-CR", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
+  if (Number.isNaN(d.getTime())) return null;
+  const f = (opts: Intl.DateTimeFormatOptions) =>
+    new Intl.DateTimeFormat("es-CR", { ...opts, timeZone: "America/Costa_Rica" })
+      .format(d)
+      .replace(/\./g, "");
+  const dow = new Intl.DateTimeFormat("en-US", {
+    weekday: "short",
     timeZone: "America/Costa_Rica",
   }).format(d);
-  return s.charAt(0).toUpperCase() + s.slice(1);
+  return {
+    semana: f({ weekday: "short" }),
+    dia: f({ day: "numeric" }),
+    mes: f({ month: "short" }),
+    finde: dow === "Fri" || dow === "Sat" || dow === "Sun",
+  };
 }
 
 export default async function AgendaPage({
@@ -178,15 +191,89 @@ export default async function AgendaPage({
           </Link>
         </div>
       ) : (
-        <div className="mt-8">
-          {[...grupos.entries()].map(([dia, items]) => (
-            <section key={dia} className="mb-8">
-              <h2 data-reveal className="label border-b border-ink pb-2 text-ink">
-                {dia === "proximamente" ? "Próximamente" : tituloDia(items[0].inicio)}
-              </h2>
-              <WeekIndex items={items} />
-            </section>
-          ))}
+        <div className="mt-10">
+          {[...grupos.entries()].map(([dia, items]) => {
+            const partes = items[0].inicio ? partesDia(items[0].inicio) : null;
+            const esHoy = dia === diaCR(new Date().toISOString());
+            const colorDia = esHoy
+              ? "var(--color-brand)"
+              : partes?.finde
+                ? "var(--color-deep)"
+                : "var(--color-ink)";
+            return (
+              <section
+                key={dia}
+                className="mb-12 grid gap-2 md:grid-cols-[128px_1fr] md:gap-10"
+              >
+                {/* ── Bloque de fecha, calendario de pared ── */}
+                <h2
+                  data-reveal
+                  className="flex items-baseline gap-3 border-t-2 pb-1 pt-2 md:sticky md:top-20 md:block md:self-start md:pb-0 md:pt-3"
+                  style={{ borderColor: colorDia }}
+                >
+                  {partes ? (
+                    <>
+                      <span className="label block" style={{ color: colorDia }}>
+                        {partes.semana}
+                      </span>
+                      <span
+                        className="headline tnum block text-5xl leading-none md:mt-1 md:text-7xl"
+                        style={{ color: colorDia }}
+                      >
+                        {partes.dia}
+                      </span>
+                      <span className="label block text-faint md:mt-1.5">
+                        {partes.mes}
+                      </span>
+                      {esHoy ? (
+                        <span className="label mt-0 inline-block bg-brand px-2 py-0.5 text-[10px] text-white md:mt-3">
+                          Hoy
+                        </span>
+                      ) : null}
+                    </>
+                  ) : (
+                    <span className="label text-ink">Próximamente</span>
+                  )}
+                </h2>
+
+                {/* ── Eventos del día: la hora manda ── */}
+                <ul className="border-t border-rule">
+                  {items.map((e) => (
+                    <li key={e.id} data-reveal className="border-b border-rule">
+                      <Link
+                        href={e.href ?? `/${e.vertical}`}
+                        className="group flex items-baseline gap-4 py-5 md:gap-6"
+                      >
+                        <span className="tnum w-14 shrink-0 md:w-16">
+                          {e.hora ? (
+                            <span className="text-base font-bold text-ink md:text-lg">
+                              {e.hora}
+                            </span>
+                          ) : (
+                            <span className="label text-faint">Por confirmar</span>
+                          )}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <CategoryLabel vertical={e.vertical} className="mb-1.5" />
+                          <h3 className="text-lg font-semibold tracking-tight leading-snug text-ink transition-colors group-hover:text-brand md:text-xl">
+                            {e.title}
+                          </h3>
+                          {e.lugarNombre ? (
+                            <p className="mt-1 text-sm text-muted">{e.lugarNombre}</p>
+                          ) : null}
+                        </div>
+                        <ArrowRightIcon
+                          width={18}
+                          height={18}
+                          className="hidden shrink-0 self-center text-brand opacity-0 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100 md:block"
+                        />
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            );
+          })}
         </div>
       )}
     </section>

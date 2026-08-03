@@ -22,7 +22,12 @@ import {
 
 /* ── Agenda ── */
 
-export type EventoAgenda = Story & { inicio: string; lugarNombre?: string };
+export type EventoAgenda = Story & {
+  inicio: string;
+  lugarNombre?: string;
+  /** "19:00" en hora CR; undefined si la hora está por confirmar. */
+  hora?: string;
+};
 
 /**
  * Eventos próximos (desde hace 12h hasta +60 días), ordenados por inicio.
@@ -44,8 +49,18 @@ export async function getEventosProximos(): Promise<EventoAgenda[]> {
     );
     const items = (raw ?? []).map((e) => ({
       ...eventoToStory(e),
+      // En la agenda el lugar va en su propia línea: título sin concatenar.
+      title: e.title,
       inicio: e.inicio,
       lugarNombre: e.lugar,
+      hora: e.horaPorConfirmar
+        ? undefined
+        : new Intl.DateTimeFormat("es-CR", {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+            timeZone: "America/Costa_Rica",
+          }).format(new Date(e.inicio)),
     }));
     return items.length ? items : mockWeek.map((s) => ({ ...s, inicio: "" }));
   } catch (err) {
