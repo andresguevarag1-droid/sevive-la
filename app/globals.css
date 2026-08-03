@@ -85,8 +85,12 @@ h2,
   letter-spacing: -0.01em;
 }
 
-a {
-  color: inherit;
+/* En capa base: si quedara global (sin capa), pisaría los text-* de Tailwind
+   en todos los links (ej. CTA lila con letra blanca). */
+@layer base {
+  a {
+    color: inherit;
+  }
 }
 
 ::selection {
