@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { site, socialLinks } from "@/lib/site";
 import { JsonLd } from "@/components/json-ld";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 // Fuentes self-hosted (Fontsource) — builds deterministas, cero fetch externo.
 const fraunces = localFont({
@@ -89,6 +90,7 @@ export default function RootLayout({
           }}
         />
         {children}
+        <SpeedInsights />
       </body>
     </html>
   );
