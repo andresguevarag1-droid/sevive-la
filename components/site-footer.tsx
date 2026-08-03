@@ -16,21 +16,21 @@ const socialIcons = {
 export async function SiteFooter() {
   const campana = await getCampanaActiva();
 
+  // Mapa del sitio completo: toda página pública tiene su link aquí.
   const columnas: { titulo: string; links: { href: string; label: string }[] }[] = [
     {
       titulo: "Secciones",
       links: verticals.map((v) => ({ href: `/${v.slug}`, label: v.name })),
     },
     {
-      titulo: "Comunidad",
+      titulo: "Explorá",
       links: [
-        { href: "/dinamicas", label: "Dinámicas" },
-        ...(campana
-          ? [{ href: `/legal/bases/${campana.slug}`, label: "Bases de la dinámica" }]
-          : []),
         { href: "/agenda", label: "Agenda" },
         { href: "/videos", label: "Videos" },
         { href: "/promociones", label: "Beneficios" },
+        { href: "/dinamicas", label: "Dinámicas" },
+        ...(campana ? [{ href: "/participar", label: "Participá" }] : []),
+        { href: "/buscar", label: "Buscar" },
         { href: "/#boletin", label: "Boletín" },
       ],
     },
@@ -38,10 +38,19 @@ export async function SiteFooter() {
       titulo: "SeViveLa",
       links: [
         { href: "/nosotros", label: "Nosotros" },
+        { href: "/comunidad", label: "Comunidad" },
         { href: "/marcas", label: "Para marcas" },
+      ],
+    },
+    {
+      titulo: "Legal",
+      links: [
         { href: "/legal/privacidad", label: "Privacidad" },
         { href: "/legal/terminos", label: "Términos" },
         { href: "/legal/cookies", label: "Cookies" },
+        ...(campana
+          ? [{ href: `/legal/bases/${campana.slug}`, label: "Bases de la dinámica" }]
+          : []),
       ],
     },
   ];
@@ -93,7 +102,7 @@ export async function SiteFooter() {
           {/* ── Columnas de navegación ── */}
           <nav
             aria-label="Mapa del sitio"
-            className="grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-3"
+            className="grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-4"
           >
             {columnas.map((col) => (
               <div key={col.titulo}>
