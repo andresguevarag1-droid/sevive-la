@@ -154,6 +154,34 @@ export function plantillaCupon(
   };
 }
 
+export function plantillaPinLocal(
+  local: { nombre: string; pin: string; beneficios: string[] }
+): { subject: string; html: string } {
+  const lista = local.beneficios.length
+    ? `<p style="line-height:1.6;margin:14px 0 0;"><strong>Beneficios que podés canjear:</strong><br/>${local.beneficios.join("<br/>")}</p>`
+    : "";
+  return {
+    subject: `Tu PIN de canje de cupones · ${local.nombre}`,
+    html: `<!doctype html><html lang="es"><body style="margin:0;background:#f6f2fb;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#1a1526;">
+  <div style="max-width:560px;margin:0 auto;padding:32px 20px;">
+    <div style="background:#a190d2;border-radius:14px 14px 0 0;padding:18px 28px;">
+      <strong style="letter-spacing:2px;font-size:14px;color:#1a1526;">SEVIVELA · PARA EL LOCAL</strong>
+    </div>
+    <div style="background:#ffffff;border-radius:0 0 14px 14px;padding:28px;">
+      <h1 style="font-size:22px;margin:0 0 12px;">Hola, equipo de ${local.nombre}.</h1>
+      <p style="line-height:1.6;margin:0 0 6px;">Con este PIN pueden canjear los cupones de SeViveLa que los clientes presenten en caja. Guárdenlo bien: es la llave del canje.</p>
+      <p style="background:#f6f2fb;border:1px dashed #a190d2;border-radius:12px;padding:16px;text-align:center;font-size:22px;font-weight:800;letter-spacing:2px;margin:18px 0;">${local.pin}</p>
+      <p style="line-height:1.7;margin:0;"><strong>Cómo se canjea (3 pasos):</strong><br/>
+      1. El cliente muestra su cupón (QR o código).<br/>
+      2. Escaneen el QR con la cámara del teléfono — abre ${site.url.replace("https://", "")}/canjear — o entren ahí y escriban el código.<br/>
+      3. Ingresen este PIN (solo la primera vez en cada teléfono) y toquen “Canjear cupón”. Verde = válido. Cada cupón sirve una sola vez.</p>
+      ${lista}
+      <p style="font-size:13px;color:#666174;line-height:1.6;margin:18px 0 0;">Si el PIN se pierde o se filtra, avisen a SeViveLa y les enviamos uno nuevo (el anterior deja de servir al instante).</p>
+    </div>
+  </div></body></html>`,
+  };
+}
+
 /* ── Envío y audiencia ── */
 
 export async function enviarCorreo(
