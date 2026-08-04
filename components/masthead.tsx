@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { verticalsVisibles } from "@/lib/site";
 import { SearchIcon } from "@/components/icons";
+import { NavSecciones } from "@/components/nav-secciones";
 
 /**
  * Masthead de periódico sobre banda lila de marca (#A190D2):
@@ -43,17 +43,7 @@ export function Masthead() {
         aria-label="Secciones"
         className="sticky top-0 z-40 border-b border-[color:var(--color-lilac-soft)] bg-lilac"
       >
-        <div className="mx-auto flex max-w-6xl items-center gap-6 overflow-x-auto px-4 py-2.5 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] md:justify-center [&::-webkit-scrollbar]:hidden">
-          {verticalsVisibles.map((v) => (
-            <Link
-              key={v.slug}
-              href={`/${v.slug}`}
-              className="ulink shrink-0 whitespace-nowrap text-[13px] font-medium text-ink/85 hover:text-ink"
-            >
-              {v.name}
-            </Link>
-          ))}
-        </div>
+        <NavSecciones />
       </nav>
     </>
   );

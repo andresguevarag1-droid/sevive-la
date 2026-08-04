@@ -4,6 +4,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { RevealObserver } from "@/components/reveal-observer";
 import { CookieBanner } from "@/components/cookie-banner";
 import { AnalyticsProvider } from "@/components/analytics/analytics-provider";
+import { VolverArriba } from "@/components/volver-arriba";
 
 /**
  * Chrome del sitio público: masthead + contenido + footer + bottom-nav móvil.
@@ -31,6 +32,7 @@ export default function SiteLayout({
       </main>
       <MobileNav />
       <CookieBanner />
+      <VolverArriba />
       <AnalyticsProvider />
     </>
   );

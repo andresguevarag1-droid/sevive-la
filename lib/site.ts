@@ -121,7 +121,7 @@ export const bottomNav = [
   { href: "/buscar", label: "Explorar", icon: "search" },
   { href: "/agenda", label: "Agenda", icon: "calendar" },
   { href: "/videos", label: "Videos", icon: "play" },
-  { href: "/comunidad", label: "Comunidad", icon: "users" },
+  { href: "/mi-agenda", label: "Mi agenda", icon: "heart" },
 ] as const;
 
 export function getVertical(slug: string): Vertical | undefined {

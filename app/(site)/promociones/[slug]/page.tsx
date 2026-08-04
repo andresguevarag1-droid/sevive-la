@@ -7,6 +7,7 @@ import { Beneficios } from "@/components/beneficios";
 import { CategoryLabel } from "@/components/kicker";
 import { FormCupon } from "@/components/cupon/form-cupon";
 import { JsonLd } from "@/components/json-ld";
+import { TrackClicks } from "@/components/track-clicks";
 import { site } from "@/lib/site";
 
 type Params = { slug: string };
@@ -141,6 +142,7 @@ export default async function BeneficioPage({
 
       {/* ── Otros beneficios (R5): la sesión no muere aquí ── */}
       {otros.length > 0 ? (
+        <TrackClicks module="promo_otros_beneficios">
         <section className="mt-12">
           <div className="flex items-baseline gap-3 border-b border-ink pb-2">
             <h2 className="label text-ink">Otros beneficios</h2>
@@ -155,6 +157,7 @@ export default async function BeneficioPage({
             <Beneficios items={otros} />
           </div>
         </section>
+        </TrackClicks>
       ) : null}
     </article>
   );

@@ -99,12 +99,21 @@ export function TikTokIcon(p: IconProps) {
 }
 
 /** Mapa nombre → componente, para datos declarativos (bottomNav). */
+export function HeartIcon(p: IconProps) {
+  return (
+    <svg {...base} {...p}>
+      <path d="M12 19.5C7.2 15.9 4.2 12.9 4.2 9.7 4.2 7.2 6.1 5.2 8.5 5.2c1.4 0 2.7.7 3.5 2 .8-1.3 2.1-2 3.5-2 2.4 0 4.3 2 4.3 4.5 0 3.2-3 6.2-7.8 9.8z" />
+    </svg>
+  );
+}
+
 export const iconMap = {
   home: HomeIcon,
   search: SearchIcon,
   calendar: CalendarIcon,
   play: PlayIcon,
   users: UsersIcon,
+  heart: HeartIcon,
 } as const;
 
 export type IconName = keyof typeof iconMap;

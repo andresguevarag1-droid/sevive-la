@@ -14,6 +14,7 @@ const CONVERSIONES = new Set([
   "referral_share_click",
   "coupon_claim",
   "newsletter_subscribe",
+  "share_click",
 ]);
 
 type PosthogLike = { capture: (evento: string, props?: Props) => void };

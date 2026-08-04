@@ -8,6 +8,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { bottomNav } from "@/lib/site";
 import { iconMap } from "@/components/icons";
+import { track } from "@/lib/analytics/track";
 
 export function MobileNav() {
   const pathname = usePathname();
@@ -27,6 +28,7 @@ export function MobileNav() {
               <Link
                 href={item.href}
                 aria-current={active ? "page" : undefined}
+                onClick={() => track("nav_click", { item: item.href, nav: "bottom" })}
                 className="flex h-full min-w-[44px] flex-col items-center justify-center gap-1 text-[10px] font-medium tracking-wide"
                 style={{ color: active ? "var(--color-brand)" : "var(--color-faint)" }}
               >

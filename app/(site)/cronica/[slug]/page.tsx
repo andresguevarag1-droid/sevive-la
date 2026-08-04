@@ -9,6 +9,13 @@ import { EditorialImage } from "@/components/editorial-image";
 import { CategoryLabel } from "@/components/kicker";
 import { StoryCard } from "@/components/story-card";
 import { JsonLd } from "@/components/json-ld";
+import { WeekIndex } from "@/components/week-index";
+import { Beneficios } from "@/components/beneficios";
+import { Compartir } from "@/components/compartir";
+import { TrackClicks } from "@/components/track-clicks";
+import { ProgresoLectura } from "@/components/cronica/progreso-lectura";
+import { getEventosRelacionados } from "@/lib/sanity/evento";
+import { getBeneficiosTodos } from "@/lib/sanity/listados";
 
 type Params = { slug: string };
 
@@ -93,10 +100,21 @@ export default async function CronicaPage({
   if (!c) notFound();
 
   const v = getVertical(c.vertical);
-  const relacionadas = await getCronicasRelacionadas(c.vertical, c.id);
+  const [relacionadas, eventosCerca, beneficiosTodos] = await Promise.all([
+    getCronicasRelacionadas(c.vertical, c.id),
+    getEventosRelacionados(c.vertical, c.id),
+    getBeneficiosTodos(),
+  ]);
+  const eventoSugerido = eventosCerca.slice(0, 1);
+  const beneficioSugerido = beneficiosTodos
+    .filter((b) => b.href)
+    .sort((a, b) => (a.vertical === c.vertical ? -1 : 0) - (b.vertical === c.vertical ? -1 : 0))
+    .slice(0, 1)
+    .map((b) => ({ ...b, sponsored: b.patrocinado }));
 
   return (
     <article className="mx-auto max-w-3xl px-4 py-8 md:py-12">
+      <ProgresoLectura />
       {/* Datos estructurados: Article + migas + speakable (SEO/GEO) */}
       <JsonLd
         data={{
@@ -182,13 +200,33 @@ export default async function CronicaPage({
 
       {/* ── Cuerpo ── */}
       {c.cuerpo?.length ? (
-        <div className="prose-editorial measure mt-8 leading-relaxed text-ink/90">
+        <div className="prose-editorial capitular measure mt-8 text-[1.02rem] leading-relaxed text-ink/90">
           <PortableText value={c.cuerpo} components={componentesCuerpo} />
         </div>
       ) : null}
 
+      <Compartir titulo={c.title} />
+
+      {/* ── Seguí explorando: la sesión no muere aquí (evento + beneficio) ── */}
+      {eventoSugerido.length > 0 || beneficioSugerido.length > 0 ? (
+        <TrackClicks module="cronica_segui_explorando">
+          <section className="mt-12">
+            <div className="flex items-baseline gap-3 border-b border-ink pb-2">
+              <h2 className="label text-ink">Seguí explorando</h2>
+            </div>
+            {eventoSugerido.length > 0 ? <WeekIndex items={eventoSugerido} /> : null}
+            {beneficioSugerido.length > 0 ? (
+              <div className="mt-5">
+                <Beneficios items={beneficioSugerido} />
+              </div>
+            ) : null}
+          </section>
+        </TrackClicks>
+      ) : null}
+
       {/* ── Seguí leyendo ── */}
       {relacionadas.length > 0 ? (
+        <TrackClicks module="cronica_segui_leyendo">
         <section className="mt-14">
           <div className="flex items-baseline gap-3 border-b border-ink pb-2">
             <h2 className="label text-ink">Seguí leyendo</h2>
@@ -209,6 +247,7 @@ export default async function CronicaPage({
             ))}
           </div>
         </section>
+        </TrackClicks>
       ) : null}
     </article>
   );
