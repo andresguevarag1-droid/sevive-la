@@ -20,19 +20,21 @@ export function Compartir({ titulo }: { titulo: string }) {
 
   const url = typeof window !== "undefined" ? `${location.origin}${pathname}` : "";
   const mensaje = `${titulo} — lo leí en SeViveLa: ${url}`;
-  const clase =
-    "pressable inline-flex min-h-11 items-center justify-center border border-rule px-4 py-2 text-sm font-semibold text-ink transition-colors hover:border-ink";
+  // Pastillas con los degradados de la paleta del flyer (branding de campaña).
+  const pill =
+    "pressable inline-flex min-h-11 items-center justify-center rounded-full px-6 py-2.5 text-sm font-bold text-white shadow-[0_10px_24px_-10px_rgba(26,21,38,0.45)] transition-[filter] duration-200 hover:brightness-110";
 
   return (
     <div className="mt-10 border-y border-rule py-5">
       <p className="label text-faint">Compartí esta nota</p>
-      <div className="mt-3 flex flex-wrap gap-2">
+      <div className="mt-3 flex flex-wrap gap-2.5">
         <a
           href={`https://wa.me/?text=${encodeURIComponent(mensaje)}`}
           target="_blank"
           rel="noopener noreferrer"
           onClick={() => track("share_click", { metodo: "whatsapp", path: pathname ?? "" })}
-          className={clase}
+          className={pill}
+          style={{ background: "linear-gradient(135deg, #FA872E 0%, #DC138A 100%)" }}
         >
           WhatsApp
         </a>
@@ -48,7 +50,8 @@ export function Compartir({ titulo }: { titulo: string }) {
               /* clipboard bloqueado */
             }
           }}
-          className={clase}
+          className={pill}
+          style={{ background: "linear-gradient(135deg, #DC138A 0%, #2C1063 100%)" }}
         >
           {copiado ? "¡Copiado!" : "Copiar link"}
         </button>
@@ -59,7 +62,8 @@ export function Compartir({ titulo }: { titulo: string }) {
               track("share_click", { metodo: "nativo", path: pathname ?? "" });
               navigator.share({ title: titulo, url }).catch(() => {});
             }}
-            className={clase}
+            className={pill}
+            style={{ background: "linear-gradient(135deg, #22A8B7 0%, #2C1063 100%)" }}
           >
             Más opciones
           </button>
