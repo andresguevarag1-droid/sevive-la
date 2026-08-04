@@ -7,12 +7,12 @@ import type { NextConfig } from "next";
  */
 const CSP = [
   "default-src 'self'",
-  // Next inyecta estilos/scripts inline; Turnstile y Vercel Insights son los únicos terceros.
-  "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://va.vercel-scripts.com",
+  // Next inyecta estilos/scripts inline; PostHog, Turnstile y Vercel Insights son los únicos terceros.
+  "script-src 'self' 'unsafe-inline' https://*.posthog.com https://challenges.cloudflare.com https://va.vercel-scripts.com",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' https://cdn.sanity.io data: blob:",
   "font-src 'self'",
-  "connect-src 'self' https://*.sanity.io https://*.supabase.co https://challenges.cloudflare.com https://vitals.vercel-insights.com",
+  "connect-src 'self' https://*.posthog.com https://*.sanity.io https://*.supabase.co https://challenges.cloudflare.com https://vitals.vercel-insights.com",
   "frame-src https://challenges.cloudflare.com",
   "worker-src 'self' blob:",
   "base-uri 'self'",
@@ -42,9 +42,11 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       { source: "/ingest/static/:path*", destination: "https://us-assets.i.posthog.com/static/:path*" },
+      { source: "/ingest/array/:path*", destination: "https://us-assets.i.posthog.com/array/:path*" },
       { source: "/ingest/:path*", destination: "https://us.i.posthog.com/:path*" },
     ];
   },
+  skipTrailingSlashRedirect: true,
 };
 
 export default nextConfig;

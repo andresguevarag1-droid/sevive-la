@@ -7,6 +7,7 @@
  * del teléfono hace de escáner: aquí solo se confirma el canje.
  */
 import { useEffect, useState } from "react";
+import { track } from "@/lib/analytics/track";
 
 type Resultado =
   | { tipo: "canjeado"; venue?: string }
@@ -58,6 +59,7 @@ export function CanjeStaff({ codeInicial }: { codeInicial?: string }) {
         } catch {
           /* sin memoria local */
         }
+        track("coupon_redeem_success");
         setResultado({ tipo: "canjeado", venue: data.venue });
       } else if (data?.estado === "ya_canjeado") {
         setResultado({ tipo: "ya_canjeado", redeemedAt: data.redeemedAt });
