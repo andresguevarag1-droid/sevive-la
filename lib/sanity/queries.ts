@@ -145,6 +145,8 @@ export function reelToStory(r: RawReel): Story {
     title: r.title,
     meta: r.duracion || "",
     img: urlForImage(r.miniatura, 600),
+    // El reel real (IG/TikTok/YouTube): la tarjeta abre el video al tocar.
+    href: r.videoUrl || undefined,
   };
 }
 export function beneficioToStory(b: RawBeneficio): Story {

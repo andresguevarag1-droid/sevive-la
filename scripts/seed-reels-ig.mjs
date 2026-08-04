@@ -162,6 +162,16 @@ async function run() {
     ],
   ];
 
+  /* URL del reel real (campo videoUrl → la tarjeta abre el video al tocar).
+     Miss Grand y MEGACON salen de destacadas sin URL confirmada: pegar su
+     enlace en el Studio → campo "Enlace del video". */
+  const VIDEO_URLS = {
+    "matcha-secreto": "https://www.instagram.com/sevive.la/reel/DbYxOWIAFWQ/",
+    "matchamuchacha-aniversario": "https://www.instagram.com/sevive.la/reel/DbYdyi5Ajes/",
+    "cosplay-comiccon-honduras": "https://www.instagram.com/sevive.la/reel/Dabnco1pcZg/",
+    "abelardo-sevivela": "https://www.instagram.com/sevive.la/reel/DabKCuiPlBx/",
+  };
+
   const docs = reels.map(
     ([slug, title, vertical, duracion, imgKey, orden, alt]) => ({
       _id: `seed-reel-ig-${slug}`,
@@ -172,6 +182,7 @@ async function run() {
       duracion,
       fecha: at(-(orden - 6), 12),
       orden,
+      ...(VIDEO_URLS[slug] ? { videoUrl: VIDEO_URLS[slug] } : {}),
     })
   );
 

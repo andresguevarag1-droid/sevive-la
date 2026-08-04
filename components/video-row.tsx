@@ -1,9 +1,9 @@
-import Link from "next/link";
 import type { Story } from "@/lib/content";
 import { verticalColor } from "@/lib/content";
 import { getVertical } from "@/lib/site";
 import { PlayIcon } from "@/components/icons";
 import { ReelSinFoto } from "@/components/reel-sin-foto";
+import { ReelCardLink } from "@/components/reel-card-link";
 
 /**
  * Reels: rail horizontal de tarjetas verticales 9:16 (tipo TikTok/Reels).
@@ -15,9 +15,9 @@ export function VideoRow({ items }: { items: Story[] }) {
       {items.map((v) => {
         const vert = getVertical(v.vertical);
         return (
-          <Link
+          <ReelCardLink
             key={v.id}
-            href="/videos"
+            href={v.href}
             className="pressable group block w-[188px] md:w-[224px]"
           >
             <div
@@ -68,7 +68,7 @@ export function VideoRow({ items }: { items: Story[] }) {
                 </span>
               </div>
             </div>
-          </Link>
+          </ReelCardLink>
         );
       })}
     </div>

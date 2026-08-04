@@ -4,6 +4,7 @@ import { verticalColor } from "@/lib/content";
 import { getVertical } from "@/lib/site";
 import { PlayIcon } from "@/components/icons";
 import { ReelSinFoto } from "@/components/reel-sin-foto";
+import { ReelCardLink } from "@/components/reel-card-link";
 
 export const metadata: Metadata = {
   title: "Videos",
@@ -41,9 +42,10 @@ export default async function VideosPage() {
           {reels.map((v) => {
             const vert = getVertical(v.vertical);
             return (
-              <article
+              <ReelCardLink
                 key={v.id}
-                className="imgzoom relative overflow-hidden rounded-[var(--radius-lg)] bg-paper-2 shadow-[var(--shadow-card)]"
+                href={v.href}
+                className="imgzoom pressable group relative block overflow-hidden rounded-[var(--radius-lg)] bg-paper-2 shadow-[var(--shadow-card)]"
                 style={{ aspectRatio: "9 / 16" }}
               >
                 {v.img ? (
@@ -87,7 +89,7 @@ export default async function VideosPage() {
                     </span>
                   ) : null}
                 </div>
-              </article>
+              </ReelCardLink>
             );
           })}
         </div>

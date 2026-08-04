@@ -12,7 +12,8 @@
     "patch:artistas": "node scripts/patch-artistas.mjs",
     "retirar:ejemplo": "node scripts/retirar-ejemplo.mjs",
     "seed:cronicas": "node scripts/seed-cronicas-ig.mjs",
-    "seed:reels": "node scripts/seed-reels-ig.mjs"
+    "seed:reels": "node scripts/seed-reels-ig.mjs",
+    "patch:reels": "node scripts/patch-reels-urls.mjs"
   },
   "dependencies": {
     "@fontsource-variable/archivo": "^5.3.0",
