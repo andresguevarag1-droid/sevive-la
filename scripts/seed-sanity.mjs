@@ -113,79 +113,6 @@ async function run() {
   }
 
   const docs = [
-    /* ── Crónicas: 1 portada + 3 destacadas ── */
-    {
-      _id: "seed-cronica-portada",
-      _type: "cronica",
-      title: "La ciudad se come en la calle",
-      slug: { current: "la-ciudad-se-come-en-la-calle" },
-      vertical: "gastronomia",
-      bajada:
-        "Ferias nocturnas, sodas de barrio y cocineros que convirtieron el fin de semana en un plan. Una guía para comer bien sin reservación.",
-      autor: "Redacción SeViveLa",
-      formato: "Crónica",
-      lecturaMin: 8,
-      imagen: imageRef(img.fair, "Feria gastronómica nocturna con puestos iluminados"),
-      cuerpo: [
-        block("San José huele a plancha caliente los viernes por la noche.", "normal"),
-        block(
-          "De la feria de Zapote a los food trucks de Escalante, la escena callejera dejó de ser plan B: es el plan. Esta es la ruta que la redacción caminó, comió y aprobó."
-        ),
-      ],
-      fecha: at(-1, 9),
-      esPortada: true,
-      destacada: false,
-    },
-    {
-      _id: "seed-cronica-escapadas",
-      _type: "cronica",
-      title: "Cinco escapadas a menos de dos horas de San José",
-      slug: { current: "cinco-escapadas-cerca-de-san-jose" },
-      vertical: "turismo",
-      bajada: "Playa, montaña y aguas termales para un fin de semana sin avión.",
-      autor: "María José Rojas",
-      formato: "Guía",
-      lecturaMin: 6,
-      imagen: imageRef(img.landscape, "Paisaje montañoso de Costa Rica al amanecer"),
-      cuerpo: [block("A veces el mejor viaje es el que cabe en un tanque de gasolina.")],
-      fecha: at(-2, 9),
-      esPortada: false,
-      destacada: true,
-    },
-    {
-      _id: "seed-cronica-barrio-lienzo",
-      _type: "cronica",
-      title: "El barrio que se volvió lienzo",
-      slug: { current: "el-barrio-que-se-volvio-lienzo" },
-      vertical: "cultura",
-      bajada: "Murales, cafés y una escena que reescribe el centro de la capital.",
-      autor: "Daniel Vargas",
-      formato: "Crónica",
-      lecturaMin: 5,
-      imagen: imageRef(img.street, "Calle urbana con murales de colores"),
-      cuerpo: [block("Barrio Amón amaneció distinto: alguien pintó la esquina de la 7.")],
-      fecha: at(-3, 9),
-      esPortada: false,
-      destacada: true,
-    },
-    {
-      _id: "seed-cronica-casado",
-      _type: "cronica",
-      title: "En defensa del casado",
-      slug: { current: "en-defensa-del-casado" },
-      vertical: "gastronomia",
-      bajada:
-        "Por qué el plato más común del país es también el más difícil de hacer bien.",
-      autor: "Redacción SeViveLa",
-      formato: "Ensayo",
-      lecturaMin: 4,
-      imagen: imageRef(img.food, "Plato de comida típica costarricense"),
-      cuerpo: [block("Un casado no se cocina: se compone.")],
-      fecha: at(-4, 9),
-      esPortada: false,
-      destacada: true,
-    },
-
     /* ── Agenda real de agosto 2026 (fechas y horas verificadas en fuentes
           públicas; donde no hay hora oficial: horaPorConfirmar=true.
           Sin inventar precios: precioDesde solo con dato verificado) ── */
@@ -391,90 +318,6 @@ async function run() {
       ...(e.artista ? { artista: e.artista } : {}),
     })),
 
-    /* ── Reels: 6 ── */
-    ...[
-      ["sodas-cartago", "Las mejores sodas de Cartago", "gastronomia", "1:04", "food", 1],
-      ["amanecer-poas", "Amanecer en el Volcán Poás", "turismo", "0:48", "landscape", 2],
-      ["festival-picnic", "Detrás del festival Picnic", "entretenimiento", "1:22", "fair", 3],
-      ["murales-amon", "Ruta de murales en Barrio Amón", "cultura", "0:59", "street", 4],
-      ["feria-zarcero", "Un sábado en la Feria de las Flores", "experiencias", "1:10", "landscape", 5],
-      ["brunch-escalante", "Dónde hacer brunch en Escalante", "estilo-de-vida", "0:52", "food", 6],
-    ].map(([slug, title, vertical, duracion, imgKey, orden]) => ({
-      _id: `seed-reel-${slug}`,
-      _type: "reel",
-      title,
-      vertical,
-      miniatura: imageRef(img[imgKey], title),
-      duracion,
-      fecha: at(-orden, 12),
-      orden,
-    })),
-
-    /* ── Beneficios: 3 ── */
-    {
-      _id: "seed-beneficio-ventana",
-      _type: "beneficio",
-      slug: { current: "brunch-la-ventana" },
-      cuponMedible: true,
-      instruccionesCanje: "Mostrá tu cupón en caja antes de pedir. Válido para brunch de viernes a domingo.",
-      title: "Brunch de La Ventana",
-      marca: "La Ventana",
-      vertical: "gastronomia",
-      detalle: "30% · código VIVELA30",
-      vigencia: at(30, 12).slice(0, 10),
-      patrocinado: true,
-      orden: 1,
-    },
-    {
-      _id: "seed-beneficio-doka",
-      _type: "beneficio",
-      slug: { current: "tour-cafe-doka" },
-      cuponMedible: true,
-      instruccionesCanje: "Presentá tu cupón en recepción al llegar. Válido de lunes a jueves.",
-      title: "Tour de café Doka",
-      marca: "Doka Estate",
-      vertical: "experiencias",
-      detalle: "2x1 entre semana",
-      vigencia: at(45, 12).slice(0, 10),
-      patrocinado: false,
-      orden: 2,
-    },
-    {
-      _id: "seed-beneficio-nosara",
-      _type: "beneficio",
-      slug: { current: "noche-en-nosara" },
-      cuponMedible: false,
-      title: "Noche en Nosara",
-      marca: "Bodhi Tree",
-      vertical: "turismo",
-      detalle: "Gratis para suscriptores",
-      vigencia: at(60, 12).slice(0, 10),
-      patrocinado: true,
-      orden: 3,
-    },
-
-    /* ── Lugares: 2 ── */
-    {
-      _id: "seed-lugar-mercadito",
-      _type: "lugar",
-      title: "Mercadito de Escalante",
-      slug: { current: "mercadito-de-escalante" },
-      vertical: "gastronomia",
-      ubicacion: "Barrio Escalante, San José",
-      descripcion: "Patio gastronómico con diez cocinas y barra central.",
-      imagen: imageRef(img.food, "Patio gastronómico con mesas compartidas"),
-    },
-    {
-      _id: "seed-lugar-amon",
-      _type: "lugar",
-      title: "Barrio Amón",
-      slug: { current: "barrio-amon" },
-      vertical: "cultura",
-      ubicacion: "San José centro",
-      descripcion: "Casas patrimoniales, galerías y la mejor caminata urbana de la capital.",
-      imagen: imageRef(img.street, "Calle de Barrio Amón con casas históricas"),
-    },
-
     /* ── Campaña Latin Grammys 2026 (hero de home + landing de captura) ── */
     {
       _id: "seed-campana-latin-grammys",
@@ -576,6 +419,23 @@ async function run() {
   // Eventos demo retirados (tenían fechas inventadas/rodantes): si quedaron
   // de siembras anteriores, se eliminan. Borrar un id inexistente no falla.
   const RETIRADOS = [
+    // Contenido de ejemplo retirado del proyecto (no se resiembra):
+    "seed-cronica-portada",
+    "seed-cronica-escapadas",
+    "seed-cronica-barrio-lienzo",
+    "seed-cronica-casado",
+    "seed-reel-sodas-cartago",
+    "seed-reel-amanecer-poas",
+    "seed-reel-festival-picnic",
+    "seed-reel-murales-amon",
+    "seed-reel-feria-zarcero",
+    "seed-reel-brunch-escalante",
+    "seed-lugar-mercadito",
+    "seed-lugar-amon",
+    "seed-beneficio-ventana",
+    "seed-beneficio-doka",
+    "seed-beneficio-nosara",
+    // Eventos demo con fechas inventadas (retirados antes):
     "seed-evento-chicharron",
     "seed-evento-sonambulo",
     "seed-evento-museos",

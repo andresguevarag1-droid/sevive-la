@@ -119,10 +119,8 @@ export async function getVerticalContent(
       lugares: (data?.lugares ?? []).map(lugarToStory),
     };
 
-    // Si Sanity aún no tiene NADA de esta vertical, usar el mock filtrado
-    // para que la página no se vea desierta durante la carga inicial.
-    const vacia = Object.values(content).every((arr) => arr.length === 0);
-    return vacia ? fallbackFor(vertical) : content;
+    // Vacío real = estado vacío editorial en la página (sin mocks).
+    return content;
   } catch (err) {
     console.error(`[sanity] vertical "${vertical}" falló, usando mock:`, err);
     return fallbackFor(vertical);

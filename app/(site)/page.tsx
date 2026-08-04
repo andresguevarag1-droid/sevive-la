@@ -34,6 +34,11 @@ export default async function HomePage() {
   // Eventos reales del índice → datos estructurados de la portada (SEO/GEO).
   const eventosLd = week.filter((s) => s.fechaIso && s.href);
 
+  // Numeración editorial continua: las secciones vacías se ocultan y las
+  // visibles se numeran en orden (01, 02…), sin huecos.
+  let contadorSeccion = 0;
+  const num = () => String(++contadorSeccion).padStart(2, "0");
+
   return (
     <>
       {eventosLd.length > 0 ? (
@@ -88,50 +93,60 @@ export default async function HomePage() {
         </div>
       </div>
 
-      {/* ── Nota líder (h2 si el h1 lo lleva la campaña) ── */}
-      <section className="mx-auto max-w-6xl px-4 pt-8 pb-12 md:pt-12 md:pb-16">
-        <LeadStory story={lead} as={campana ? "h2" : "h1"} />
-      </section>
+      {/* ── Nota líder (h2 si el h1 lo lleva la campaña; oculta si no hay) ── */}
+      {lead ? (
+        <section className="mx-auto max-w-6xl px-4 pt-8 pb-12 md:pt-12 md:pb-16">
+          <LeadStory story={lead} as={campana ? "h2" : "h1"} />
+        </section>
+      ) : null}
 
-      {/* ── Esta semana ── */}
-      <section className="mx-auto max-w-6xl px-4 py-10 md:py-14">
-        <SectionHead index="01" label="Próximos días" href="/agenda" action="Agenda completa" />
-        <WeekIndex items={week} />
-      </section>
+      {/* ── Próximos días ── */}
+      {week.length > 0 ? (
+        <section className="mx-auto max-w-6xl px-4 py-10 md:py-14">
+          <SectionHead index={num()} label="Próximos días" href="/agenda" action="Agenda completa" />
+          <WeekIndex items={week} />
+        </section>
+      ) : null}
 
       {/* ── Secciones (banda lila de marca) ── */}
       <section style={{ background: "var(--color-paper-2)" }}>
         <div className="mx-auto max-w-6xl px-4 py-12 md:py-14">
-          <SectionHead index="02" label="Secciones" />
+          <SectionHead index={num()} label="Secciones" />
           <VerticalIndex />
         </div>
       </section>
 
       {/* ── Destacado ── */}
-      <section className="mx-auto max-w-6xl px-4 py-12 md:py-14">
-        <SectionHead index="03" label="Destacado" href="/cultura" action="Más notas" />
-        <div className="grid gap-x-8 gap-y-10 md:grid-cols-3">
-          {features.map((s) => (
-            <div key={s.id} data-reveal>
-              <StoryCard story={s} />
-            </div>
-          ))}
-        </div>
-      </section>
+      {features.length > 0 ? (
+        <section className="mx-auto max-w-6xl px-4 py-12 md:py-14">
+          <SectionHead index={num()} label="Destacado" href="/cultura" action="Más notas" />
+          <div className="grid gap-x-8 gap-y-10 md:grid-cols-3">
+            {features.map((s) => (
+              <div key={s.id} data-reveal>
+                <StoryCard story={s} />
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       {/* ── En video (banda de tinta: las miniaturas mandan) ── */}
-      <section style={{ background: "var(--color-ink)" }}>
-        <div className="mx-auto max-w-6xl px-4 py-12 md:py-16">
-          <SectionHead index="04" label="En video" href="/videos" action="Videoteca" tone="dark" />
-          <VideoRow items={videos} />
-        </div>
-      </section>
+      {videos.length > 0 ? (
+        <section style={{ background: "var(--color-ink)" }}>
+          <div className="mx-auto max-w-6xl px-4 py-12 md:py-16">
+            <SectionHead index={num()} label="En video" href="/videos" action="Videoteca" tone="dark" />
+            <VideoRow items={videos} />
+          </div>
+        </section>
+      ) : null}
 
       {/* ── Beneficios ── */}
-      <section className="mx-auto max-w-6xl px-4 py-12 md:py-14">
-        <SectionHead index="05" label="Beneficios" href="/promociones" action="Todas las promos" />
-        <Beneficios items={beneficios} />
-      </section>
+      {beneficios.length > 0 ? (
+        <section className="mx-auto max-w-6xl px-4 py-12 md:py-14">
+          <SectionHead index={num()} label="Beneficios" href="/promociones" action="Todas las promos" />
+          <Beneficios items={beneficios} />
+        </section>
+      ) : null}
 
       {/* ── Boletín ── */}
       <SubscribeEditorial />

@@ -161,7 +161,8 @@ export function beneficioToStory(b: RawBeneficio): Story {
 }
 
 export type HomeContent = {
-  lead: Story;
+  /** null cuando el equipo aún no marca una nota líder (la home la oculta). */
+  lead: Story | null;
   week: Story[];
   features: Story[];
   videos: Story[];
@@ -191,18 +192,14 @@ export async function getHomeContent(): Promise<HomeContent> {
       { next: { revalidate: 60 } }
     );
 
-    const lead = data?.portada ? cronicaToStory(data.portada) : FALLBACK.lead;
-    const features = (data?.features ?? []).map(cronicaToStory);
-    const week = (data?.week ?? []).map(eventoToStory);
-    const videos = (data?.reels ?? []).map(reelToStory);
-    const beneficios = (data?.beneficios ?? []).map(beneficioToStory);
-
+    // Con Sanity respondiendo, lo que hay es lo que se muestra: una sección
+    // vacía se OCULTA en la home (nada de mocks en producción).
     return {
-      lead,
-      week: week.length ? week : FALLBACK.week,
-      features: features.length ? features : FALLBACK.features,
-      videos: videos.length ? videos : FALLBACK.videos,
-      beneficios: beneficios.length ? beneficios : FALLBACK.beneficios,
+      lead: data?.portada ? cronicaToStory(data.portada) : null,
+      week: (data?.week ?? []).map(eventoToStory),
+      features: (data?.features ?? []).map(cronicaToStory),
+      videos: (data?.reels ?? []).map(reelToStory),
+      beneficios: (data?.beneficios ?? []).map(beneficioToStory),
     };
   } catch (err) {
     console.error("[sanity] home fetch falló, usando mock:", err);

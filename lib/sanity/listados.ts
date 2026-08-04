@@ -69,7 +69,7 @@ export async function getEventosProximos(): Promise<EventoAgenda[]> {
             timeZone: "America/Costa_Rica",
           }).format(new Date(e.inicio)),
     }));
-    return items.length ? items : mockWeek.map((s) => ({ ...s, inicio: "" }));
+    return items;
   } catch (err) {
     console.error("[sanity] agenda falló, usando mock:", err);
     return mockWeek.map((s) => ({ ...s, inicio: "" }));
@@ -88,8 +88,7 @@ export async function getReels(): Promise<Story[]> {
       {},
       { next: { revalidate: 60 } }
     );
-    const items = (raw ?? []).map(reelToStory);
-    return items.length ? items : mockVideos;
+    return (raw ?? []).map(reelToStory);
   } catch (err) {
     console.error("[sanity] videoteca falló, usando mock:", err);
     return mockVideos;
@@ -133,7 +132,7 @@ export async function getBeneficiosTodos(): Promise<Beneficio[]> {
       vigencia: b.vigencia,
       href: b.slug ? `/promociones/${b.slug}` : undefined,
     }));
-    return items.length ? items : mockBeneficios;
+    return items;
   } catch (err) {
     console.error("[sanity] beneficios falló, usando mock:", err);
     return mockBeneficios;
