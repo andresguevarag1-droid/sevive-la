@@ -15,11 +15,19 @@ import { verticals } from "@/lib/site";
 import { captureAttribution } from "@/lib/analytics/attribution";
 import { CONSENT_EVENT, getConsentimiento } from "@/lib/analytics/consent";
 import { track } from "@/lib/analytics/track";
-import posthog, { initializePostHog } from "@/instrumentation-client";
 
-function cargarPostHog() {
-  initializePostHog();
-  (window as { posthog?: typeof posthog }).posthog = posthog;
+// Import dinámico: posthog-js pesa ~50KB y solo lo paga quien consiente.
+async function cargarPostHog() {
+  try {
+    const { initializePostHog, default: posthog } = await import(
+      "@/lib/analytics/posthog-client"
+    );
+    if (initializePostHog()) {
+      (window as { posthog?: typeof posthog }).posthog = posthog;
+    }
+  } catch {
+    /* telemetría nunca rompe la UI */
+  }
 }
 
 export function AnalyticsProvider() {
