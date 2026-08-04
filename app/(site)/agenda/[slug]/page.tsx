@@ -4,7 +4,6 @@ import Link from "next/link";
 import { PortableText } from "next-sanity";
 import { getEvento, getEventosRelacionados } from "@/lib/sanity/evento";
 import { getVertical, site } from "@/lib/site";
-import { EditorialImage } from "@/components/editorial-image";
 import { CategoryLabel } from "@/components/kicker";
 import { WeekIndex } from "@/components/week-index";
 import { FavoritoButton } from "@/components/evento/favorito-button";
@@ -190,9 +189,18 @@ export default async function EventoPage({
       </header>
 
       {e.imagen ? (
-        <div className="mt-6">
-          <EditorialImage src={e.imagen} alt={e.imagenAlt ?? e.title} ratio="16 / 9" priority />
-        </div>
+        /* El arte del evento (flyer/afiche) se muestra COMPLETO, sin recorte:
+           proporción natural con tope de altura. */
+        <figure className="mt-6">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={e.imagen}
+            alt={e.imagenAlt ?? e.title}
+            fetchPriority="high"
+            decoding="async"
+            className="mx-auto max-h-[75vh] w-auto max-w-full rounded-[var(--radius-lg)] shadow-[var(--shadow-card)]"
+          />
+        </figure>
       ) : null}
 
       {/* ── Ficha: cuándo, dónde, cuánto ── */}
