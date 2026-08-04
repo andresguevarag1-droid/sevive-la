@@ -10,6 +10,7 @@ import { useState, type FormEvent } from "react";
 import { consentDinamica } from "@/lib/consent";
 import { isValidEmail, isValidPhone } from "@/lib/validation/client";
 import { TurnstileWidget } from "@/components/turnstile";
+import { track } from "@/lib/analytics/track";
 
 type Status = "idle" | "sending" | "ok" | "error";
 
@@ -83,6 +84,7 @@ export function DinamicaForm({
         | { ok: boolean; error?: string; yaParticipaba?: boolean }
         | null;
       if (res.ok && data?.ok) {
+        track("dynamic_entry_submit_success", { dynamic_slug: slug });
         setStatus("ok");
       } else {
         setStatus("error");
