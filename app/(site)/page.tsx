@@ -12,6 +12,8 @@ import { VideoRow } from "@/components/video-row";
 import { Beneficios } from "@/components/beneficios";
 import { SubscribeEditorial } from "@/components/subscribe-editorial";
 import { SearchIcon } from "@/components/icons";
+import { JsonLd } from "@/components/json-ld";
+import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
@@ -29,8 +31,32 @@ export default async function HomePage() {
   const [{ lead, week, features, videos, beneficios }, campana] =
     await Promise.all([getHomeContent(), getCampanaActiva()]);
 
+  // Eventos reales del índice → datos estructurados de la portada (SEO/GEO).
+  const eventosLd = week.filter((s) => s.fechaIso && s.href);
+
   return (
     <>
+      {eventosLd.length > 0 ? (
+        <JsonLd
+          data={{
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            name: "Próximos días en Costa Rica",
+            inLanguage: site.locale,
+            itemListElement: eventosLd.map((s, i) => ({
+              "@type": "ListItem",
+              position: i + 1,
+              item: {
+                "@type": "Event",
+                name: s.title,
+                startDate: s.fechaIso,
+                url: `${site.url}${s.href}`,
+              },
+            })),
+          }}
+        />
+      ) : null}
+
       {/* ── HERO de campaña (solo si el equipo la activó en el Studio) ── */}
       {campana ? <HeroCampana campana={campana} /> : null}
 

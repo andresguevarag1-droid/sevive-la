@@ -5,6 +5,7 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     "/opengraph-image": ["./app/og/*.ttf", "./public/logo.svg"],
     "/mi-cupon/[code]/imagen": ["./app/og/*.ttf", "./public/logo.svg"],
+    "/agenda/[slug]/opengraph-image*": ["./app/og/*.ttf", "./public/logo.svg"],
   },
 };
 

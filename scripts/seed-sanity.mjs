@@ -192,6 +192,7 @@ async function run() {
     ...[
       {
         id: "arjona-seco-tour",
+        artista: "Ricardo Arjona",
         title: "Ricardo Arjona — Seco Tour",
         vertical: "entretenimiento",
         inicio: el("2026-08-14", 19),
@@ -206,6 +207,7 @@ async function run() {
       },
       {
         id: "romeo-santos-prince-royce",
+        artista: "Romeo Santos y Prince Royce",
         title: "Romeo Santos & Prince Royce",
         vertical: "entretenimiento",
         inicio: el("2026-08-18", 19),
@@ -218,6 +220,7 @@ async function run() {
       },
       {
         id: "yandel-sinfonico",
+        artista: "Yandel",
         title: "Yandel Sinfónico",
         vertical: "entretenimiento",
         inicio: el("2026-08-30", 19),
@@ -231,6 +234,7 @@ async function run() {
       },
       {
         id: "greeicy-candela",
+        artista: "Greeicy",
         title: "Greeicy — Candela World Tour",
         vertical: "entretenimiento",
         inicio: el("2026-08-29", 19),
@@ -313,6 +317,7 @@ async function run() {
       },
       {
         id: "blessd-parque-viva",
+        artista: "Blessd",
         title: "BLESSD",
         vertical: "entretenimiento",
         inicio: el("2026-08-08", 19),
@@ -383,6 +388,7 @@ async function run() {
       ...(e.enlace ? { enlace: e.enlace } : {}),
       ...(e.precioDesde ? { precioDesde: e.precioDesde } : {}),
       ...(e.organizador ? { organizador: e.organizador } : {}),
+      ...(e.artista ? { artista: e.artista } : {}),
     })),
 
     /* ── Reels: 6 ── */

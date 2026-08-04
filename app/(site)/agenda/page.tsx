@@ -9,7 +9,7 @@ import { site } from "@/lib/site";
 export const metadata: Metadata = {
   title: "Agenda",
   description:
-    "Qué hacer en Costa Rica: eventos, conciertos, ferias y planes de la semana, curados por SeViveLa.",
+    "Qué hacer en Costa Rica hoy, este fin de semana y los próximos días: conciertos, teatro, ferias y exposiciones con fecha, hora y lugar verificados por SeViveLa.",
   alternates: { canonical: "/agenda" },
 };
 
@@ -30,12 +30,19 @@ function diaCR(iso: string): string {
   }).format(d);
 }
 
-/** Aplica el filtro de fecha sobre la lista (en hora de Costa Rica). */
+/** Aplica el filtro de fecha sobre la lista (en hora de Costa Rica).
+ *  Un evento "en curso" (con fin) cuenta en todo día que abarca. */
 function filtrar(items: EventoAgenda[], filtro: Filtro): EventoAgenda[] {
   if (filtro === "todos") return items;
   const hoy = diaCR(new Date().toISOString());
+  const abarca = (e: EventoAgenda, desde: string, hasta: string) => {
+    if (!e.inicio) return false;
+    const ini = diaCR(e.inicio);
+    const fin = e.fin ? diaCR(e.fin) : ini;
+    return ini <= hasta && fin >= desde;
+  };
   if (filtro === "hoy") {
-    return items.filter((e) => e.inicio && diaCR(e.inicio) === hoy);
+    return items.filter((e) => abarca(e, hoy, hoy));
   }
   // Fin de semana: viernes a domingo de la semana en curso (o el actual si ya empezó).
   const ahora = new Date();
@@ -50,11 +57,7 @@ function filtrar(items: EventoAgenda[], filtro: Filtro): EventoAgenda[] {
   const domingo = new Date(viernes.getTime() + 2 * 86400000);
   const desde = diaCR(viernes.toISOString());
   const hasta = diaCR(domingo.toISOString());
-  return items.filter((e) => {
-    if (!e.inicio) return false;
-    const dia = diaCR(e.inicio);
-    return dia >= desde && dia <= hasta;
-  });
+  return items.filter((e) => abarca(e, desde, hasta));
 }
 
 /** Partes del bloque de fecha estilo calendario de pared (hora CR). */
@@ -93,10 +96,18 @@ export default async function AgendaPage({
   const todos = await getEventosProximos();
   const eventos = filtrar(todos, filtro);
 
-  // Agrupar por día (los eventos del mock, sin ISO, van en un solo grupo).
+  // Agrupar por día. Los ya iniciados con fin futuro (exposiciones,
+  // temporadas) van en un grupo "En curso" al inicio; el mock sin ISO, al final.
+  const hoyCR = diaCR(new Date().toISOString());
+  const enCurso = (e: EventoAgenda) =>
+    Boolean(e.inicio && e.fin && diaCR(e.inicio) < hoyCR && new Date(e.fin) >= new Date());
   const grupos = new Map<string, EventoAgenda[]>();
   for (const e of eventos) {
-    const key = e.inicio && diaCR(e.inicio) ? diaCR(e.inicio) : "proximamente";
+    const key = enCurso(e)
+      ? "encurso"
+      : e.inicio && diaCR(e.inicio)
+        ? diaCR(e.inicio)
+        : "proximamente";
     const lista = grupos.get(key) ?? [];
     lista.push(e);
     grupos.set(key, lista);
@@ -193,8 +204,10 @@ export default async function AgendaPage({
       ) : (
         <div className="mt-10">
           {[...grupos.entries()].map(([dia, items]) => {
-            const partes = items[0].inicio ? partesDia(items[0].inicio) : null;
-            const esHoy = dia === diaCR(new Date().toISOString());
+            const esEnCurso = dia === "encurso";
+            const partes =
+              !esEnCurso && items[0].inicio ? partesDia(items[0].inicio) : null;
+            const esHoy = dia === hoyCR;
             const colorDia = esHoy
               ? "var(--color-brand)"
               : partes?.finde
@@ -212,7 +225,7 @@ export default async function AgendaPage({
                   style={{ borderColor: colorDia }}
                 >
                   {partes ? (
-                    <>
+                    <time dateTime={dia} className="contents">
                       <span className="label block" style={{ color: colorDia }}>
                         {partes.semana}
                       </span>
@@ -230,9 +243,11 @@ export default async function AgendaPage({
                           Hoy
                         </span>
                       ) : null}
-                    </>
+                    </time>
                   ) : (
-                    <span className="label text-ink">Próximamente</span>
+                    <span className="label text-ink">
+                      {esEnCurso ? "En curso" : "Próximamente"}
+                    </span>
                   )}
                 </h2>
 
@@ -246,9 +261,12 @@ export default async function AgendaPage({
                       >
                         <span className="tnum w-12 shrink-0 md:w-16">
                           {e.hora ? (
-                            <span className="text-base font-bold text-ink md:text-lg">
+                            <time
+                              dateTime={e.inicio}
+                              className="text-base font-bold text-ink md:text-lg"
+                            >
                               {e.hora}
-                            </span>
+                            </time>
                           ) : (
                             <span aria-hidden className="text-base text-faint">
                               —
@@ -260,12 +278,25 @@ export default async function AgendaPage({
                           <h3 className="text-lg font-semibold tracking-tight leading-snug text-ink transition-colors group-hover:text-brand md:text-xl">
                             {e.title}
                           </h3>
-                          {e.lugarNombre || !e.hora ? (
+                          {e.lugarNombre || !e.hora || enCurso(e) ? (
                             <p className="mt-1 text-sm text-muted">
                               {e.lugarNombre}
-                              {!e.hora
-                                ? `${e.lugarNombre ? " · " : ""}Hora por confirmar`
-                                : ""}
+                              {enCurso(e) && e.fin ? (
+                                <>
+                                  {e.lugarNombre ? " · " : ""}Hasta el{" "}
+                                  <time dateTime={diaCR(e.fin)}>
+                                    {new Intl.DateTimeFormat("es-CR", {
+                                      day: "numeric",
+                                      month: "long",
+                                      timeZone: "America/Costa_Rica",
+                                    }).format(new Date(e.fin))}
+                                  </time>
+                                </>
+                              ) : !e.hora ? (
+                                `${e.lugarNombre ? " · " : ""}Hora por confirmar`
+                              ) : (
+                                ""
+                              )}
                             </p>
                           ) : null}
                         </div>

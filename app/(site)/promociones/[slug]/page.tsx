@@ -4,6 +4,8 @@ import Link from "next/link";
 import { getBeneficio, beneficioVigente } from "@/lib/sanity/beneficio";
 import { CategoryLabel } from "@/components/kicker";
 import { FormCupon } from "@/components/cupon/form-cupon";
+import { JsonLd } from "@/components/json-ld";
+import { site } from "@/lib/site";
 
 type Params = { slug: string };
 
@@ -17,9 +19,15 @@ export async function generateMetadata({
   const { slug } = await params;
   const b = await getBeneficio(slug);
   if (!b) return {};
+  const description = `${b.detalle} en ${b.marca}. ${
+    b.cuponMedible
+      ? "Reclamá tu cupón gratuito con código y QR, y canjealo en el local — un solo uso por persona."
+      : "Un beneficio exclusivo para la comunidad de SeViveLa."
+  }${b.vigencia ? ` Válido hasta el ${b.vigencia}.` : ""}`;
   return {
     title: `${b.title} · ${b.marca}`,
-    description: `${b.detalle} — beneficio de ${b.marca} con SeViveLa.`,
+    description,
+    openGraph: { title: `${b.title} · ${b.marca}`, description },
     alternates: { canonical: `/promociones/${b.slug}` },
   };
 }
@@ -37,6 +45,39 @@ export default async function BeneficioPage({
 
   return (
     <article className="mx-auto max-w-2xl px-4 py-10 md:py-14">
+      {/* Datos estructurados: la promoción como Offer + migas de pan */}
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "Offer",
+          name: b.title,
+          description: b.detalle,
+          url: `${site.url}/promociones/${b.slug}`,
+          inLanguage: site.locale,
+          seller: { "@type": "Organization", name: b.marca },
+          offeredBy: { "@type": "Organization", name: site.name, url: site.url },
+          availability: vigente
+            ? "https://schema.org/InStock"
+            : "https://schema.org/SoldOut",
+          ...(b.vigencia ? { validThrough: `${b.vigencia}T23:59:59-06:00` } : {}),
+        }}
+      />
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Inicio", item: site.url },
+            {
+              "@type": "ListItem",
+              position: 2,
+              name: "Beneficios",
+              item: `${site.url}/promociones`,
+            },
+            { "@type": "ListItem", position: 3, name: b.title },
+          ],
+        }}
+      />
       <nav aria-label="Ruta" className="label text-faint">
         <Link href="/promociones" className="ulink hover:text-ink">
           Beneficios
@@ -54,7 +95,7 @@ export default async function BeneficioPage({
         <p className="tnum mt-3 text-xl font-bold text-brand">{b.detalle}</p>
         {b.vigencia ? (
           <p className="label tnum mt-3 border-y border-rule py-3 text-muted">
-            Válido hasta el {b.vigencia}
+            Válido hasta el <time dateTime={b.vigencia}>{b.vigencia}</time>
           </p>
         ) : null}
       </header>

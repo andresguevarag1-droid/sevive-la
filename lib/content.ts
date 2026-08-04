@@ -33,6 +33,8 @@ export type Story = {
   img?: string; // ruta de imagen (public/)
   sponsored?: boolean; // contenido patrocinado (siempre etiquetado)
   href?: string; // destino del enlace (detalle); si falta, la vertical
+  /** ISO del inicio (solo eventos): alimenta <time datetime> y JSON-LD. */
+  fechaIso?: string;
 };
 
 /**

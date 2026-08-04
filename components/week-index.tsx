@@ -25,9 +25,18 @@ export function WeekIndex({ items }: { items: Story[] }) {
                 {s.title}
               </h3>
             </div>
-            <span className="tnum shrink-0 text-sm font-semibold text-ink md:text-base">
-              {s.meta}
-            </span>
+            {s.fechaIso ? (
+              <time
+                dateTime={s.fechaIso}
+                className="tnum shrink-0 text-sm font-semibold text-ink md:text-base"
+              >
+                {s.meta}
+              </time>
+            ) : (
+              <span className="tnum shrink-0 text-sm font-semibold text-ink md:text-base">
+                {s.meta}
+              </span>
+            )}
             <ArrowRightIcon
               width={18}
               height={18}

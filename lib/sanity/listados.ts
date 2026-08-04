@@ -24,27 +24,33 @@ import {
 
 export type EventoAgenda = Story & {
   inicio: string;
+  fin?: string;
   lugarNombre?: string;
   /** "19:00" en hora CR; undefined si la hora está por confirmar. */
   hora?: string;
 };
 
 /**
- * Eventos próximos (desde hace 12h hasta +60 días), ordenados por inicio.
- * Devuelve el ISO de inicio para poder agrupar por día en la página.
+ * Eventos próximos (desde hace 12h hasta +60 días) MÁS los "en curso":
+ * eventos ya iniciados cuyo fin todavía no llega (exposiciones, temporadas).
+ * Ordenados por inicio; el ISO viaja para agrupar por día en la página.
  */
 export async function getEventosProximos(): Promise<EventoAgenda[]> {
   if (!sanityConfigured) {
     return mockWeek.map((s) => ({ ...s, inicio: "" }));
   }
   try {
+    const ahora = new Date().toISOString();
     const desde = new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString();
     const hasta = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString();
-    const raw = await client.fetch<RawEvento[]>(
-      /* groq */ `*[_type == "evento" && defined(inicio) && inicio >= $desde && inicio <= $hasta] | order(inicio asc)[0...48]{
-        _id, title, vertical, inicio, lugar, imagen, "slug": slug.current, horaPorConfirmar
+    const raw = await client.fetch<(RawEvento & { fin?: string })[]>(
+      /* groq */ `*[_type == "evento" && defined(inicio) && (
+        (inicio >= $desde && inicio <= $hasta) ||
+        (inicio < $ahora && defined(fin) && fin >= $ahora)
+      )] | order(inicio asc)[0...48]{
+        _id, title, vertical, inicio, fin, lugar, imagen, "slug": slug.current, horaPorConfirmar
       }`,
-      { desde, hasta },
+      { ahora, desde, hasta },
       { next: { revalidate: 60 } }
     );
     const items = (raw ?? []).map((e) => ({
@@ -52,6 +58,7 @@ export async function getEventosProximos(): Promise<EventoAgenda[]> {
       // En la agenda el lugar va en su propia línea: título sin concatenar.
       title: e.title,
       inicio: e.inicio,
+      fin: e.fin,
       lugarNombre: e.lugar,
       hora: e.horaPorConfirmar
         ? undefined

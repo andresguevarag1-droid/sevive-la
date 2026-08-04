@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { verticals, getVertical } from "@/lib/site";
+import { verticals, getVertical, site } from "@/lib/site";
 import { getVerticalContent } from "@/lib/sanity/vertical-queries";
+import { JsonLd } from "@/components/json-ld";
 import { SectionHead } from "@/components/section-head";
 import { StoryCard } from "@/components/story-card";
 import { WeekIndex } from "@/components/week-index";
@@ -25,10 +26,12 @@ export async function generateMetadata({
   const { vertical } = await params;
   const v = getVertical(vertical);
   if (!v) return {};
+  // Description de ~140–160 caracteres, única por sección (SEO).
+  const description = `${v.name} en Costa Rica: ${v.blurb.replace(/\.$/, "")}. Agenda verificada, videos y beneficios curados por la redacción de SeViveLa para descubrir qué vivir.`;
   return {
     title: `${v.name} · ${v.verb}`,
-    description: v.blurb,
-    openGraph: { title: v.name, description: v.blurb },
+    description,
+    openGraph: { title: v.name, description },
     alternates: { canonical: `/${v.slug}` },
   };
 }
@@ -53,8 +56,49 @@ export default async function VerticalPage({
     beneficios.length === 0 &&
     lugares.length === 0;
 
+  // Datos estructurados: índice temático con sus contenidos enlazables.
+  const itemsLd = [
+    ...eventos
+      .filter((e) => e.href)
+      .map((e) => ({
+        "@type": "Event" as const,
+        name: e.title,
+        startDate: e.fechaIso,
+        url: `${site.url}${e.href}`,
+      })),
+    ...beneficios
+      .filter((b) => b.href)
+      .map((b) => ({
+        "@type": "Offer" as const,
+        name: b.title,
+        url: `${site.url}${b.href}`,
+      })),
+  ];
+
   return (
     <>
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          name: `${v.name} · ${site.name}`,
+          url: `${site.url}/${v.slug}`,
+          inLanguage: site.locale,
+          description: v.blurb,
+          ...(itemsLd.length
+            ? {
+                mainEntity: {
+                  "@type": "ItemList",
+                  itemListElement: itemsLd.map((item, i) => ({
+                    "@type": "ListItem",
+                    position: i + 1,
+                    item,
+                  })),
+                },
+              }
+            : {}),
+        }}
+      />
       {/* ── Cabecera de la vertical: verbo + nombre con su color ── */}
       <header className="border-b border-rule">
         <div className="mx-auto max-w-6xl px-4 py-10 md:py-14">

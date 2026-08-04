@@ -20,7 +20,7 @@ export const site = {
   url: siteUrl,
   tagline: "Descubrí qué vivir en la región.",
   description:
-    "Plataforma de entretenimiento, cultura, experiencias, ocio y estilo de vida en Costa Rica.",
+    "La guía viva de Costa Rica: agenda verificada de conciertos y planes, videos, dinámicas con premios y beneficios exclusivos para descubrir qué vivir.",
   locale: "es-CR",
 } as const;
 

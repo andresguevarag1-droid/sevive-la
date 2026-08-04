@@ -94,6 +94,13 @@ export const evento = defineType({
       type: "string",
     }),
     defineField({
+      name: "artista",
+      title: "Artista / elenco (opcional)",
+      type: "string",
+      description:
+        'Quién se presenta (ej. "Ricardo Arjona"). Alimenta los resultados enriquecidos de Google.',
+    }),
+    defineField({
       name: "mapaUrl",
       title: "Enlace a Google Maps (opcional)",
       type: "url",

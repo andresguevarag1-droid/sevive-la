@@ -35,6 +35,38 @@ function mismoDia(a: string, b: string): boolean {
   return f(a) === f(b);
 }
 
+/** "Desde ₡41.700" → { price: "41700", priceCurrency: "CRC" } (null si no hay dato). */
+function parsePrecio(p?: string): { price: string; priceCurrency: string } | null {
+  if (!p) return null;
+  if (/gratis|gratuito|entrada libre/i.test(p)) return { price: "0", priceCurrency: "CRC" };
+  const m = p.match(/([₡$])\s*([\d.,]+)/);
+  if (!m) return null;
+  const priceCurrency = m[1] === "$" ? "USD" : "CRC";
+  // Formato CR: punto de miles, coma decimal.
+  const valor = Number(m[2].replace(/\./g, "").replace(/,/g, "."));
+  if (!Number.isFinite(valor)) return null;
+  return { price: String(valor), priceCurrency };
+}
+
+/** Description de 140–160 caracteres para buscadores (única por evento). */
+function metaDescription(e: {
+  title: string;
+  lugar?: string;
+  inicio: string;
+  horaPorConfirmar?: boolean;
+  descripcion?: string;
+}): string {
+  const fecha = fmtLargo(e.inicio, !e.horaPorConfirmar);
+  const base = `${e.title}${e.lugar ? ` en ${e.lugar}` : ""} — ${fecha}.`;
+  const extra = e.descripcion
+    ? ` ${e.descripcion}`
+    : " Entradas, horario, ubicación y detalles verificados.";
+  const cierre = " Agenda curada de SeViveLa.";
+  let out = base + extra;
+  if (out.length + cierre.length <= 170) out += cierre;
+  return out.length > 170 ? `${out.slice(0, 167).trimEnd()}…` : out;
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -44,17 +76,12 @@ export async function generateMetadata({
   const e = await getEvento(slug);
   if (!e) return {};
   const fecha = fmtLargo(e.inicio, false);
-  const description =
-    e.descripcion ??
-    `${e.title}${e.lugar ? ` en ${e.lugar}` : ""} — ${fecha}. Agenda de SeViveLa.`;
+  const description = metaDescription(e);
   return {
     title: `${e.title} — ${fecha}`,
     description,
-    openGraph: {
-      title: e.title,
-      description,
-      images: e.imagen ? [{ url: e.imagen }] : undefined,
-    },
+    // La og:image la genera ./opengraph-image.tsx (tarjeta por evento).
+    openGraph: { title: e.title, description },
     alternates: { canonical: `/agenda/${e.slug}` },
   };
 }
@@ -76,7 +103,7 @@ export default async function EventoPage({
 
   return (
     <article className="mx-auto max-w-3xl px-4 py-8 md:py-12">
-      {/* Datos estructurados: Event con oferta (SEO local + GEO) */}
+      {/* Datos estructurados: Event completo + migas + speakable (SEO local + GEO) */}
       <JsonLd
         data={{
           "@context": "https://schema.org",
@@ -87,7 +114,12 @@ export default async function EventoPage({
           eventStatus: "https://schema.org/EventScheduled",
           eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
           description: e.descripcion,
-          image: e.imagen,
+          inLanguage: site.locale,
+          // Siempre hay imagen: la foto del evento o la tarjeta og generada.
+          image: e.imagen ?? `${site.url}/agenda/${e.slug}/opengraph-image`,
+          performer: e.artista
+            ? { "@type": "PerformingGroup", name: e.artista }
+            : undefined,
           location: e.lugar
             ? {
                 "@type": "Place",
@@ -102,11 +134,35 @@ export default async function EventoPage({
             ? {
                 "@type": "Offer",
                 url: e.enlace,
+                ...(parsePrecio(e.precioDesde) ?? {}),
                 availability: pasado
                   ? "https://schema.org/SoldOut"
                   : "https://schema.org/InStock",
               }
             : undefined,
+        }}
+      />
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Inicio", item: site.url },
+            { "@type": "ListItem", position: 2, name: "Agenda", item: `${site.url}/agenda` },
+            { "@type": "ListItem", position: 3, name: e.title },
+          ],
+        }}
+      />
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          url: `${site.url}/agenda/${e.slug}`,
+          inLanguage: site.locale,
+          speakable: {
+            "@type": "SpeakableSpecification",
+            cssSelector: ["h1", "article header p"],
+          },
         }}
       />
 
@@ -142,9 +198,15 @@ export default async function EventoPage({
         <div className="flex gap-6 py-3.5">
           <dt className="label w-24 shrink-0 text-faint">Cuándo</dt>
           <dd className="tnum text-sm font-semibold text-ink">
-            {esRango
-              ? `Del ${fmtLargo(e.inicio, false).toLowerCase()} al ${fmtLargo(e.fin!, false).toLowerCase()}`
-              : fmtLargo(e.inicio, conHora)}
+            {esRango ? (
+              <>
+                Del{" "}
+                <time dateTime={e.inicio}>{fmtLargo(e.inicio, false).toLowerCase()}</time>{" "}
+                al <time dateTime={e.fin}>{fmtLargo(e.fin!, false).toLowerCase()}</time>
+              </>
+            ) : (
+              <time dateTime={e.inicio}>{fmtLargo(e.inicio, conHora)}</time>
+            )}
             {!conHora ? (
               <span className="ml-2 font-normal text-faint">Hora por confirmar</span>
             ) : null}
@@ -175,6 +237,12 @@ export default async function EventoPage({
           <div className="flex gap-6 py-3.5">
             <dt className="label w-24 shrink-0 text-faint">Precio</dt>
             <dd className="tnum text-sm font-semibold text-ink">{e.precioDesde}</dd>
+          </div>
+        ) : null}
+        {e.artista ? (
+          <div className="flex gap-6 py-3.5">
+            <dt className="label w-24 shrink-0 text-faint">Artista</dt>
+            <dd className="text-sm font-semibold text-ink">{e.artista}</dd>
           </div>
         ) : null}
         {e.organizador ? (

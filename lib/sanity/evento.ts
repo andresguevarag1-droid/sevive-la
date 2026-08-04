@@ -31,6 +31,7 @@ export type EventoDetalle = {
   enlace?: string;
   precioDesde?: string;
   organizador?: string;
+  artista?: string;
   mapaUrl?: string;
 };
 
@@ -49,6 +50,7 @@ type RawEventoDetalle = {
   enlace?: string;
   precioDesde?: string;
   organizador?: string;
+  artista?: string;
   mapaUrl?: string;
 };
 
@@ -59,7 +61,7 @@ export async function getEvento(slug: string): Promise<EventoDetalle | null> {
       /* groq */ `*[_type == "evento" && slug.current == $slug][0]{
         _id, title, "slug": slug.current, vertical, inicio, fin, horaPorConfirmar,
         lugar, descripcion, cuerpo, imagen{ asset, "alt": alt },
-        enlace, precioDesde, organizador, mapaUrl
+        enlace, precioDesde, organizador, artista, mapaUrl
       }`,
       { slug },
       { next: { revalidate: 300 } }
@@ -81,6 +83,7 @@ export async function getEvento(slug: string): Promise<EventoDetalle | null> {
       enlace: raw.enlace,
       precioDesde: raw.precioDesde,
       organizador: raw.organizador,
+      artista: raw.artista,
       mapaUrl: raw.mapaUrl,
     };
   } catch (err) {

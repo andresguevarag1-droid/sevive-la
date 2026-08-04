@@ -132,6 +132,7 @@ export function eventoToStory(e: RawEvento): Story {
     meta: fmtEvento(e.inicio, !e.horaPorConfirmar),
     img: urlForImage(e.imagen, 800),
     href: e.slug ? `/agenda/${e.slug}` : undefined,
+    fechaIso: e.inicio,
   };
 }
 export function reelToStory(r: RawReel): Story {
