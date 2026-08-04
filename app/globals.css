@@ -240,6 +240,14 @@ input {
     animation: twinkle 4.2s ease-in-out infinite;
   }
 
+  /* chips INTERACTIVOS (filtros): objetivo táctil AA/AAA en móvil (A2).
+     Las etiquetas de categoría (span.chip) conservan su tamaño editorial. */
+  a.chip,
+  button.chip {
+    min-height: 2.75rem;
+    padding-inline: 0.9rem;
+  }
+
   /* feedback de pulsación (sutil) */
   .pressable {
     transition: transform 140ms var(--ease-out);

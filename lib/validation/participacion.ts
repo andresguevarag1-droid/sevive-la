@@ -48,6 +48,9 @@ export const participacionSchema = z.object({
       medium: z.string().max(80).optional(),
       content: z.string().max(120).optional(),
       campaign: z.string().max(120).optional(),
+      term: z.string().max(120).optional(),
+      referrer: z.string().max(200).optional(),
+      landing: z.string().max(120).optional(),
     })
     .partial()
     .optional(),

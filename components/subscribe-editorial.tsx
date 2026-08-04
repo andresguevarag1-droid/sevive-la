@@ -7,6 +7,7 @@ import Link from "next/link";
  * el texto que se muestra es EXACTAMENTE el que registra el servidor.
  * Estados: idle → sending → ok | error.
  */
+import { track } from "@/lib/analytics/track";
 import { useState, type FormEvent } from "react";
 import { CONSENT_NEWSLETTER } from "@/lib/consent";
 import { isValidEmail } from "@/lib/validation/client";
@@ -58,6 +59,7 @@ export function SubscribeEditorial() {
         | null;
       if (res.ok && data?.ok) {
         setPorConfirmar(Boolean(data.confirmar));
+        track("newsletter_subscribe", {});
         setStatus("ok");
       } else {
         setStatus("error");

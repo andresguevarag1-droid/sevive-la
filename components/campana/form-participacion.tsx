@@ -6,7 +6,7 @@
  * de elegibilidad. Consentimiento y bases NUNCA premarcados (Ley 8968).
  * Estados: idle → sending → ok | error. Nunca se pierde lo tipeado.
  */
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { consentParticipacion } from "@/lib/consent";
 import {
@@ -16,6 +16,10 @@ import {
 } from "@/lib/validation/client";
 import { TurnstileWidget } from "@/components/turnstile";
 import { InstagramIcon } from "@/components/icons";
+import { track } from "@/lib/analytics/track";
+import { getAttribution } from "@/lib/analytics/attribution";
+
+type ErrorCampo = { campo: string; mensaje: string };
 
 type Status = "idle" | "sending" | "ok" | "error";
 
@@ -74,6 +78,9 @@ export function FormParticipacion({
   const [turnstileToken, setTurnstileToken] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
+  const [errores, setErrores] = useState<ErrorCampo[]>([]);
+  const resumenRef = useRef<HTMLDivElement>(null);
+  const formStartEnviado = useRef(false);
   const [yaParticipaba, setYaParticipaba] = useState(false);
   const [eligible, setEligible] = useState(true);
   const [referralCode, setReferralCode] = useState("");
@@ -142,44 +149,42 @@ export function FormParticipacion({
     if (status === "sending") return;
     setError("");
 
-    // Validación ligera en cliente; el servidor re-valida con Zod (fuente de verdad).
+    // Validación ligera en cliente; el servidor re-valida con Zod (fuente de
+    // verdad). Se recogen TODOS los errores y se anuncian juntos (A1/A7).
     const honeypot =
       (new FormData(e.currentTarget).get("website") as string) || "";
-    if (!isValidEmail(email)) {
-      setStatus("error");
-      setError("Escribí un correo válido.");
-      return;
-    }
-    if (fullName.trim().length < 2) {
-      setStatus("error");
-      setError("Contanos tu nombre completo.");
-      return;
-    }
-    if (!residence) {
-      setStatus("error");
-      setError("Elegí tu provincia.");
-      return;
-    }
-    if (!isValidPhone(phone)) {
-      setStatus("error");
-      setError("Escribí un teléfono válido.");
-      return;
-    }
+    const fallas: ErrorCampo[] = [];
+    if (!isValidEmail(email))
+      fallas.push({ campo: "f-email", mensaje: "Escribí un correo válido." });
+    if (fullName.trim().length < 2)
+      fallas.push({ campo: "f-nombre", mensaje: "Contanos tu nombre completo." });
+    if (!residence)
+      fallas.push({ campo: "f-provincia", mensaje: "Elegí tu provincia." });
+    if (!isValidPhone(phone))
+      fallas.push({ campo: "f-telefono", mensaje: "Escribí un teléfono válido." });
     for (const p of preguntasElegibilidad) {
-      if (respuestas[p.key] === null) {
-        setStatus("error");
-        setError(`Respondé: ${p.label}`);
-        return;
+      if (respuestas[p.key] === null)
+        fallas.push({ campo: `f-eleg-${p.key}`, mensaje: `Respondé: ${p.label}` });
+    }
+    if (!consent)
+      fallas.push({
+        campo: "f-consent",
+        mensaje: "Necesitamos tu consentimiento para participar.",
+      });
+    if (!acceptsRules)
+      fallas.push({
+        campo: "f-bases",
+        mensaje: "Tenés que aceptar las bases y condiciones.",
+      });
+
+    setErrores(fallas);
+    if (fallas.length > 0) {
+      setStatus("error");
+      for (const f of fallas) {
+        track("form_field_error", { field: f.campo, dynamic_slug: campaignSlug });
       }
-    }
-    if (!consent) {
-      setStatus("error");
-      setError("Necesitamos tu consentimiento para participar.");
-      return;
-    }
-    if (!acceptsRules) {
-      setStatus("error");
-      setError("Tenés que aceptar las bases y condiciones.");
+      // Anunciar y enfocar el resumen (lectores de pantalla + teclado).
+      requestAnimationFrame(() => resumenRef.current?.focus());
       return;
     }
 
@@ -203,7 +208,8 @@ export function FormParticipacion({
           ref: (refInicial || getCookie(claveCookie) || "").toUpperCase(),
           turnstileToken,
           website: honeypot,
-          utm: utm ?? {},
+          // Atribución: los UTM de la URL actual pisan al first-touch guardado.
+          utm: { ...getAttribution(), ...(utm ?? {}) },
         }),
       });
       const data = (await res.json().catch(() => null)) as
@@ -217,6 +223,7 @@ export function FormParticipacion({
           }
         | null;
       if (res.ok && data?.ok) {
+        track("form_submit_success", { dynamic_slug: campaignSlug });
         setYaParticipaba(Boolean(data.yaParticipaba));
         setEligible(data.eligible !== false);
         if (data.referralCode && data.referralUrl) {
@@ -247,6 +254,7 @@ export function FormParticipacion({
     const mensajeCompartir = `¡Estoy participando por ${premio ?? "un premio"} en @sevive.la! Entrá con mi link y los dos sumamos chances 👉 ${referralUrl}`;
     const mensajeWhatsApp = encodeURIComponent(mensajeCompartir);
     const copiarLink = async () => {
+      track("referral_share_click", { dynamic_slug: campaignSlug, metodo: "copiar" });
       try {
         await navigator.clipboard.writeText(referralUrl);
         setCopiado(true);
@@ -256,6 +264,7 @@ export function FormParticipacion({
       }
     };
     const compartir = () => {
+      track("referral_share_click", { dynamic_slug: campaignSlug, metodo: "nativo" });
       navigator
         .share({ title: "SeViveLa", text: mensajeCompartir, url: referralUrl })
         .catch(() => {});
@@ -309,6 +318,7 @@ export function FormParticipacion({
             <div className="mt-3 flex flex-wrap gap-2">
               <a
                 href={`https://wa.me/?text=${mensajeWhatsApp}`}
+              onClick={() => track("referral_share_click", { dynamic_slug: campaignSlug, metodo: "whatsapp" })}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="pressable inline-flex flex-1 items-center justify-center rounded-[var(--radius-full)] px-5 py-3 text-sm font-bold text-white"
@@ -381,10 +391,19 @@ export function FormParticipacion({
     );
   }
 
+  // ¿Este campo está en la lista de errores? (para aria-invalid)
+  const inv = (id: string) => (errores.some((f) => f.campo === id) ? true : undefined);
+
   return (
     <form
       onSubmit={handleSubmit}
       aria-busy={status === "sending"}
+      onFocusCapture={() => {
+        if (!formStartEnviado.current) {
+          formStartEnviado.current = true;
+          track("form_start", { dynamic_slug: campaignSlug });
+        }
+      }}
       className="card px-6 py-8 md:px-10 md:py-10"
     >
       <p className="label text-brand">Participá gratis</p>
@@ -399,8 +418,10 @@ export function FormParticipacion({
         <label>
           <span className="label text-faint">Correo *</span>
           <input
+            id="f-email"
             type="email"
             name="email"
+            aria-invalid={inv("f-email")}
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -414,8 +435,10 @@ export function FormParticipacion({
         <label>
           <span className="label text-faint">Nombre completo *</span>
           <input
+            id="f-nombre"
             type="text"
             name="fullName"
+            aria-invalid={inv("f-nombre")}
             required
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
@@ -428,7 +451,9 @@ export function FormParticipacion({
         <label>
           <span className="label text-faint">¿Dónde vivís? *</span>
           <select
+            id="f-provincia"
             name="residence"
+            aria-invalid={inv("f-provincia")}
             required
             value={residence}
             onChange={(e) => setResidence(e.target.value)}
@@ -448,8 +473,10 @@ export function FormParticipacion({
         <label>
           <span className="label text-faint">Teléfono (opcional)</span>
           <input
+            id="f-telefono"
             type="tel"
             name="phone"
+            aria-invalid={inv("f-telefono")}
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             placeholder="8888 8888"
@@ -461,10 +488,11 @@ export function FormParticipacion({
         </label>
       </div>
 
-      {/* ── Elegibilidad (se captura igual aunque respondas No) ── */}
+      {/* ── Elegibilidad: radios nativos estilados como pastillas (A3/U4).
+            Teclado y lector de pantalla los anuncian como grupo requerido. ── */}
       <div className="mt-7 space-y-5">
         {preguntasElegibilidad.map((p) => (
-          <fieldset key={p.key}>
+          <fieldset key={p.key} id={`f-eleg-${p.key}`} aria-invalid={inv(`f-eleg-${p.key}`)}>
             <legend className="label text-faint">{p.label} *</legend>
             <div className="mt-2 flex gap-2">
               {[
@@ -473,15 +501,9 @@ export function FormParticipacion({
               ].map((opcion) => {
                 const activo = respuestas[p.key] === opcion.valor;
                 return (
-                  <button
+                  <label
                     key={opcion.texto}
-                    type="button"
-                    aria-pressed={activo}
-                    disabled={status === "sending"}
-                    onClick={() =>
-                      setRespuestas((r) => ({ ...r, [p.key]: opcion.valor }))
-                    }
-                    className="pressable min-h-11 min-w-20 rounded-[var(--radius-full)] border px-5 py-2 text-sm font-semibold transition-colors"
+                    className="pressable flex min-h-11 min-w-20 cursor-pointer items-center justify-center rounded-[var(--radius-full)] border px-5 py-2 text-sm font-semibold transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-brand"
                     style={
                       activo
                         ? {
@@ -495,8 +517,19 @@ export function FormParticipacion({
                           }
                     }
                   >
+                    <input
+                      type="radio"
+                      name={`eleg-${p.key}`}
+                      value={opcion.texto}
+                      checked={activo}
+                      disabled={status === "sending"}
+                      onChange={() =>
+                        setRespuestas((r) => ({ ...r, [p.key]: opcion.valor }))
+                      }
+                      className="sr-only"
+                    />
                     {opcion.texto}
-                  </button>
+                  </label>
                 );
               })}
             </div>
@@ -540,8 +573,10 @@ export function FormParticipacion({
       {/* ── Legales: obligatorios, nunca premarcados ── */}
       <label className="mt-4 flex items-start gap-2.5 text-sm leading-relaxed text-muted">
         <input
+          id="f-consent"
           type="checkbox"
           required
+          aria-invalid={inv("f-consent")}
           checked={consent}
           onChange={(e) => setConsent(e.target.checked)}
           disabled={status === "sending"}
@@ -557,8 +592,10 @@ export function FormParticipacion({
       </label>
       <label className="mt-3 flex items-start gap-2.5 text-sm leading-relaxed text-muted">
         <input
+          id="f-bases"
           type="checkbox"
           required
+          aria-invalid={inv("f-bases")}
           checked={acceptsRules}
           onChange={(e) => setAcceptsRules(e.target.checked)}
           disabled={status === "sending"}
@@ -574,6 +611,29 @@ export function FormParticipacion({
       </label>
 
       <TurnstileWidget onToken={setTurnstileToken} />
+
+      {/* ── Resumen de errores accesible: se anuncia y recibe el foco (A1/A7) ── */}
+      {errores.length > 0 ? (
+        <div
+          ref={resumenRef}
+          role="alert"
+          tabIndex={-1}
+          className="mt-5 border-l-2 border-brand bg-paper px-4 py-3 outline-none"
+        >
+          <p className="text-sm font-bold text-ink">
+            Revisá {errores.length === 1 ? "este campo" : "estos campos"}:
+          </p>
+          <ul className="mt-1.5 space-y-1">
+            {errores.map((f) => (
+              <li key={f.campo}>
+                <a href={`#${f.campo}`} className="text-sm text-brand underline">
+                  {f.mensaje}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
 
       {status === "error" && error ? (
         <p role="alert" className="mt-4 text-sm font-medium text-brand">

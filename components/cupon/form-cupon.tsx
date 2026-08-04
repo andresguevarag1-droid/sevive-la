@@ -4,6 +4,7 @@
  * Reclamo de cupón de beneficio: correo + consentimiento (nunca premarcado).
  * Estados: idle → sending → ok | error. Al emitir, redirige a /mi-cupon/<code>.
  */
+import { track } from "@/lib/analytics/track";
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -57,6 +58,7 @@ export function FormCupon({ benefitSlug }: { benefitSlug: string }) {
         | { ok: boolean; error?: string; code?: string; url?: string }
         | null;
       if (res.ok && data?.ok && data.code) {
+        track("coupon_claim", { benefit_slug: benefitSlug });
         setStatus("ok");
         router.push(`/mi-cupon/${data.code}`);
       } else {

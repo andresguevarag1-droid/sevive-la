@@ -1,16 +1,15 @@
 "use client";
 
 /**
- * Aviso de cookies (Ley 8968 / buenas prácticas): informativo, porque el
- * sitio solo usa almacenamiento propio y funcional (preferencias, referidos,
- * anti-bots) — nada de rastreo publicitario de terceros. Se muestra una vez;
- * "Entendido" queda guardado en el dispositivo. Si cambia la política,
- * subir la versión de la clave para volver a mostrarlo.
+ * Banner de consentimiento (D4, Ley 8968):
+ * - Nada premarcado; dos opciones con el mismo peso visual.
+ * - "Aceptar" habilita la analítica de producto (PostHog) vía evento.
+ * - "Solo esenciales" deja únicamente lo funcional y la medición sin cookies.
+ * - Registra versión + fecha de la decisión; subir CONSENT_VERSION re-pregunta.
  */
 import { useEffect, useState } from "react";
 import Link from "next/link";
-
-const CLAVE = "sv_cookies_v1";
+import { getConsentimiento, setConsentimiento } from "@/lib/analytics/consent";
 
 export function CookieBanner() {
   const [visible, setVisible] = useState(false);
@@ -18,9 +17,8 @@ export function CookieBanner() {
 
   useEffect(() => {
     try {
-      if (localStorage.getItem(CLAVE)) return;
+      if (getConsentimiento()) return; // ya decidió (esta versión)
     } catch {
-      /* sin memoria local: mejor no insistir en cada página */
       return;
     }
     setVisible(true);
@@ -30,12 +28,8 @@ export function CookieBanner() {
 
   if (!visible) return null;
 
-  function aceptar() {
-    try {
-      localStorage.setItem(CLAVE, new Date().toISOString());
-    } catch {
-      /* nada */
-    }
+  function decidir(analitica: boolean) {
+    setConsentimiento(analitica);
     setEntrando(false);
     setTimeout(() => setVisible(false), 240);
   }
@@ -43,7 +37,7 @@ export function CookieBanner() {
   return (
     <div
       role="region"
-      aria-label="Aviso de cookies"
+      aria-label="Consentimiento de cookies"
       className="fixed inset-x-3 bottom-[calc(3.5rem+env(safe-area-inset-bottom)+0.75rem)] z-50 mx-auto max-w-md transition-[transform,opacity] duration-300 ease-[var(--ease-out)] md:inset-x-auto md:bottom-5 md:right-5"
       style={{
         transform: entrando ? "none" : "translateY(12px)",
@@ -55,19 +49,28 @@ export function CookieBanner() {
         style={{ background: "var(--color-ink)" }}
       >
         <p className="text-[13px] leading-relaxed text-paper/85">
-          Usamos cookies y almacenamiento propios para que el sitio funcione y
-          recordar tus preferencias. Sin rastreo publicitario de terceros.{" "}
+          Usamos cookies propias esenciales y, solo si aceptás, medición anónima
+          de uso para mejorar el sitio. Sin rastreo publicitario de terceros.{" "}
           <Link href="/legal/cookies" className="underline hover:text-paper">
             Política de cookies
           </Link>
         </p>
-        <button
-          type="button"
-          onClick={aceptar}
-          className="pressable mt-3 w-full bg-brand px-5 py-2.5 text-sm font-bold uppercase tracking-wide text-brand-ink transition-colors hover:bg-brand-hover md:w-auto"
-        >
-          Entendido
-        </button>
+        <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+          <button
+            type="button"
+            onClick={() => decidir(true)}
+            className="pressable min-h-11 flex-1 bg-brand px-4 py-2.5 text-sm font-bold uppercase tracking-wide text-brand-ink transition-colors hover:bg-brand-hover"
+          >
+            Aceptar
+          </button>
+          <button
+            type="button"
+            onClick={() => decidir(false)}
+            className="pressable min-h-11 flex-1 border border-paper/40 px-4 py-2.5 text-sm font-bold uppercase tracking-wide text-paper transition-colors hover:border-paper"
+          >
+            Solo esenciales
+          </button>
+        </div>
       </div>
     </div>
   );
