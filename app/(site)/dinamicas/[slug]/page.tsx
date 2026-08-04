@@ -7,6 +7,7 @@ import { getCampana } from "@/lib/sanity/campana";
 import { getVertical } from "@/lib/site";
 import { DinamicaForm } from "@/components/dinamica-form";
 import { CampanaLanding } from "@/components/campana/landing-campana";
+import { CuentaRegresiva } from "@/components/campana/cuenta-regresiva";
 import { EditorialImage } from "@/components/editorial-image";
 import { CategoryLabel } from "@/components/kicker";
 import { JsonLd } from "@/components/json-ld";
@@ -74,13 +75,6 @@ function fmtFecha(iso: string): string {
     hour12: false,
     timeZone: "America/Costa_Rica",
   }).format(date);
-}
-
-/** Días restantes (redondeo hacia arriba); null si la fecha no es válida. */
-function diasRestantes(iso: string): number | null {
-  const fin = new Date(iso).getTime();
-  if (Number.isNaN(fin)) return null;
-  return Math.max(0, Math.ceil((fin - Date.now()) / 86400000));
 }
 
 const pasos = [
@@ -186,30 +180,21 @@ export default async function DinamicaPage({
         </div>
       </div>
 
-      {/* ── Urgencia: ventana de participación ── */}
-      <div className="mt-6 flex flex-wrap items-baseline justify-between gap-2 border-y-2 border-ink py-3">
-        <p className="label tnum text-ink">
-          {estado === "proximamente"
-            ? `Abre el ${fmtFecha(d.inicio)}`
-            : estado === "cerrada"
-              ? `Cerró el ${fmtFecha(d.cierre)}`
-              : `Cierra el ${fmtFecha(d.cierre)}`}
-        </p>
-        {estado === "abierta" ? (
-          (() => {
-            const dias = diasRestantes(d.cierre);
-            return dias !== null ? (
-              <p className="label tnum text-brand">
-                {dias === 0
-                  ? "¡Último día!"
-                  : dias === 1
-                    ? "Queda 1 día"
-                    : `Quedan ${dias} días`}
-              </p>
-            ) : null;
-          })()
-        ) : null}
-      </div>
+      {/* ── Urgencia: cuenta regresiva con los stickers del logo ── */}
+      {estado === "abierta" ? (
+        <CuentaRegresiva
+          cierre={d.cierre}
+          etiqueta={`Cierra el ${fmtFecha(d.cierre)}`}
+        />
+      ) : (
+        <div className="mt-6 flex flex-wrap items-baseline justify-between gap-2 border-y-2 border-ink py-3">
+          <p className="label tnum text-ink">
+            {estado === "proximamente"
+              ? `Abre el ${fmtFecha(d.inicio)}`
+              : `Cerró el ${fmtFecha(d.cierre)}`}
+          </p>
+        </div>
+      )}
 
       {/* ── Descripción editorial ── */}
       {d.descripcion?.length ? (

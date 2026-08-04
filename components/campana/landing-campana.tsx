@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Campana } from "@/lib/sanity/campana";
 import { estadoCampana } from "@/lib/sanity/campana";
 import { FormParticipacion } from "@/components/campana/form-participacion";
+import { CuentaRegresiva } from "@/components/campana/cuenta-regresiva";
 import { JsonLd } from "@/components/json-ld";
 import { site } from "@/lib/site";
 
@@ -31,12 +32,6 @@ function fmtFecha(iso: string): string {
   }).format(date);
 }
 
-function diasRestantes(iso: string): number | null {
-  const fin = new Date(iso).getTime();
-  if (Number.isNaN(fin)) return null;
-  return Math.max(0, Math.ceil((fin - Date.now()) / 86400000));
-}
-
 export function CampanaLanding({
   campana,
   utm,
@@ -48,7 +43,6 @@ export function CampanaLanding({
   refInicial?: string;
 }) {
   const estado = estadoCampana(campana);
-  const dias = diasRestantes(campana.termina);
 
   return (
     <article>
@@ -126,25 +120,21 @@ export function CampanaLanding({
           </div>
         </div>
 
-        {/* ── Urgencia ── */}
-        <div className="mt-6 flex flex-wrap items-baseline justify-between gap-2 border-y-2 border-ink py-3">
-          <p className="label tnum text-ink">
-            {estado === "proximamente"
-              ? `Abre el ${fmtFecha(campana.inicia)}`
-              : estado === "abierta"
-                ? `Cierra el ${fmtFecha(campana.termina)}`
+        {/* ── Urgencia: cuenta regresiva con los stickers del logo ── */}
+        {estado === "abierta" ? (
+          <CuentaRegresiva
+            cierre={campana.termina}
+            etiqueta={`Cierra el ${fmtFecha(campana.termina)}`}
+          />
+        ) : (
+          <div className="mt-6 flex flex-wrap items-baseline justify-between gap-2 border-y-2 border-ink py-3">
+            <p className="label tnum text-ink">
+              {estado === "proximamente"
+                ? `Abre el ${fmtFecha(campana.inicia)}`
                 : `Cerró el ${fmtFecha(campana.termina)}`}
-          </p>
-          {estado === "abierta" && dias !== null ? (
-            <p className="label tnum text-brand">
-              {dias === 0
-                ? "¡Último día!"
-                : dias === 1
-                  ? "Queda 1 día"
-                  : `Quedan ${dias} días`}
             </p>
-          ) : null}
-        </div>
+          </div>
+        )}
 
         {/* ── Formulario o estado ── */}
         <section className="mt-8" aria-label="Participación">
