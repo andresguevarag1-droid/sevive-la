@@ -9,13 +9,10 @@ import { EditorialImage } from "@/components/editorial-image";
 import { CategoryLabel } from "@/components/kicker";
 import { StoryCard } from "@/components/story-card";
 import { JsonLd } from "@/components/json-ld";
-import { WeekIndex } from "@/components/week-index";
-import { Beneficios } from "@/components/beneficios";
 import { Compartir } from "@/components/compartir";
 import { TrackClicks } from "@/components/track-clicks";
 import { ProgresoLectura } from "@/components/cronica/progreso-lectura";
-import { getEventosRelacionados } from "@/lib/sanity/evento";
-import { getBeneficiosTodos } from "@/lib/sanity/listados";
+import { SeguiExplorando } from "@/components/cronica/segui-explorando";
 
 type Params = { slug: string };
 
@@ -100,17 +97,7 @@ export default async function CronicaPage({
   if (!c) notFound();
 
   const v = getVertical(c.vertical);
-  const [relacionadas, eventosCerca, beneficiosTodos] = await Promise.all([
-    getCronicasRelacionadas(c.vertical, c.id),
-    getEventosRelacionados(c.vertical, c.id),
-    getBeneficiosTodos(),
-  ]);
-  const eventoSugerido = eventosCerca.slice(0, 1);
-  const beneficioSugerido = beneficiosTodos
-    .filter((b) => b.href)
-    .sort((a, b) => (a.vertical === c.vertical ? -1 : 0) - (b.vertical === c.vertical ? -1 : 0))
-    .slice(0, 1)
-    .map((b) => ({ ...b, sponsored: b.patrocinado }));
+  const relacionadas = await getCronicasRelacionadas(c.vertical, c.id);
 
   return (
     <article className="mx-auto max-w-3xl px-4 py-8 md:py-12">
@@ -207,22 +194,9 @@ export default async function CronicaPage({
 
       <Compartir titulo={c.title} />
 
-      {/* ── Seguí explorando: la sesión no muere aquí (evento + beneficio) ── */}
-      {eventoSugerido.length > 0 || beneficioSugerido.length > 0 ? (
-        <TrackClicks module="cronica_segui_explorando">
-          <section className="mt-12">
-            <div className="flex items-baseline gap-3 border-b border-ink pb-2">
-              <h2 className="label text-ink">Seguí explorando</h2>
-            </div>
-            {eventoSugerido.length > 0 ? <WeekIndex items={eventoSugerido} /> : null}
-            {beneficioSugerido.length > 0 ? (
-              <div className="mt-5">
-                <Beneficios items={beneficioSugerido} />
-              </div>
-            ) : null}
-          </section>
-        </TrackClicks>
-      ) : null}
+      {/* ── Seguí explorando: la sesión no muere aquí. El evento se elige
+           por afinidad con la nota (Miss Grand → evento de Miss Grand). ── */}
+      <SeguiExplorando titulo={c.title} bajada={c.bajada} vertical={c.vertical} />
 
       {/* ── Seguí leyendo ── */}
       {relacionadas.length > 0 ? (

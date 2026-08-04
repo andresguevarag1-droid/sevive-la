@@ -26,9 +26,16 @@ function partirOferta(meta: string): { grande: string; resto?: string } {
   return { grande: m };
 }
 
-export function Beneficios({ items }: { items: Story[] }) {
+export function Beneficios({
+  items,
+  gridClassName = "md:grid-cols-3",
+}: {
+  items: Story[];
+  /** Columnas del grid (ej. "grid-cols-1" para un solo cupón ancho). */
+  gridClassName?: string;
+}) {
   return (
-    <div className="grid gap-4 md:grid-cols-3">
+    <div className={`grid gap-4 ${gridClassName}`}>
       {items.map((b) => {
         const color = verticalColor(b.vertical);
         const v = getVertical(b.vertical);
