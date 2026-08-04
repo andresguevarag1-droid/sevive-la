@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "seed": "node scripts/seed-sanity.mjs",
     "patch:artistas": "node scripts/patch-artistas.mjs",
-    "retirar:ejemplo": "node scripts/retirar-ejemplo.mjs"
+    "retirar:ejemplo": "node scripts/retirar-ejemplo.mjs",
+    "seed:cronicas": "node scripts/seed-cronicas-ig.mjs"
   },
   "dependencies": {
     "@fontsource-variable/archivo": "^5.3.0",
