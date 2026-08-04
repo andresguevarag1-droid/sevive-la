@@ -8,6 +8,7 @@ import { NextResponse } from "next/server";
 import { interesEventoSchema } from "@/lib/validation/interes-evento";
 import { consentInteresEvento } from "@/lib/consent";
 import { getEvento } from "@/lib/sanity/evento";
+import { getCronica } from "@/lib/sanity/cronica";
 import { getServiceClient } from "@/lib/supabase/server";
 import { upsertPerson, recordConsent, declareInterest } from "@/lib/server/capture";
 import { getClientIp, getUserAgent } from "@/lib/server/request-meta";
@@ -61,9 +62,12 @@ export async function POST(req: Request) {
     );
   }
 
-  // El evento es la fuente de verdad del título y la vertical (nunca el cliente).
+  // La fuente de verdad del título y la vertical es Sanity (nunca el cliente).
+  // El slug puede ser de un evento de la agenda O de una crónica de cobertura.
   const evento = await getEvento(parsed.data.eventSlug);
-  if (!evento) {
+  const cronica = evento ? null : await getCronica(parsed.data.eventSlug);
+  const pieza = evento ?? cronica;
+  if (!pieza) {
     return NextResponse.json(
       { ok: false, error: "No encontramos este evento." },
       { status: 404 }
@@ -85,18 +89,20 @@ export async function POST(req: Request) {
       firstName: parsed.data.firstName || undefined,
       source: "interes-evento",
     });
-    await recordConsent(db, persona.id, consentInteresEvento(evento.slug), {
-      ip,
-      userAgent,
-    });
-    await declareInterest(db, persona.id, evento.vertical);
+    await recordConsent(
+      db,
+      persona.id,
+      consentInteresEvento(pieza.slug, evento ? "evento" : "cronica"),
+      { ip, userAgent }
+    );
+    await declareInterest(db, persona.id, pieza.vertical);
     // Idempotente: repetir el registro del mismo evento no duplica ni falla.
     const { error } = await db.from("event_interest").upsert(
       {
         person_id: persona.id,
-        event_slug: evento.slug,
-        event_title: evento.title,
-        vertical: evento.vertical,
+        event_slug: pieza.slug,
+        event_title: pieza.title,
+        vertical: pieza.vertical,
         utm: parsed.data.utm ?? null,
       },
       { onConflict: "person_id,event_slug" }

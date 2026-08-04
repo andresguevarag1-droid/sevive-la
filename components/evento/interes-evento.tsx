@@ -16,7 +16,16 @@ import { getAttribution } from "@/lib/analytics/attribution";
 
 type Status = "idle" | "sending" | "ok" | "error";
 
-export function InteresEvento({ slug, titulo }: { slug: string; titulo: string }) {
+export function InteresEvento({
+  slug,
+  titulo,
+  variante = "evento",
+}: {
+  slug: string;
+  titulo: string;
+  /** "evento": página de evento pasado · "cronica": cierre de cobertura. */
+  variante?: "evento" | "cronica";
+}) {
   const [email, setEmail] = useState("");
   const [nombre, setNombre] = useState("");
   const [consent, setConsent] = useState(false);
@@ -83,9 +92,13 @@ export function InteresEvento({ slug, titulo }: { slug: string; titulo: string }
 
   return (
     <div className="card mt-6 px-5 py-6 md:px-7">
-      <p className="label text-faint">Este evento ya pasó</p>
+      <p className="label text-faint">
+        {variante === "evento" ? "Este evento ya pasó" : "La próxima edición"}
+      </p>
       <h2 className="mt-2 text-xl font-bold tracking-tight leading-snug text-ink">
-        ¿Te lo perdiste? Te aviso de la próxima edición.
+        {variante === "evento"
+          ? "¿Te lo perdiste? Te aviso de la próxima edición."
+          : "¿Querés que te avise cuando vuelva?"}
       </h2>
       <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted">
         Dejá tu correo y cuando se anuncie la próxima edición de {titulo} —o un

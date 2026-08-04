@@ -13,6 +13,7 @@ import { Compartir } from "@/components/compartir";
 import { TrackClicks } from "@/components/track-clicks";
 import { ProgresoLectura } from "@/components/cronica/progreso-lectura";
 import { SeguiExplorando } from "@/components/cronica/segui-explorando";
+import { InteresEvento } from "@/components/evento/interes-evento";
 
 type Params = { slug: string };
 
@@ -193,6 +194,16 @@ export default async function CronicaPage({
       ) : null}
 
       <Compartir titulo={c.title} />
+
+      {/* ── Cobertura de un evento que ya pasó → captura de interés en la
+           próxima edición (leads segmentados por evento). ── */}
+      {c.formato === "Cobertura" ? (
+        <InteresEvento
+          slug={c.slug}
+          titulo={c.title.split(":")[0].trim()}
+          variante="cronica"
+        />
+      ) : null}
 
       {/* ── Seguí explorando: la sesión no muere aquí. El evento se elige
            por afinidad con la nota (Miss Grand → evento de Miss Grand). ── */}
