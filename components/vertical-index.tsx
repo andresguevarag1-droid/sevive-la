@@ -18,13 +18,13 @@ type Paleta = {
   pill: string;
 };
 
-/** Orden visual de las bandas (decisión de marca; el menú mantiene el suyo). */
+/** Orden visual de las bandas (igual que el menú; cada una con su color). */
 const ORDEN_BANDAS: VerticalSlug[] = [
+  "entretenimiento",
   "cultura",
+  "experiencias",
   "ocio",
   "estilo-de-vida",
-  "experiencias",
-  "entretenimiento",
 ];
 
 const FLYER_PALETTE: Record<VerticalSlug, Paleta> = {
