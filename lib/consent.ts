@@ -44,6 +44,13 @@ export function consentBeneficio(slug: string): ConsentDefinition {
   };
 }
 
+/** Consentimiento del respaldo de "Mi agenda" por correo. */
+export const CONSENT_AGENDA: ConsentDefinition = {
+  purpose: "agenda",
+  version: "2026-08-04.v1",
+  text: "Acepto que SeViveLa trate mis datos personales (correo electrónico y mis eventos guardados) para respaldar mi agenda y avisarme sobre esos planes, según su Política de Privacidad. Puedo darme de baja en cualquier momento.",
+};
+
 /** Consentimiento de interés en la próxima edición de un evento (desde la
  *  página del evento pasado o desde una crónica de cobertura). */
 export function consentInteresEvento(

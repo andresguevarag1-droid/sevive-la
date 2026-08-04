@@ -7,6 +7,17 @@ import type { VerticalSlug } from "@/lib/site";
 
 const CLAVE = "sv_favoritos";
 
+/** Evento que se emite tras cada cambio, para que listas abiertas se refresquen. */
+export const FAVORITOS_EVENT = "sv-favoritos";
+
+function emitirCambio(): void {
+  try {
+    window.dispatchEvent(new Event(FAVORITOS_EVENT));
+  } catch {
+    /* sin window */
+  }
+}
+
 export type Favorito = {
   slug: string;
   title: string;
@@ -39,6 +50,7 @@ export function toggleFavorito(f: Omit<Favorito, "guardadoEn">): boolean {
     : [...lista, { ...f, guardadoEn: new Date().toISOString() }].slice(-100);
   try {
     localStorage.setItem(CLAVE, JSON.stringify(nueva));
+    emitirCambio();
   } catch {
     /* sin memoria local */
   }
@@ -51,6 +63,20 @@ export function quitarFavorito(slug: string): void {
       CLAVE,
       JSON.stringify(getFavoritos().filter((f) => f.slug !== slug))
     );
+    emitirCambio();
+  } catch {
+    /* sin memoria local */
+  }
+}
+
+/** Vuelve a guardar un favorito tal cual estaba (deshacer un "quitar"). */
+export function restaurarFavorito(f: Favorito): void {
+  try {
+    const lista = getFavoritos();
+    if (!lista.some((x) => x.slug === f.slug)) {
+      localStorage.setItem(CLAVE, JSON.stringify([...lista, f].slice(-100)));
+    }
+    emitirCambio();
   } catch {
     /* sin memoria local */
   }

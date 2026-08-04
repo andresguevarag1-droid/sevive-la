@@ -1,0 +1,42 @@
+/**
+ * Esquema Zod (v4) del respaldo de "Mi agenda" por correo.
+ * El servidor SIEMPRE re-valida (regla dura del proyecto).
+ */
+import { z } from "zod";
+
+export const respaldoAgendaSchema = z.object({
+  email: z.string().trim().toLowerCase().max(254).pipe(z.email("Escribí un correo válido.")),
+  /** Debe ser true: checkbox de consentimiento (nunca premarcado). */
+  consent: z.literal(true, "Necesitamos tu consentimiento para respaldar tu agenda."),
+  /** Los guardados del dispositivo (snapshot de localStorage). */
+  items: z
+    .array(
+      z.object({
+        slug: z.string().trim().min(1).max(96).regex(/^[a-z0-9-]+$/, "Evento inválido."),
+        title: z.string().trim().min(1).max(160),
+        inicio: z.string().trim().max(40).optional().or(z.literal("")),
+        lugar: z.string().trim().max(120).optional().or(z.literal("")),
+        vertical: z.string().trim().max(40).regex(/^[a-z-]+$/, "Vertical inválida."),
+      })
+    )
+    .min(1, "No hay nada guardado que respaldar.")
+    .max(100),
+  /** Token de Cloudflare Turnstile (si está habilitado). */
+  turnstileToken: z.string().optional(),
+  /** Honeypot anti-bot: debe venir vacío. */
+  website: z.literal("").optional(),
+  utm: z
+    .object({
+      source: z.string().max(80).optional(),
+      medium: z.string().max(80).optional(),
+      content: z.string().max(120).optional(),
+      campaign: z.string().max(120).optional(),
+      term: z.string().max(120).optional(),
+      referrer: z.string().max(200).optional(),
+      landing: z.string().max(120).optional(),
+    })
+    .partial()
+    .optional(),
+});
+
+export type RespaldoAgendaInput = z.infer<typeof respaldoAgendaSchema>;
