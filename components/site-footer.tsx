@@ -26,6 +26,7 @@ export async function SiteFooter() {
       titulo: "Explorá",
       links: [
         { href: "/agenda", label: "Agenda" },
+        { href: "/mi-agenda", label: "Mi agenda" },
         { href: "/videos", label: "Videos" },
         { href: "/promociones", label: "Beneficios" },
         { href: "/dinamicas", label: "Dinámicas" },

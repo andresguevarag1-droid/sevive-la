@@ -45,6 +45,33 @@ export function AnalyticsProvider() {
     return () => window.removeEventListener(CONSENT_EVENT, alConsentir);
   }, []);
 
+  // Profundidad de scroll (R4): 25/50/75/100 una vez por ruta.
+  useEffect(() => {
+    if (!pathname) return;
+    const enviados = new Set<number>();
+    let ticking = false;
+    const medir = () => {
+      ticking = false;
+      const total = document.documentElement.scrollHeight - window.innerHeight;
+      if (total <= 0) return;
+      const pct = ((window.scrollY / total) * 100) | 0;
+      for (const umbral of [25, 50, 75, 100]) {
+        if (pct >= umbral && !enviados.has(umbral)) {
+          enviados.add(umbral);
+          track("scroll_depth", { depth: umbral, path: pathname });
+        }
+      }
+    };
+    const alScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(medir);
+      }
+    };
+    window.addEventListener("scroll", alScroll, { passive: true });
+    return () => window.removeEventListener("scroll", alScroll);
+  }, [pathname]);
+
   // page_view por ruta + señales de interés por vertical (D6).
   useEffect(() => {
     if (!pathname) return;

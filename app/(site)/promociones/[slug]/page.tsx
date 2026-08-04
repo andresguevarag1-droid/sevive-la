@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getBeneficio, beneficioVigente } from "@/lib/sanity/beneficio";
+import { getBeneficiosTodos } from "@/lib/sanity/listados";
+import { Beneficios } from "@/components/beneficios";
 import { CategoryLabel } from "@/components/kicker";
 import { FormCupon } from "@/components/cupon/form-cupon";
 import { JsonLd } from "@/components/json-ld";
@@ -42,6 +44,10 @@ export default async function BeneficioPage({
   if (!b) notFound();
 
   const vigente = beneficioVigente(b);
+  const otros = (await getBeneficiosTodos())
+    .filter((o) => o.id !== b.id && o.href)
+    .slice(0, 3)
+    .map((o) => ({ ...o, sponsored: o.patrocinado }));
 
   return (
     <article className="mx-auto max-w-2xl px-4 py-10 md:py-14">
@@ -131,6 +137,24 @@ export default async function BeneficioPage({
         <p className="mt-6 text-sm leading-relaxed text-muted">
           <strong className="text-ink">Condiciones:</strong> {b.instruccionesCanje}
         </p>
+      ) : null}
+
+      {/* ── Otros beneficios (R5): la sesión no muere aquí ── */}
+      {otros.length > 0 ? (
+        <section className="mt-12">
+          <div className="flex items-baseline gap-3 border-b border-ink pb-2">
+            <h2 className="label text-ink">Otros beneficios</h2>
+            <Link
+              href="/promociones"
+              className="ulink ml-auto text-[12px] font-medium text-muted"
+            >
+              Ver todos
+            </Link>
+          </div>
+          <div className="mt-6">
+            <Beneficios items={otros} />
+          </div>
+        </section>
       ) : null}
     </article>
   );

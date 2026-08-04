@@ -7,6 +7,8 @@ import { getVertical, site } from "@/lib/site";
 import { EditorialImage } from "@/components/editorial-image";
 import { CategoryLabel } from "@/components/kicker";
 import { WeekIndex } from "@/components/week-index";
+import { FavoritoButton } from "@/components/evento/favorito-button";
+import { BotonesCalendario } from "@/components/evento/botones-calendario";
 import { JsonLd } from "@/components/json-ld";
 import { ArrowRightIcon } from "@/components/icons";
 
@@ -252,6 +254,26 @@ export default async function EventoPage({
           </div>
         ) : null}
       </dl>
+
+      {/* ── Guardar + calendario (R3): señal de interés y razón para volver ── */}
+      {!pasado ? (
+        <div className="mt-6 flex flex-col gap-3">
+          <FavoritoButton
+            slug={e.slug}
+            titulo={e.title}
+            inicio={e.inicio}
+            lugar={e.lugar}
+            vertical={e.vertical}
+          />
+          <BotonesCalendario
+            slug={e.slug}
+            titulo={e.title}
+            inicio={e.inicio}
+            fin={e.fin}
+            lugar={e.lugar}
+          />
+        </div>
+      ) : null}
 
       {/* ── CTA entradas ── */}
       {e.enlace && !pasado ? (

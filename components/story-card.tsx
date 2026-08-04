@@ -27,6 +27,12 @@ export function StoryCard({ story }: { story: Story }) {
           {story.author ? `${story.author} — ` : ""}
           {story.meta}
         </p>
+        {/* afordancia explícita de recirculación (R2) */}
+        {story.type === "articulo" && story.href ? (
+          <Link href={href} className="label mt-2.5 inline-block text-brand">
+            Leer más →
+          </Link>
+        ) : null}
       </div>
     </article>
   );

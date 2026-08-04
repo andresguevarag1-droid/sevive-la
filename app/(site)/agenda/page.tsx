@@ -153,8 +153,15 @@ export default async function AgendaPage({
         </p>
       </header>
 
-      {/* ── Filtros rápidos ── */}
-      <nav aria-label="Filtros de fecha" className="mt-6 flex gap-2">
+      {/* ── Filtros rápidos + acceso a lo guardado ── */}
+      <nav aria-label="Filtros de fecha" className="mt-6 flex flex-wrap items-center gap-2">
+        <Link
+          href="/mi-agenda"
+          className="chip pressable ml-auto order-last border"
+          style={{ borderColor: "var(--color-rule)", color: "var(--color-brand)" }}
+        >
+          ♥ Mi agenda
+        </Link>
         {filtros.map((opcion) => {
           const activo = opcion.key === filtro;
           return (
