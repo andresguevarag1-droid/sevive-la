@@ -3,6 +3,7 @@ import type { Story } from "@/lib/content";
 import { verticalColor } from "@/lib/content";
 import { getVertical } from "@/lib/site";
 import { PlayIcon } from "@/components/icons";
+import { ReelSinFoto } from "@/components/reel-sin-foto";
 
 /**
  * Reels: rail horizontal de tarjetas verticales 9:16 (tipo TikTok/Reels).
@@ -23,14 +24,18 @@ export function VideoRow({ items }: { items: Story[] }) {
               className="imgzoom relative overflow-hidden rounded-[var(--radius-lg)] bg-paper-2 shadow-[var(--shadow-card)]"
               style={{ aspectRatio: "9 / 16" }}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={v.img}
-                alt={v.title}
-                className="h-full w-full object-cover"
-                loading="lazy"
-                decoding="async"
-              />
+              {v.img ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={v.img}
+                  alt={v.title}
+                  className="h-full w-full object-cover"
+                  loading="lazy"
+                  decoding="async"
+                />
+              ) : (
+                <ReelSinFoto vertical={v.vertical} />
+              )}
               {/* scrim para legibilidad del texto */}
               <div
                 aria-hidden

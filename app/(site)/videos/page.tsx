@@ -3,6 +3,7 @@ import { getReels } from "@/lib/sanity/listados";
 import { verticalColor } from "@/lib/content";
 import { getVertical } from "@/lib/site";
 import { PlayIcon } from "@/components/icons";
+import { ReelSinFoto } from "@/components/reel-sin-foto";
 
 export const metadata: Metadata = {
   title: "Videos",
@@ -55,9 +56,7 @@ export default async function VideosPage() {
                     decoding="async"
                   />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center">
-                    <span className="label text-faint">SeViveLa</span>
-                  </div>
+                  <ReelSinFoto vertical={v.vertical} />
                 )}
                 <div
                   aria-hidden
