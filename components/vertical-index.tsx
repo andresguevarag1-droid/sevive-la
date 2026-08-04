@@ -28,32 +28,32 @@ const ORDEN_BANDAS: VerticalSlug[] = [
 ];
 
 const FLYER_PALETTE: Record<VerticalSlug, Paleta> = {
-  experiencias: {
-    bg: "#FA872E",
-    text: "#ffffff",
-    sub: "rgba(255,255,255,0.92)",
-    ghost: "rgba(255,255,255,0.30)",
-    pill: "rgba(255,255,255,0.55)",
-  },
   entretenimiento: {
-    bg: "#F9ED48",
-    text: "#2C1063", // morado profundo sobre amarillo, como el flyer
-    sub: "rgba(44,16,99,0.85)",
-    ghost: "rgba(44,16,99,0.24)",
-    pill: "rgba(44,16,99,0.5)",
-  },
-  cultura: {
     bg: "#2C1063",
     text: "#ffffff",
     sub: "rgba(255,255,255,0.85)",
     ghost: "rgba(255,255,255,0.22)",
     pill: "rgba(255,255,255,0.5)",
   },
-  ocio: {
+  cultura: {
     bg: "#22A8B7",
     text: "#ffffff",
     sub: "rgba(255,255,255,0.9)",
     ghost: "rgba(255,255,255,0.28)",
+    pill: "rgba(255,255,255,0.55)",
+  },
+  experiencias: {
+    bg: "#DC138A",
+    text: "#ffffff",
+    sub: "rgba(255,255,255,0.92)",
+    ghost: "rgba(255,255,255,0.30)",
+    pill: "rgba(255,255,255,0.55)",
+  },
+  ocio: {
+    bg: "#FA872E",
+    text: "#ffffff",
+    sub: "rgba(255,255,255,0.92)",
+    ghost: "rgba(255,255,255,0.30)",
     pill: "rgba(255,255,255,0.55)",
   },
   gastronomia: {
@@ -71,11 +71,11 @@ const FLYER_PALETTE: Record<VerticalSlug, Paleta> = {
     pill: "rgba(255,255,255,0.6)",
   },
   "estilo-de-vida": {
-    bg: "#DC138A",
-    text: "#ffffff",
-    sub: "rgba(255,255,255,0.9)",
-    ghost: "rgba(255,255,255,0.28)",
-    pill: "rgba(255,255,255,0.55)",
+    bg: "#F9ED48",
+    text: "#2C1063", // morado profundo sobre amarillo, como el flyer
+    sub: "rgba(44,16,99,0.85)",
+    ghost: "rgba(44,16,99,0.24)",
+    pill: "rgba(44,16,99,0.5)",
   },
 };
 
