@@ -18,34 +18,43 @@ type Paleta = {
   pill: string;
 };
 
+/** Orden visual de las bandas (decisión de marca; el menú mantiene el suyo). */
+const ORDEN_BANDAS: VerticalSlug[] = [
+  "cultura",
+  "ocio",
+  "estilo-de-vida",
+  "experiencias",
+  "entretenimiento",
+];
+
 const FLYER_PALETTE: Record<VerticalSlug, Paleta> = {
   experiencias: {
-    bg: "#f7941d",
+    bg: "#FA872E",
     text: "#ffffff",
     sub: "rgba(255,255,255,0.92)",
     ghost: "rgba(255,255,255,0.30)",
     pill: "rgba(255,255,255,0.55)",
   },
   entretenimiento: {
-    bg: "#ffd200",
-    text: "#3b1f87", // morado profundo sobre amarillo, como el flyer
-    sub: "rgba(59,31,135,0.85)",
-    ghost: "rgba(59,31,135,0.24)",
-    pill: "rgba(59,31,135,0.5)",
+    bg: "#F9ED48",
+    text: "#2C1063", // morado profundo sobre amarillo, como el flyer
+    sub: "rgba(44,16,99,0.85)",
+    ghost: "rgba(44,16,99,0.24)",
+    pill: "rgba(44,16,99,0.5)",
   },
   cultura: {
-    bg: "#7a1f6e",
+    bg: "#2C1063",
     text: "#ffffff",
     sub: "rgba(255,255,255,0.85)",
     ghost: "rgba(255,255,255,0.22)",
     pill: "rgba(255,255,255,0.5)",
   },
   ocio: {
-    bg: "#c22a20", // rojo del flyer (liberado por gastronomía, hoy oculta)
+    bg: "#22A8B7",
     text: "#ffffff",
     sub: "rgba(255,255,255,0.9)",
-    ghost: "rgba(255,255,255,0.25)",
-    pill: "rgba(255,255,255,0.5)",
+    ghost: "rgba(255,255,255,0.28)",
+    pill: "rgba(255,255,255,0.55)",
   },
   gastronomia: {
     bg: "#c22a20",
@@ -62,11 +71,11 @@ const FLYER_PALETTE: Record<VerticalSlug, Paleta> = {
     pill: "rgba(255,255,255,0.6)",
   },
   "estilo-de-vida": {
-    bg: "#c71e70",
+    bg: "#DC138A",
     text: "#ffffff",
     sub: "rgba(255,255,255,0.9)",
-    ghost: "rgba(255,255,255,0.25)",
-    pill: "rgba(255,255,255,0.5)",
+    ghost: "rgba(255,255,255,0.28)",
+    pill: "rgba(255,255,255,0.55)",
   },
 };
 
@@ -178,7 +187,9 @@ function Estrella({ size, color, className }: { size: number; color: string; cla
 export function VerticalIndex() {
   return (
     <div className="flex flex-col gap-2.5 md:gap-3">
-      {verticalsVisibles.map((v) => {
+      {ORDEN_BANDAS.map((slug) => verticalsVisibles.find((v) => v.slug === slug))
+        .filter((v) => v !== undefined)
+        .map((v) => {
         const p = FLYER_PALETTE[v.slug];
         const Icono = ICONO[v.slug];
         return (
