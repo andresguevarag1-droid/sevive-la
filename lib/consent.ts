@@ -44,6 +44,15 @@ export function consentBeneficio(slug: string): ConsentDefinition {
   };
 }
 
+/** Consentimiento de interés en un evento pasado; el purpose lleva el slug. */
+export function consentInteresEvento(slug: string): ConsentDefinition {
+  return {
+    purpose: `evento:${slug}`,
+    version: "2026-08-04.v1",
+    text: "Acepto que SeViveLa trate mis datos personales (correo electrónico y nombre) para avisarme sobre próximas ediciones de este evento y planes similares, según su Política de Privacidad. Puedo darme de baja en cualquier momento.",
+  };
+}
+
 /** Consentimiento de participación en dinámica; el purpose lleva el slug. */
 export function consentDinamica(slug: string): ConsentDefinition {
   return {

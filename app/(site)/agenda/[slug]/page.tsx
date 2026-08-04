@@ -8,6 +8,7 @@ import { CategoryLabel } from "@/components/kicker";
 import { WeekIndex } from "@/components/week-index";
 import { FavoritoButton } from "@/components/evento/favorito-button";
 import { BotonesCalendario } from "@/components/evento/botones-calendario";
+import { InteresEvento } from "@/components/evento/interes-evento";
 import { JsonLd } from "@/components/json-ld";
 import { ArrowRightIcon } from "@/components/icons";
 
@@ -296,9 +297,9 @@ export default async function EventoPage({
         </a>
       ) : null}
       {pasado ? (
-        <p className="label mt-6 border-y border-rule py-3 text-faint">
-          Este evento ya pasó.
-        </p>
+        /* Evento pasado → captura de interés para la próxima edición:
+           leads segmentados por evento, monetizables ante el organizador. */
+        <InteresEvento slug={e.slug} titulo={e.title} />
       ) : null}
 
       {/* ── Detalle largo ── */}
