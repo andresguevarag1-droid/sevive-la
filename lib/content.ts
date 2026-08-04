@@ -52,6 +52,7 @@ export function verticalColor(slug: VerticalSlug): string {
     experiencias: "var(--color-experiencias)",
     entretenimiento: "var(--color-entretenimiento)",
     cultura: "var(--color-cultura)",
+    ocio: "var(--color-ocio)",
     gastronomia: "var(--color-gastronomia)",
     turismo: "var(--color-turismo)",
     "estilo-de-vida": "var(--color-estilo)",

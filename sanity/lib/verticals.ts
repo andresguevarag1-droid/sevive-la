@@ -6,12 +6,14 @@ import { defineField } from "sanity";
  * para que el color y las rutas por vertical resuelvan sin traducción.
  */
 export const VERTICALES: { title: string; value: string }[] = [
-  { title: "Experiencias", value: "experiencias" },
   { title: "Entretenimiento", value: "entretenimiento" },
   { title: "Cultura", value: "cultura" },
-  { title: "Gastronomía", value: "gastronomia" },
-  { title: "Turismo", value: "turismo" },
+  { title: "Experiencias", value: "experiencias" },
+  { title: "Ocio", value: "ocio" },
   { title: "Estilo de vida", value: "estilo-de-vida" },
+  // Ocultas del sitio por ahora (el contenido existente sigue siendo válido):
+  { title: "Gastronomía (oculta)", value: "gastronomia" },
+  { title: "Turismo (oculta)", value: "turismo" },
 ];
 
 /** Campo de vertical reutilizable (misma configuración en todos los tipos). */

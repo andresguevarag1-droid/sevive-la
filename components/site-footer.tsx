@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { site, verticals, socialLinks } from "@/lib/site";
+import { site, verticalsVisibles, socialLinks } from "@/lib/site";
 import { getCampanaActiva } from "@/lib/sanity/campana";
 import { InstagramIcon, TikTokIcon } from "@/components/icons";
 
@@ -20,7 +20,7 @@ export async function SiteFooter() {
   const columnas: { titulo: string; links: { href: string; label: string }[] }[] = [
     {
       titulo: "Secciones",
-      links: verticals.map((v) => ({ href: `/${v.slug}`, label: v.name })),
+      links: verticalsVisibles.map((v) => ({ href: `/${v.slug}`, label: v.name })),
     },
     {
       titulo: "Explorá",
@@ -76,7 +76,7 @@ export async function SiteFooter() {
               {site.tagline}
             </p>
             <p className="mt-3 max-w-xs text-sm leading-relaxed text-paper/60">
-              Guía viva de experiencias, cultura y gastronomía de Costa Rica.
+              Guía viva de entretenimiento, cultura, experiencias y ocio de Costa Rica.
             </p>
 
             {/* redes sociales */}

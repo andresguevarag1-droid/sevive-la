@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { site, verticals } from "@/lib/site";
+import { site, verticalsVisibles } from "@/lib/site";
 import { getDinamicasAbiertas } from "@/lib/sanity/dinamica";
 import { getCampanaActiva } from "@/lib/sanity/campana";
 import { getEventosProximos } from "@/lib/sanity/listados";
@@ -25,7 +25,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${site.url}/legal/cookies`, lastModified: ahora, changeFrequency: "yearly", priority: 0.2 },
   ];
 
-  const deVerticales: MetadataRoute.Sitemap = verticals.map((v) => ({
+  const deVerticales: MetadataRoute.Sitemap = verticalsVisibles.map((v) => ({
     url: `${site.url}/${v.slug}`,
     lastModified: ahora,
     changeFrequency: "daily",

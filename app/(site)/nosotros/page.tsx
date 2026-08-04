@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { site, verticals } from "@/lib/site";
+import { site, verticalsVisibles } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Nosotros",
@@ -29,7 +29,7 @@ export default function NosotrosPage() {
         <p>
           No somos un directorio ni un agregador: somos una redacción que sale,
           come, camina y baila lo que recomienda. Contamos el país en seis
-          secciones — {verticals.map((v) => v.name.toLowerCase()).join(", ")} —
+          secciones — {verticalsVisibles.map((v) => v.name.toLowerCase()).join(", ")} —
           y en los formatos donde la gente realmente descubre planes: crónicas,
           video vertical, agenda y beneficios.
         </p>

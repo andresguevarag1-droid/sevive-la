@@ -66,7 +66,8 @@ export function HeroCampana({ campana }: { campana: Campana }) {
             Dinámica · Participá gratis
           </span>
 
-          <h1 className="mt-5 font-sans text-[clamp(2.4rem,7vw,4.6rem)] font-black uppercase leading-[0.95] tracking-tight text-white [text-wrap:balance]">
+          {/* Titular en mayúsculas y minúsculas, serif editorial */}
+          <h1 className="mt-5 text-[clamp(2.4rem,7vw,4.6rem)] leading-[1.02] text-white [text-wrap:balance]">
             {campana.titulo}
           </h1>
 

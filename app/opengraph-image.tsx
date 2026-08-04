@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { site, verticals } from "@/lib/site";
+import { site, verticalsVisibles } from "@/lib/site";
 
 /**
  * og:image por defecto del sitio (1200×630) generada con las fuentes de marca.
@@ -15,14 +15,13 @@ export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 // Colores de vertical (espejo de globals.css; satori no lee CSS vars)
-const VERTICAL_COLORS = [
-  "#c25e00", // experiencias
-  "#9a6a12", // entretenimiento
-  "#6d4fb0", // cultura
-  "#c42b52", // gastronomia
-  "#0e6e86", // turismo
-  "#3b1f87", // estilo-de-vida
-];
+const VERTICAL_COLORS: Record<string, string> = {
+  entretenimiento: "#9a6a12",
+  cultura: "#6d4fb0",
+  experiencias: "#c25e00",
+  ocio: "#35558a",
+  "estilo-de-vida": "#3b1f87",
+};
 
 export default async function OpengraphImage() {
   const [fraunces, inter, logoSvg] = await Promise.all([
@@ -105,7 +104,7 @@ export default async function OpengraphImage() {
               marginTop: 28,
             }}
           >
-            {verticals.map((v) => v.name).join("  ·  ")}
+            {verticalsVisibles.map((v) => v.name).join("  ·  ")}
           </div>
         </div>
 
@@ -119,7 +118,7 @@ export default async function OpengraphImage() {
           }}
         >
           <div style={{ display: "flex", width: 88, height: 8, background: "#c71e70" }} />
-          {VERTICAL_COLORS.map((c) => (
+          {verticalsVisibles.map((v) => VERTICAL_COLORS[v.slug] ?? "#3b1f87").map((c) => (
             <div
               key={c}
               style={{

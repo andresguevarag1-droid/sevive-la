@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { site, verticals } from "@/lib/site";
+import { site, verticalsVisibles } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Para marcas",
@@ -45,7 +45,7 @@ export default function MarcasPage() {
 
       {/* ── Verticales como mapa de segmentación ── */}
       <div className="mt-10 flex flex-wrap gap-2">
-        {verticals.map((v) => (
+        {verticalsVisibles.map((v) => (
           <span
             key={v.slug}
             className="chip border"

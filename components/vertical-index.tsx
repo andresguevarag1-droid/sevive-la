@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { SVGProps } from "react";
-import { verticals, type VerticalSlug } from "@/lib/site";
+import { verticalsVisibles, type VerticalSlug } from "@/lib/site";
 import { ArrowRightIcon } from "@/components/icons";
 
 /**
@@ -38,6 +38,13 @@ const FLYER_PALETTE: Record<VerticalSlug, Paleta> = {
     text: "#ffffff",
     sub: "rgba(255,255,255,0.85)",
     ghost: "rgba(255,255,255,0.22)",
+    pill: "rgba(255,255,255,0.5)",
+  },
+  ocio: {
+    bg: "#c22a20", // rojo del flyer (liberado por gastronomía, hoy oculta)
+    text: "#ffffff",
+    sub: "rgba(255,255,255,0.9)",
+    ghost: "rgba(255,255,255,0.25)",
     pill: "rgba(255,255,255,0.5)",
   },
   gastronomia: {
@@ -119,6 +126,17 @@ function CubiertosIcon(p: IconProps) {
   );
 }
 
+/** Ocio — sombrilla: tiempo libre, sin agenda. */
+function SombrillaIcon(p: IconProps) {
+  return (
+    <svg {...base} {...p}>
+      <path d="M3.5 13a8.5 8.5 0 0 1 17 0z" />
+      <path d="M7.75 13c0-4.7 1.9-8.5 4.25-8.5S16.25 8.3 16.25 13" />
+      <path d="M12 13v7.5" />
+    </svg>
+  );
+}
+
 /** Turismo — volcán (cono con cráter), perfil del paisaje tico. */
 function VolcanIcon(p: IconProps) {
   return (
@@ -142,6 +160,7 @@ const ICONO: Record<VerticalSlug, (p: IconProps) => React.JSX.Element> = {
   experiencias: BrujulaIcon,
   entretenimiento: BoletoIcon,
   cultura: MuseoIcon,
+  ocio: SombrillaIcon,
   gastronomia: CubiertosIcon,
   turismo: VolcanIcon,
   "estilo-de-vida": CorazonIcon,
@@ -159,7 +178,7 @@ function Estrella({ size, color, className }: { size: number; color: string; cla
 export function VerticalIndex() {
   return (
     <div className="flex flex-col gap-2.5 md:gap-3">
-      {verticals.map((v) => {
+      {verticalsVisibles.map((v) => {
         const p = FLYER_PALETTE[v.slug];
         const Icono = ICONO[v.slug];
         return (

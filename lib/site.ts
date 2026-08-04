@@ -20,7 +20,7 @@ export const site = {
   url: siteUrl,
   tagline: "Descubrí qué vivir en la región.",
   description:
-    "Plataforma de experiencias, entretenimiento, cultura, gastronomía, turismo y estilo de vida en Costa Rica.",
+    "Plataforma de entretenimiento, cultura, experiencias, ocio y estilo de vida en Costa Rica.",
   locale: "es-CR",
 } as const;
 
@@ -29,6 +29,7 @@ export type VerticalSlug =
   | "experiencias"
   | "entretenimiento"
   | "cultura"
+  | "ocio"
   | "gastronomia"
   | "turismo"
   | "estilo-de-vida";
@@ -42,16 +43,16 @@ export type Vertical = {
   blurb: string;
   /** Variable CSS del color de identidad (definida en globals.css). */
   colorVar: string;
+  /**
+   * Oculta del menú, bandas, footer, buscador y sitemap — la página y su
+   * contenido siguen existiendo por URL directa. (Turismo espera el permiso
+   * del ICT; Gastronomía en pausa editorial.)
+   */
+  oculta?: boolean;
 };
 
+/** Orden = orden en el menú y en las bandas de la home. */
 export const verticals: Vertical[] = [
-  {
-    slug: "experiencias",
-    name: "Experiencias",
-    verb: "Vive",
-    blurb: "Tours, talleres, aventuras y planes de fin de semana.",
-    colorVar: "var(--color-experiencias)",
-  },
   {
     slug: "entretenimiento",
     name: "Entretenimiento",
@@ -67,18 +68,18 @@ export const verticals: Vertical[] = [
     colorVar: "var(--color-cultura)",
   },
   {
-    slug: "gastronomia",
-    name: "Gastronomía",
-    verb: "Saborea",
-    blurb: "Restaurantes, bares, cafeterías, food trucks y rutas.",
-    colorVar: "var(--color-gastronomia)",
+    slug: "experiencias",
+    name: "Experiencias",
+    verb: "Vive",
+    blurb: "Tours, talleres, aventuras y planes de fin de semana.",
+    colorVar: "var(--color-experiencias)",
   },
   {
-    slug: "turismo",
-    name: "Turismo",
-    verb: "Descubre",
-    blurb: "Destinos, playas, volcanes, hospedaje y escapadas.",
-    colorVar: "var(--color-turismo)",
+    slug: "ocio",
+    name: "Ocio",
+    verb: "Desconecta",
+    blurb: "Tiempo libre, juegos, parques y planes sin agenda.",
+    colorVar: "var(--color-ocio)",
   },
   {
     slug: "estilo-de-vida",
@@ -87,7 +88,26 @@ export const verticals: Vertical[] = [
     blurb: "Bienestar, moda, tendencias, personas y comunidad.",
     colorVar: "var(--color-estilo)",
   },
+  {
+    slug: "gastronomia",
+    name: "Gastronomía",
+    verb: "Saborea",
+    blurb: "Restaurantes, bares, cafeterías, food trucks y rutas.",
+    colorVar: "var(--color-gastronomia)",
+    oculta: true,
+  },
+  {
+    slug: "turismo",
+    name: "Turismo",
+    verb: "Descubre",
+    blurb: "Destinos, playas, volcanes, hospedaje y escapadas.",
+    colorVar: "var(--color-turismo)",
+    oculta: true,
+  },
 ];
+
+/** Verticales públicas: las que aparecen en navegación, home y footer. */
+export const verticalsVisibles: Vertical[] = verticals.filter((v) => !v.oculta);
 
 /** Redes sociales de la marca (confirmar handles con el equipo). */
 export const socialLinks = [

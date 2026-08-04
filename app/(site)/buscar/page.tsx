@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { buscarContenido } from "@/lib/sanity/listados";
-import { verticals } from "@/lib/site";
+import { verticalsVisibles } from "@/lib/site";
 import { StoryCard } from "@/components/story-card";
 import { SearchIcon } from "@/components/icons";
 
@@ -54,7 +54,7 @@ export default async function BuscarPage({
         <div className="mt-10">
           <p className="label text-faint">O explorá por sección</p>
           <div className="mt-4 flex flex-wrap gap-2">
-            {verticals.map((v) => (
+            {verticalsVisibles.map((v) => (
               <Link
                 key={v.slug}
                 href={`/${v.slug}`}

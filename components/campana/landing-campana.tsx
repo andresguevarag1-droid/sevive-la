@@ -77,7 +77,8 @@ export function CampanaLanding({
             <span className="label inline-block rounded-full bg-lilac px-3.5 py-1.5 text-white">
               Dinámica · Participá gratis
             </span>
-            <h1 className="mt-4 font-sans text-[clamp(2rem,6vw,3.4rem)] font-black uppercase leading-[0.95] tracking-tight text-white [text-wrap:balance]">
+            {/* Titular en mayúsculas y minúsculas, serif editorial */}
+            <h1 className="mt-4 text-[clamp(2rem,6vw,3.4rem)] leading-[1.02] text-white [text-wrap:balance]">
               {campana.titulo}
             </h1>
             <p className="mt-3 max-w-lg text-lg font-semibold leading-snug text-white/95">

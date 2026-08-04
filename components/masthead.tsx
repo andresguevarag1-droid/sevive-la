@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { verticals } from "@/lib/site";
+import { verticalsVisibles } from "@/lib/site";
 import { SearchIcon } from "@/components/icons";
 
 /**
@@ -44,7 +44,7 @@ export function Masthead() {
         className="sticky top-0 z-40 border-b border-[color:var(--color-lilac-soft)] bg-lilac"
       >
         <div className="mx-auto flex max-w-6xl items-center gap-6 overflow-x-auto px-4 py-2.5 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] md:justify-center [&::-webkit-scrollbar]:hidden">
-          {verticals.map((v) => (
+          {verticalsVisibles.map((v) => (
             <Link
               key={v.slug}
               href={`/${v.slug}`}
