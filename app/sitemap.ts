@@ -3,6 +3,7 @@ import { site, verticalsVisibles } from "@/lib/site";
 import { getDinamicasAbiertas } from "@/lib/sanity/dinamica";
 import { getCampanaActiva } from "@/lib/sanity/campana";
 import { getEventosProximos } from "@/lib/sanity/listados";
+import { getCronicasParaSitemap } from "@/lib/sanity/cronica";
 
 /**
  * Sitemap: rutas estáticas + verticales + dinámicas abiertas.
@@ -33,11 +34,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   // Dinámicas abiertas (si Sanity falla, devuelve [] y el sitemap no revienta).
-  const [dinamicas, campana, eventos] = await Promise.all([
+  const [dinamicas, campana, eventos, cronicas] = await Promise.all([
     getDinamicasAbiertas(),
     getCampanaActiva(),
     getEventosProximos(),
+    getCronicasParaSitemap(),
   ]);
+  const deCronicas: MetadataRoute.Sitemap = cronicas.map((c) => ({
+    url: `${site.url}/cronica/${c.slug}`,
+    lastModified: new Date(c.fecha),
+    changeFrequency: "monthly",
+    priority: 0.6,
+  }));
   const deEventos: MetadataRoute.Sitemap = eventos
     .filter((e) => e.href)
     .map((e) => ({
@@ -63,5 +71,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ]
     : [];
 
-  return [...estaticas, ...deVerticales, ...deDinamicas, ...deCampana, ...deEventos];
+  return [
+    ...estaticas,
+    ...deVerticales,
+    ...deDinamicas,
+    ...deCampana,
+    ...deEventos,
+    ...deCronicas,
+  ];
 }

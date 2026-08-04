@@ -5,7 +5,7 @@ import { CategoryLabel } from "@/components/kicker";
 
 /** Nota destacada con firma — imagen editorial + titular serif. */
 export function StoryCard({ story }: { story: Story }) {
-  const href = `/${story.vertical}`;
+  const href = story.href ?? `/${story.vertical}`;
   return (
     <article>
       <Link href={href} className="imgzoom block">

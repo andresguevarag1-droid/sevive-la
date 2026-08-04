@@ -17,7 +17,7 @@ export function LeadStory({
   /** "h2" cuando hay una campaña activa (el hero de campaña lleva el h1). */
   as?: "h1" | "h2";
 }) {
-  const href = `/${story.vertical}`;
+  const href = story.href ?? `/${story.vertical}`;
   const color = verticalColor(story.vertical);
 
   return (

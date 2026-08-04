@@ -20,10 +20,10 @@ import type { VerticalSlug } from "@/lib/site";
 /* ── Consulta única (una sola ida a Sanity) ── */
 const HOME_QUERY = /* groq */ `{
   "portada": *[_type == "cronica" && esPortada == true] | order(fecha desc)[0]{
-    _id, title, vertical, bajada, autor, formato, lecturaMin, imagen
+    _id, title, vertical, bajada, autor, formato, lecturaMin, imagen, "slug": slug.current
   },
   "features": *[_type == "cronica" && destacada == true] | order(fecha desc)[0...3]{
-    _id, title, vertical, bajada, autor, formato, lecturaMin, imagen
+    _id, title, vertical, bajada, autor, formato, lecturaMin, imagen, "slug": slug.current
   },
   "week": *[_type == "evento" && defined(inicio) && inicio >= $desde] | order(inicio asc)[0...6]{
     _id, title, vertical, inicio, lugar, imagen, "slug": slug.current, horaPorConfirmar
@@ -47,6 +47,7 @@ export type RawCronica = {
   formato?: string;
   lecturaMin?: number;
   imagen?: SanityImage;
+  slug?: string;
 };
 export type RawEvento = {
   _id: string;
@@ -121,6 +122,7 @@ export function cronicaToStory(c: RawCronica): Story {
     author: c.autor,
     meta: c.lecturaMin ? `${meta} · ${c.lecturaMin} min` : meta,
     img: urlForImage(c.imagen, 1400),
+    href: c.slug ? `/cronica/${c.slug}` : undefined,
   };
 }
 export function eventoToStory(e: RawEvento): Story {
