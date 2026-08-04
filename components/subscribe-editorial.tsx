@@ -175,9 +175,6 @@ export function SubscribeEditorial() {
                 </p>
               ) : null}
 
-              <p className="label mt-6 text-paper/40">
-                Cero spam · Un correo por semana · Baja cuando quieras
-              </p>
             </form>
           )}
         </div>
