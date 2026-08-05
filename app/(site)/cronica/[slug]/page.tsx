@@ -224,7 +224,7 @@ export default async function CronicaPage({
               </Link>
             ) : null}
           </div>
-          <div className="mt-6 grid gap-x-8 gap-y-10 md:grid-cols-3">
+          <div className="mt-6 grid grid-cols-1 gap-x-8 gap-y-8 sm:grid-cols-2 md:grid-cols-3">
             {relacionadas.map((s) => (
               <div key={s.id} data-reveal>
                 <StoryCard story={s} />

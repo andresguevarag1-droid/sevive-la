@@ -64,7 +64,7 @@ const GIROS = ["-rotate-1", "rotate-[0.75deg]", "-rotate-[0.75deg]", "rotate-1"]
 
 export async function Beneficios({
   items,
-  gridClassName = "md:grid-cols-3",
+  gridClassName = "sm:grid-cols-2 md:grid-cols-3",
   conVendedora = false,
   sobreLila = false,
 }: {
@@ -104,7 +104,7 @@ export async function Beneficios({
   });
 
   return (
-    <div className={`grid gap-6 ${gridClassName}`}>
+    <div className={`grid gap-5 ${gridClassName}`}>
       {tarjetas.map((t) => (
         <TarjetaBeneficio key={t.id} {...t} />
       ))}
@@ -152,9 +152,9 @@ export async function Beneficios({
                 style={{ background: sobreLila ? "var(--color-lilac)" : "var(--color-paper)" }}
               />
             </div>
-            <div className="flex flex-1 flex-col px-5 pb-4 pt-5">
+            <div className="flex flex-1 flex-col px-4 pb-4 pt-4">
               <p className="label text-faint">SeViveLa · Para marcas</p>
-              <h3 className="mt-1.5 text-lg font-bold tracking-tight leading-snug text-ink transition-colors group-hover:text-brand">
+              <h3 className="mt-1.5 text-[17px] font-bold tracking-tight leading-snug text-ink transition-colors group-hover:text-brand">
                 ¿Tenés un local? Este espacio vende.
               </h3>
               <p className="mt-1.5 text-sm leading-relaxed text-muted">

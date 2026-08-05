@@ -120,7 +120,7 @@ export default async function HomePage() {
       {features.length > 0 ? (
         <section className="mx-auto max-w-6xl px-4 py-12 md:py-14">
           <SectionHead index={num()} label="Destacado" href="/cultura" action="Más notas" />
-          <div className="grid gap-x-8 gap-y-10 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-x-8 gap-y-8 sm:grid-cols-2 md:grid-cols-3">
             {features.map((s) => (
               <div key={s.id} data-reveal>
                 <StoryCard story={s} />

@@ -77,6 +77,9 @@ export function TarjetaBeneficio(d: DatosTarjeta) {
 
   const yaLoTiene = Boolean(miCodigo);
   const destino = yaLoTiene ? `/mi-cupon/${miCodigo}` : d.href;
+  // La oferta solo va como sticker/gigante si es una cifra corta ("30%",
+  // "2×1"); una frase larga se muestra como texto normal en el cuerpo.
+  const ofertaCorta = d.ofertaGrande.length <= 12;
 
   return (
     <div data-reveal className="relative pt-2">
@@ -98,7 +101,7 @@ export function TarjetaBeneficio(d: DatosTarjeta) {
       >
         {/* ── Cabezal: arte de la marca o color con la oferta gigante ── */}
         <div
-          className="relative flex min-h-36 items-center justify-center overflow-hidden px-6 py-8 text-center text-white"
+          className="relative flex items-center justify-center overflow-hidden px-5 py-6 text-center text-white"
           style={{ background: d.agotado ? "#8a8494" : d.color, aspectRatio: "16 / 9" }}
         >
           {d.img ? (
@@ -112,10 +115,14 @@ export function TarjetaBeneficio(d: DatosTarjeta) {
                 d.agotado ? "opacity-40 grayscale" : ""
               }`}
             />
-          ) : (
-            <p className="tnum text-[clamp(2.6rem,7vw,3.4rem)] font-black uppercase leading-none tracking-tight drop-shadow-[0_4px_10px_rgba(0,0,0,0.25)]">
+          ) : ofertaCorta ? (
+            <p className="tnum text-[clamp(2.2rem,6vw,3rem)] font-black uppercase leading-none tracking-tight drop-shadow-[0_4px_10px_rgba(0,0,0,0.25)]">
               {d.ofertaGrande}
               <span className="text-brand">!</span>
+            </p>
+          ) : (
+            <p className="text-[clamp(1rem,2.6vw,1.25rem)] font-black uppercase leading-snug tracking-tight drop-shadow-[0_3px_8px_rgba(0,0,0,0.25)]">
+              {d.ofertaGrande}
             </p>
           )}
 
@@ -149,9 +156,10 @@ export function TarjetaBeneficio(d: DatosTarjeta) {
         </div>
 
         {/* ── Cuerpo del cupón ── */}
-        <div className="relative flex flex-1 flex-col px-5 pb-4 pt-5">
-          {/* La oferta, como bloque del logo, montada sobre la perforación */}
-          {d.img ? (
+        <div className="relative flex flex-1 flex-col px-4 pb-4 pt-4">
+          {/* La oferta, como bloque del logo, montada sobre la perforación
+              (solo cuando es una cifra corta; una frase larga iría enorme) */}
+          {d.img && ofertaCorta ? (
             <span
               className={`absolute -top-5 left-4 -rotate-2 rounded-[6px] border-[3px] border-white px-3 py-1 text-base font-black uppercase tracking-tight text-white shadow-[0_10px_22px_-8px_rgba(0,0,0,0.5)] transition-transform duration-300 group-hover:-rotate-3 group-hover:scale-105 ${
                 d.agotado ? "bg-[#8a8494]" : "bg-ink"
@@ -162,13 +170,18 @@ export function TarjetaBeneficio(d: DatosTarjeta) {
             </span>
           ) : null}
 
-          <p className={`label text-faint ${d.img ? "mt-3" : ""}`}>
+          <p className={`label text-faint ${d.img && ofertaCorta ? "mt-3" : ""}`}>
             {d.marca}
             {d.patrocinado ? " · Patrocinado" : ""}
           </p>
-          <h3 className="mt-1.5 text-lg font-bold tracking-tight leading-snug text-ink transition-colors group-hover:text-brand">
+          <h3 className="mt-1.5 text-[17px] font-bold tracking-tight leading-snug text-ink transition-colors group-hover:text-brand">
             {d.titulo}
           </h3>
+          {d.img && !ofertaCorta ? (
+            <p className="mt-1.5 text-sm font-semibold leading-snug text-ink/85">
+              {d.ofertaGrande}
+            </p>
+          ) : null}
           {d.ofertaResto ? (
             <p className="label mt-1.5 text-muted">{d.ofertaResto}</p>
           ) : null}
