@@ -21,6 +21,7 @@ import {
 } from "@/lib/favoritos";
 import { CategoryLabel } from "@/components/kicker";
 import { RespaldoAgenda } from "@/components/evento/respaldo-agenda";
+import { RecuperarAgendaForm } from "@/components/evento/recuperar-agenda-form";
 import { track } from "@/lib/analytics/track";
 
 /** Evento próximo sugerido (viene del servidor, ya ordenado por fecha). */
@@ -266,6 +267,9 @@ export function MiAgendaLista({ sugerencias }: { sugerencias: Sugerencia[] }) {
             Tocá el corazón en cualquier evento (o aquí abajo) y queda en tu
             agenda, en tu teléfono.
           </p>
+          <div className="mx-auto max-w-md">
+            <RecuperarAgendaForm />
+          </div>
         </div>
         <Sugerencias titulo="Esta semana, para arrancar" />
         <div className="mt-8 text-center">

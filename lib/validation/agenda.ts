@@ -40,3 +40,12 @@ export const respaldoAgendaSchema = z.object({
 });
 
 export type RespaldoAgendaInput = z.infer<typeof respaldoAgendaSchema>;
+
+/** Pedir el link mágico para recuperar la agenda en otro dispositivo. */
+export const recuperarAgendaSchema = z.object({
+  email: z.string().trim().toLowerCase().max(254).pipe(z.email("Escribí un correo válido.")),
+  turnstileToken: z.string().optional(),
+  website: z.literal("").optional(),
+});
+
+export type RecuperarAgendaInput = z.infer<typeof recuperarAgendaSchema>;

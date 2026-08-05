@@ -13,6 +13,7 @@ import { CONSENT_AGENDA } from "@/lib/consent";
 import { getFavoritos } from "@/lib/favoritos";
 import { isValidEmail } from "@/lib/validation/client";
 import { TurnstileWidget } from "@/components/turnstile";
+import { RecuperarAgendaForm } from "@/components/evento/recuperar-agenda-form";
 import { track } from "@/lib/analytics/track";
 import { getAttribution } from "@/lib/analytics/attribution";
 
@@ -225,6 +226,7 @@ export function RespaldoAgenda() {
           </form>
         )
       ) : null}
+      <RecuperarAgendaForm />
     </div>
   );
 }

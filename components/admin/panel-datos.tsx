@@ -22,6 +22,16 @@ type Datos = {
   };
   personas: { total: number; activas: number; porConfirmar: number };
   segmentos: { clave: string; total: number }[];
+  eventos?: {
+    leadsPorEvento: {
+      slug: string;
+      titulo: string;
+      interesados: number;
+      guardados: number;
+      total: number;
+    }[];
+    personasConRespaldo: number;
+  };
   cupones: {
     porBeneficio: {
       benefit_slug: string;
@@ -263,6 +273,33 @@ export function PanelDatos() {
               />
             ) : (
               <p className="mt-3 text-sm text-muted">Sin intereses registrados todavía.</p>
+            )}
+          </section>
+
+          {/* ── Leads por evento: lo que se le enseña al organizador ── */}
+          <section className="card mt-4 px-5 py-4">
+            <p className="label text-faint">
+              Leads por evento
+              {datos.eventos?.personasConRespaldo
+                ? ` · ${datos.eventos.personasConRespaldo} ${datos.eventos.personasConRespaldo === 1 ? "persona" : "personas"} con agenda respaldada`
+                : ""}
+            </p>
+            {datos.eventos?.leadsPorEvento.length ? (
+              <div className="mt-3 space-y-2">
+                {datos.eventos.leadsPorEvento.map((e) => (
+                  <p key={e.slug} className="tnum text-sm text-muted">
+                    <strong className="text-ink">{e.titulo}</strong> ·{" "}
+                    {e.interesados} {e.interesados === 1 ? "interesado" : "interesados"} en la
+                    próxima · {e.guardados} en agendas ·{" "}
+                    <strong className="text-ink">{e.total} total</strong>
+                  </p>
+                ))}
+              </div>
+            ) : (
+              <p className="mt-3 text-sm text-muted">
+                Sin leads por evento todavía (llegan del formulario “avisame de la
+                próxima” y de las agendas respaldadas).
+              </p>
             )}
           </section>
 

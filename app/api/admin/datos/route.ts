@@ -56,6 +56,8 @@ export async function GET(req: Request) {
       { data: intereses },
       { data: statsCupones },
       { data: cuponesEstados },
+      { data: interesEventos },
+      { data: respaldos },
     ] = await Promise.all([
       db
         .from("campaign_entries")
@@ -68,6 +70,9 @@ export async function GET(req: Request) {
       db.from("person_interests").select("vertical").limit(5000),
       db.from("coupon_stats").select("benefit_slug, emitidos, canjeados, tasa_redencion"),
       db.from("coupons").select("status").limit(5000),
+      // Tablas nuevas: si la migración aún no corrió, data llega null y no rompe.
+      db.from("event_interest").select("event_slug, event_title").limit(5000),
+      db.from("saved_events").select("event_slug, event_title, person_id").limit(5000),
     ]);
 
     const lista = (entradas ?? []) as EntradaCruda[];
@@ -113,6 +118,27 @@ export async function GET(req: Request) {
         .map(([clave, total]) => ({ clave, total }))
         .sort((a, b) => b.total - a.total);
 
+    // Leads por evento: "avisame de la próxima" + guardados en agendas
+    // respaldadas — lo que se le enseña al organizador para vender.
+    const porEvento = new Map<string, { titulo: string; interesados: number; guardados: number }>();
+    for (const i of (interesEventos ?? []) as { event_slug: string; event_title: string }[]) {
+      const x = porEvento.get(i.event_slug) ?? { titulo: i.event_title, interesados: 0, guardados: 0 };
+      x.interesados++;
+      porEvento.set(i.event_slug, x);
+    }
+    for (const s of (respaldos ?? []) as { event_slug: string; event_title: string }[]) {
+      const x = porEvento.get(s.event_slug) ?? { titulo: s.event_title, interesados: 0, guardados: 0 };
+      x.guardados++;
+      porEvento.set(s.event_slug, x);
+    }
+    const leadsPorEvento = [...porEvento.entries()]
+      .map(([slug, x]) => ({ slug, ...x, total: x.interesados + x.guardados }))
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 20);
+    const personasConRespaldo = new Set(
+      ((respaldos ?? []) as { person_id: string }[]).map((r) => r.person_id)
+    ).size;
+
     return NextResponse.json({
       ok: true,
       participaciones: {
@@ -129,6 +155,10 @@ export async function GET(req: Request) {
         porConfirmar: pendientesConfirmar ?? 0,
       },
       segmentos: aLista(segmentos),
+      eventos: {
+        leadsPorEvento,
+        personasConRespaldo,
+      },
       cupones: {
         porBeneficio: statsCupones ?? [],
         porEstado: aLista(cuponesPorEstado),
