@@ -106,17 +106,43 @@ export async function Beneficios({
         <Link
           href="/marcas"
           data-reveal
-          className="card pressable group relative flex overflow-hidden"
+          className="card pressable group relative flex flex-col overflow-hidden"
         >
-          <div className="flex min-w-0 flex-1 flex-col px-5 py-5">
+          {/* Cabezal punteado tipo "espacio disponible", liviano */}
+          <div
+            className="relative flex min-h-40 items-center justify-center px-6 py-8 text-center"
+            style={{ aspectRatio: "16 / 9" }}
+          >
+            <span
+              aria-hidden
+              className="absolute inset-3 rounded-[var(--radius-md)] border-2 border-dashed border-rule"
+            />
+            <p className="text-[clamp(1.3rem,3.2vw,1.7rem)] font-black uppercase leading-tight tracking-tight text-faint">
+              Tu marca
+              <br />
+              aquí
+            </p>
+            <span
+              aria-hidden
+              className="label absolute right-1.5 top-1/2 -translate-y-1/2 text-[9px] text-faint/50"
+              style={{ writingMode: "vertical-rl" }}
+            >
+              SEVIVELA
+            </span>
+          </div>
+          <div aria-hidden className="relative h-0 border-t border-dashed border-rule">
+            <span className="absolute -left-2 -top-2 h-4 w-4 rounded-full bg-paper" />
+            <span className="absolute -right-2 -top-2 h-4 w-4 rounded-full bg-paper" />
+          </div>
+          <div className="flex flex-1 flex-col px-5 py-4">
             <p className="label text-faint">SeViveLa · Para marcas</p>
-            <h3 className="mt-1.5 text-xl font-bold tracking-tight leading-snug text-ink transition-colors group-hover:text-brand">
+            <h3 className="mt-1.5 text-lg font-bold tracking-tight leading-snug text-ink transition-colors group-hover:text-brand">
               ¿Tenés un local? Este espacio vende.
             </h3>
             <p className="mt-1.5 text-sm leading-relaxed text-muted">
               Cupones medibles: sabés cuántos se reclaman y cuántos llegan a caja.
             </p>
-            <p className="label mt-auto flex items-center gap-1.5 pt-5 text-brand">
+            <p className="label mt-auto flex items-center gap-1.5 pt-4 text-brand">
               Conversemos
               <ArrowRightIcon
                 width={14}
@@ -124,24 +150,6 @@ export async function Beneficios({
                 className="transition-transform duration-300 group-hover:translate-x-1"
               />
             </p>
-          </div>
-          <div aria-hidden className="relative w-0 border-l border-dashed border-rule">
-            <span className="absolute -left-2 -top-2 h-4 w-4 rounded-full bg-paper" />
-            <span className="absolute -bottom-2 -left-2 h-4 w-4 rounded-full bg-paper" />
-          </div>
-          <div className="relative flex w-[40%] max-w-44 shrink-0 flex-col items-center justify-center bg-ink px-4 py-6 text-center text-white">
-            <p className="text-[clamp(1.2rem,3vw,1.5rem)] font-black uppercase leading-tight tracking-tight">
-              Tu marca
-              <br />
-              aquí
-            </p>
-            <span
-              aria-hidden
-              className="label absolute right-1 top-1/2 -translate-y-1/2 text-[9px] text-white/40"
-              style={{ writingMode: "vertical-rl" }}
-            >
-              SEVIVELA
-            </span>
           </div>
         </Link>
       ) : null}

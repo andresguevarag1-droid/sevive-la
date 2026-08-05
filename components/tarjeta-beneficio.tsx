@@ -1,10 +1,11 @@
 "use client";
 
 /**
- * Tarjeta de cupón (cliente): recibe todo pre-calculado del servidor y
- * agrega el ESTADO PERSONAL — si esta persona ya reclamó el cupón (mapa
- * sv_cupones en localStorage), el cierre cambia a "Ya lo tenés" y el link
- * va directo a su QR en /mi-cupon/<code>. Sin punto muerto.
+ * Cupón como TICKET VERTICAL (mobile-first): arte de la marca a todo el
+ * ancho arriba, perforación horizontal con muescas y el cuerpo abajo.
+ * Sin imagen, el cabezal es el color de la vertical con la oferta gigante.
+ * El estado personal se resuelve en cliente: si esta persona ya reclamó
+ * el cupón (sv_cupones), el cierre cambia a "Ya lo tenés" → directo al QR.
  */
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -21,7 +22,7 @@ export type DatosTarjeta = {
   color: string;
   ofertaGrande: string;
   ofertaResto?: string;
-  /** Arte del cupón (Studio): sustituye el talón de color por la imagen. */
+  /** Arte del cupón (Studio): sustituye el cabezal de color por la imagen. */
   img?: string;
   /** Sticker de urgencia ("¡Vence hoy!", "Quedan 8"…); brand = magenta. */
   urgencia?: { texto: string; brand: boolean }[];
@@ -54,76 +55,42 @@ export function TarjetaBeneficio(d: DatosTarjeta) {
     <Link
       href={destino}
       data-reveal
-      className="card pressable group relative flex overflow-hidden"
+      className="card pressable group relative flex flex-col overflow-hidden"
     >
-      {/* ── Cuerpo del cupón ── */}
-      <div className="flex min-w-0 flex-1 flex-col px-5 py-5">
-        <p className="label text-faint">
-          {d.marca}
-          {d.patrocinado ? " · Patrocinado" : ""}
-        </p>
-        <h3 className="mt-1.5 text-xl font-bold tracking-tight leading-snug text-ink transition-colors group-hover:text-brand">
-          {d.titulo}
-        </h3>
-        <p className="label mt-1.5" style={{ color: d.color }}>
-          {d.verticalNombre}
-        </p>
-        {typeof d.emitidos === "number" && d.emitidos >= 3 ? (
-          <p className="tnum mt-2 text-[12px] font-medium text-muted">
-            {d.emitidos} personas ya lo reclamaron
-          </p>
-        ) : null}
-        <p className="label mt-auto flex items-center gap-1.5 pt-5 text-brand">
-          {yaLoTiene ? "Ya lo tenés · Ver mi cupón" : d.agotado ? "Ver detalle" : "Ver beneficio"}
-          <ArrowRightIcon
-            width={14}
-            height={14}
-            className="transition-transform duration-300 group-hover:translate-x-1"
-          />
-        </p>
-      </div>
-
-      {/* ── Perforación: punteado con muescas troqueladas ── */}
-      <div aria-hidden className="relative w-0 border-l border-dashed border-rule">
-        <span className="absolute -left-2 -top-2 h-4 w-4 rounded-full bg-paper" />
-        <span className="absolute -bottom-2 -left-2 h-4 w-4 rounded-full bg-paper" />
-      </div>
-
-      {/* ── Talón: arte de la marca si hay imagen; si no, color + oferta ── */}
+      {/* ── Cabezal: arte de la marca o color con la oferta gigante ── */}
       <div
-        className="relative flex w-[40%] max-w-44 shrink-0 flex-col items-center justify-center overflow-hidden px-4 py-6 text-center text-white"
-        style={{ background: d.agotado ? "#8a8494" : d.color }}
+        className="relative flex min-h-40 items-center justify-center overflow-hidden px-6 py-8 text-center text-white"
+        style={{ background: d.agotado ? "#8a8494" : d.color, aspectRatio: "16 / 9" }}
       >
         {d.img ? (
-          <>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={d.img}
-              alt=""
-              loading="lazy"
-              decoding="async"
-              className={`absolute inset-0 h-full w-full object-cover ${d.agotado ? "opacity-40 grayscale" : ""}`}
-            />
-            {/* velo sutil para que la micro-firma y el sticker respiren */}
-            <span aria-hidden className="absolute inset-0 bg-black/10" />
-          </>
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            src={d.img}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            className={`imgzoom absolute inset-0 h-full w-full object-cover ${
+              d.agotado ? "opacity-40 grayscale" : ""
+            }`}
+          />
         ) : (
-          <>
-            <p className="tnum text-[clamp(1.7rem,4vw,2.2rem)] font-black uppercase leading-none tracking-tight">
+          <div>
+            <p className="tnum text-[clamp(2.4rem,7vw,3.2rem)] font-black uppercase leading-none tracking-tight">
               {d.ofertaGrande}
             </p>
             {d.ofertaResto ? (
-              <p className="label mt-2 text-white/85">{d.ofertaResto}</p>
+              <p className="label mt-2.5 text-white/85">{d.ofertaResto}</p>
             ) : null}
-          </>
+          </div>
         )}
-        {/* Stickers de urgencia estilo logo, colgados sobre el talón */}
+
+        {/* Sticker de urgencia estilo logo, dentro de la tarjeta */}
         {d.urgencia?.length ? (
-          <div className="absolute -top-1.5 left-1/2 flex -translate-x-1/2 gap-1.5">
+          <div className="absolute left-3 top-3 flex gap-1.5">
             {d.urgencia.map((u) => (
               <span
                 key={u.texto}
-                className={`-rotate-2 whitespace-nowrap rounded-[4px] border-2 border-white px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.1em] text-white shadow-[0_5px_12px_-5px_rgba(0,0,0,0.45)] ${
+                className={`-rotate-2 whitespace-nowrap rounded-[5px] border-2 border-white px-2.5 py-1 text-[11px] font-black uppercase tracking-[0.1em] text-white shadow-[0_6px_14px_-6px_rgba(0,0,0,0.5)] ${
                   u.brand ? "bg-brand" : "bg-ink"
                 }`}
               >
@@ -132,13 +99,67 @@ export function TarjetaBeneficio(d: DatosTarjeta) {
             ))}
           </div>
         ) : null}
+
+        {/* micro-firma de imprenta */}
         <span
           aria-hidden
-          className="label absolute right-1 top-1/2 -translate-y-1/2 text-[9px] text-white/40"
+          className="label absolute right-1.5 top-1/2 -translate-y-1/2 text-[9px] text-white/45"
           style={{ writingMode: "vertical-rl" }}
         >
           SEVIVELA
         </span>
+      </div>
+
+      {/* ── Perforación horizontal con muescas troqueladas ── */}
+      <div aria-hidden className="relative h-0 border-t border-dashed border-rule">
+        <span className="absolute -left-2 -top-2 h-4 w-4 rounded-full bg-paper" />
+        <span className="absolute -right-2 -top-2 h-4 w-4 rounded-full bg-paper" />
+      </div>
+
+      {/* ── Cuerpo del ticket ── */}
+      <div className="flex flex-1 flex-col px-5 py-4">
+        <p className="label text-faint">
+          {d.marca}
+          {d.patrocinado ? " · Patrocinado" : ""}
+        </p>
+        <h3 className="mt-1.5 text-lg font-bold tracking-tight leading-snug text-ink transition-colors group-hover:text-brand">
+          {d.titulo}
+        </h3>
+
+        {/* Con arte arriba, la oferta baja al cuerpo como chip de color */}
+        {d.img ? (
+          <p className="mt-2.5 flex flex-wrap items-baseline gap-x-2 gap-y-1">
+            <span
+              className="tnum inline-block rounded-[5px] px-2 py-0.5 text-sm font-black uppercase tracking-tight text-white"
+              style={{ background: d.agotado ? "#8a8494" : d.color }}
+            >
+              {d.ofertaGrande}
+            </span>
+            {d.ofertaResto ? (
+              <span className="label text-muted">{d.ofertaResto}</span>
+            ) : null}
+          </p>
+        ) : null}
+
+        <div className="mt-1.5 flex flex-wrap items-center gap-x-2.5 gap-y-1">
+          <span className="label" style={{ color: d.color }}>
+            {d.verticalNombre}
+          </span>
+          {typeof d.emitidos === "number" && d.emitidos >= 3 ? (
+            <span className="tnum text-[12px] font-medium text-muted">
+              · {d.emitidos} ya lo reclamaron
+            </span>
+          ) : null}
+        </div>
+
+        <p className="label mt-auto flex items-center gap-1.5 pt-4 text-brand">
+          {yaLoTiene ? "Ya lo tenés · Ver mi cupón" : d.agotado ? "Ver detalle" : "Ver beneficio"}
+          <ArrowRightIcon
+            width={14}
+            height={14}
+            className="transition-transform duration-300 group-hover:translate-x-1"
+          />
+        </p>
       </div>
     </Link>
   );
