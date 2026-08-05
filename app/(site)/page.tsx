@@ -144,7 +144,7 @@ export default async function HomePage() {
       {beneficios.length > 0 ? (
         <section className="mx-auto max-w-6xl px-4 py-12 md:py-14">
           <SectionHead index={num()} label="Beneficios" href="/promociones" action="Todas las promos" />
-          <Beneficios items={beneficios} />
+          <Beneficios items={beneficios} conVendedora />
         </section>
       ) : null}
 

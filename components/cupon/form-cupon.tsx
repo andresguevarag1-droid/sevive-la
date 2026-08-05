@@ -59,6 +59,16 @@ export function FormCupon({ benefitSlug }: { benefitSlug: string }) {
         | null;
       if (res.ok && data?.ok && data.code) {
         track("coupon_claim", { benefit_slug: benefitSlug });
+        // Estado personal: recordar el cupón en este dispositivo para que
+        // las tarjetas muestren "Ya lo tenés" y lleven directo al QR.
+        try {
+          const raw = localStorage.getItem("sv_cupones");
+          const mios = raw ? (JSON.parse(raw) as Record<string, string>) : {};
+          mios[benefitSlug] = data.code;
+          localStorage.setItem("sv_cupones", JSON.stringify(mios));
+        } catch {
+          /* sin memoria local */
+        }
         setStatus("ok");
         router.push(`/mi-cupon/${data.code}`);
       } else {

@@ -17,6 +17,7 @@ export type BeneficioDetalle = {
   vigencia?: string; // YYYY-MM-DD (último día válido)
   patrocinado?: boolean;
   cuponMedible?: boolean;
+  cupoMaximo?: number;
   instruccionesCanje?: string;
 };
 
@@ -26,7 +27,7 @@ export async function getBeneficio(slug: string): Promise<BeneficioDetalle | nul
     const raw = await client.fetch<BeneficioDetalle | null>(
       /* groq */ `*[_type == "beneficio" && slug.current == $slug][0]{
         "id": _id, title, "slug": slug.current, marca, vertical, detalle,
-        vigencia, patrocinado, cuponMedible, instruccionesCanje
+        vigencia, patrocinado, cuponMedible, cupoMaximo, instruccionesCanje
       }`,
       { slug },
       { next: { revalidate: 60 } }

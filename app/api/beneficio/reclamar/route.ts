@@ -88,6 +88,30 @@ export async function POST(req: Request) {
     );
   }
 
+  // Cupo máximo (si el editor lo definió): la promesa de "quedan N" se
+  // cumple en el servidor, no solo en la tarjeta. Quien ya tiene cupón
+  // puede recuperarlo aunque el cupo esté lleno (flujo idempotente).
+  if (beneficio.cupoMaximo) {
+    const { count } = await db
+      .from("coupons")
+      .select("id", { count: "exact", head: true })
+      .eq("benefit_slug", d.benefitSlug);
+    if ((count ?? 0) >= beneficio.cupoMaximo) {
+      const { data: propio } = await db
+        .from("coupons")
+        .select("code")
+        .eq("benefit_slug", d.benefitSlug)
+        .eq("email", d.email)
+        .maybeSingle();
+      if (!propio) {
+        return NextResponse.json(
+          { ok: false, error: "Se agotaron los cupones de este beneficio." },
+          { status: 409 }
+        );
+      }
+    }
+  }
+
   try {
     const { id: personId } = await upsertPerson(db, {
       email: d.email,

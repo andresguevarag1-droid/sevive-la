@@ -33,6 +33,9 @@ export type Story = {
   img?: string; // ruta de imagen (public/)
   sponsored?: boolean; // contenido patrocinado (siempre etiquetado)
   href?: string; // destino del enlace (detalle); si falta, la vertical
+  /** Solo beneficios: último día válido (YYYY-MM-DD) y cupo de cupones. */
+  vigencia?: string;
+  cupoMaximo?: number;
   /** ISO del inicio (solo eventos): alimenta <time datetime> y JSON-LD. */
   fechaIso?: string;
 };

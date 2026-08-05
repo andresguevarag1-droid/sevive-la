@@ -45,6 +45,14 @@ export const beneficio = defineType({
       description: "Último día en que aplica el beneficio.",
     }),
     defineField({
+      name: "cupoMaximo",
+      title: "Cupo máximo de cupones",
+      type: "number",
+      description:
+        "Opcional. Cantidad máxima de cupones que se pueden emitir (ej. 50). Vacío = sin límite. El sitio muestra cuántos quedan.",
+      validation: (rule) => rule.min(1).integer(),
+    }),
+    defineField({
       name: "patrocinado",
       title: "Contenido patrocinado",
       type: "boolean",

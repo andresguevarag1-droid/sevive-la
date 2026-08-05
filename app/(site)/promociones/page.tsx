@@ -37,6 +37,7 @@ export default async function PromocionesPage() {
         <div className="mt-8">
           <Beneficios
             items={beneficios.map((b) => ({ ...b, sponsored: b.patrocinado }))}
+            conVendedora
           />
         </div>
       )}
