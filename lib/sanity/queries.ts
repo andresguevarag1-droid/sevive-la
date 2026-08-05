@@ -19,7 +19,7 @@ import type { VerticalSlug } from "@/lib/site";
 
 /* ── Consulta única (una sola ida a Sanity) ── */
 const HOME_QUERY = /* groq */ `{
-  "portada": *[_type == "cronica" && esPortada == true] | order(fecha desc)[0]{
+  "portadas": *[_type == "cronica" && esPortada == true] | order(fecha desc)[0...5]{
     _id, title, vertical, bajada, autor, formato, lecturaMin, imagen, "slug": slug.current
   },
   "features": *[_type == "cronica" && destacada == true] | order(fecha desc)[0...3]{
@@ -80,7 +80,7 @@ export type RawBeneficio = {
   slug?: string;
 };
 type RawHome = {
-  portada: RawCronica | null;
+  portadas: RawCronica[];
   features: RawCronica[];
   week: RawEvento[];
   reels: RawReel[];
@@ -169,8 +169,9 @@ export function beneficioToStory(b: RawBeneficio): Story {
 }
 
 export type HomeContent = {
-  /** null cuando el equipo aún no marca una nota líder (la home la oculta). */
-  lead: Story | null;
+  /** Vacío cuando el equipo aún no marca notas de portada (la home lo oculta).
+   *  Varias notas marcadas = carrusel de portadas que rota solo. */
+  portadas: Story[];
   week: Story[];
   features: Story[];
   videos: Story[];
@@ -178,7 +179,7 @@ export type HomeContent = {
 };
 
 const FALLBACK: HomeContent = {
-  lead: mockLead,
+  portadas: [mockLead],
   week: mockWeek,
   features: mockFeatures,
   videos: mockVideos,
@@ -203,7 +204,7 @@ export async function getHomeContent(): Promise<HomeContent> {
     // Con Sanity respondiendo, lo que hay es lo que se muestra: una sección
     // vacía se OCULTA en la home (nada de mocks en producción).
     return {
-      lead: data?.portada ? cronicaToStory(data.portada) : null,
+      portadas: (data?.portadas ?? []).map(cronicaToStory),
       week: (data?.week ?? []).map(eventoToStory),
       features: (data?.features ?? []).map(cronicaToStory),
       videos: (data?.reels ?? []).map(reelToStory),

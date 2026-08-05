@@ -3,7 +3,7 @@ import Link from "next/link";
 import { getHomeContent } from "@/lib/sanity/queries";
 import { getCampanaActiva } from "@/lib/sanity/campana";
 import { HeroCampana } from "@/components/campana/hero-campana";
-import { LeadStory } from "@/components/lead-story";
+import { PortadaCarrusel } from "@/components/portada-carrusel";
 import { SectionHead } from "@/components/section-head";
 import { WeekIndex } from "@/components/week-index";
 import { VerticalIndex } from "@/components/vertical-index";
@@ -28,7 +28,7 @@ const quickFilters = [
 
 export default async function HomePage() {
   // Contenido desde Sanity (con fallback a mock por sección) + campaña activa.
-  const [{ lead, week, features, videos, beneficios }, campana] =
+  const [{ portadas, week, features, videos, beneficios }, campana] =
     await Promise.all([getHomeContent(), getCampanaActiva()]);
 
   // Eventos reales del índice → datos estructurados de la portada (SEO/GEO).
@@ -93,10 +93,10 @@ export default async function HomePage() {
         </div>
       </div>
 
-      {/* ── Nota líder (h2 si el h1 lo lleva la campaña; oculta si no hay) ── */}
-      {lead ? (
+      {/* ── Portada(s): con varias notas marcadas, carrusel que rota solo ── */}
+      {portadas.length > 0 ? (
         <section className="mx-auto max-w-6xl px-4 pt-8 pb-12 md:pt-12 md:pb-16">
-          <LeadStory story={lead} as={campana ? "h2" : "h1"} />
+          <PortadaCarrusel stories={portadas} as={campana ? "h2" : "h1"} />
         </section>
       ) : null}
 
