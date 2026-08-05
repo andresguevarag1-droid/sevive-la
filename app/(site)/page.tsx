@@ -140,11 +140,13 @@ export default async function HomePage() {
         </section>
       ) : null}
 
-      {/* ── Beneficios ── */}
+      {/* ── Cuponera: banda lila de marca, cupones-sticker recortables ── */}
       {beneficios.length > 0 ? (
-        <section className="mx-auto max-w-6xl px-4 py-12 md:py-14">
-          <SectionHead index={num()} label="Cuponera" href="/promociones" action="Todos los cupones" />
-          <Beneficios items={beneficios} conVendedora />
+        <section style={{ background: "var(--color-lilac)" }}>
+          <div className="mx-auto max-w-6xl px-4 py-12 md:py-16">
+            <SectionHead index={num()} label="Cuponera" href="/promociones" action="Todos los cupones" />
+            <Beneficios items={beneficios} conVendedora sobreLila />
+          </div>
         </section>
       ) : null}
 

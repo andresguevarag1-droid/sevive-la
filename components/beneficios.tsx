@@ -59,20 +59,26 @@ function stickerUrgencia(
   return null;
 }
 
+/** Inclinaciones alternadas, como stickers pegados a mano. */
+const GIROS = ["-rotate-1", "rotate-[0.75deg]", "-rotate-[0.75deg]", "rotate-1"];
+
 export async function Beneficios({
   items,
   gridClassName = "md:grid-cols-3",
   conVendedora = false,
+  sobreLila = false,
 }: {
   items: Story[];
   /** Columnas del grid (ej. "grid-cols-1" para un solo cupón ancho). */
   gridClassName?: string;
   /** Cierra la fila con la tarjeta "¿Tenés un local?" → /marcas. */
   conVendedora?: boolean;
+  /** true cuando la sección tiene fondo lila (recorte en blanco). */
+  sobreLila?: boolean;
 }) {
   const emitidosPorSlug = await getEmitidosPorBeneficio();
 
-  const tarjetas: DatosTarjeta[] = items.map((b) => {
+  const tarjetas: DatosTarjeta[] = items.map((b, i) => {
     const slug = b.href?.split("/")[2] ?? "";
     const emitidos = emitidosPorSlug.get(slug);
     const oferta = partirOferta(b.meta ?? "");
@@ -92,66 +98,79 @@ export async function Beneficios({
       urgencia: s ? [{ texto: s.texto, brand: s.brand }] : undefined,
       emitidos,
       agotado: s?.agotado,
+      giro: GIROS[i % GIROS.length],
+      sobreLila,
     };
   });
 
   return (
-    <div className={`grid gap-4 ${gridClassName}`}>
+    <div className={`grid gap-6 ${gridClassName}`}>
       {tarjetas.map((t) => (
         <TarjetaBeneficio key={t.id} {...t} />
       ))}
 
       {/* ── La tarjeta vendedora: el espacio se vende solo ── */}
       {conVendedora ? (
-        <Link
-          href="/marcas"
-          data-reveal
-          className="card pressable group relative flex flex-col overflow-hidden"
-        >
-          {/* Cabezal punteado tipo "espacio disponible", liviano */}
-          <div
-            className="relative flex min-h-40 items-center justify-center px-6 py-8 text-center"
-            style={{ aspectRatio: "16 / 9" }}
+        <div data-reveal className="relative pt-2">
+          <span
+            aria-hidden
+            className={`pointer-events-none absolute inset-0 rounded-[18px] border-2 border-dashed ${
+              sobreLila ? "border-white/60" : "border-ink/25"
+            }`}
+          />
+          <Link
+            href="/marcas"
+            className={`${GIROS[tarjetas.length % GIROS.length]} pressable group m-2.5 flex flex-col overflow-hidden rounded-[12px] border-[3px] border-white bg-white shadow-[0_16px_36px_-14px_rgba(26,21,38,0.4)] transition-[transform,box-shadow] duration-300 hover:rotate-0 hover:shadow-[0_22px_44px_-14px_rgba(26,21,38,0.5)]`}
+            style={{ display: "flex" }}
           >
-            <span
-              aria-hidden
-              className="absolute inset-3 rounded-[var(--radius-md)] border-2 border-dashed border-rule"
-            />
-            <p className="text-[clamp(1.3rem,3.2vw,1.7rem)] font-black uppercase leading-tight tracking-tight text-faint">
-              Tu marca
-              <br />
-              aquí
-            </p>
-            <span
-              aria-hidden
-              className="label absolute right-1.5 top-1/2 -translate-y-1/2 text-[9px] text-faint/50"
-              style={{ writingMode: "vertical-rl" }}
+            {/* Cabezal lila con los bloques del logo: TU / MARCA / AQUÍ! */}
+            <div
+              className="relative flex min-h-36 items-center justify-center gap-2 px-6 py-8"
+              style={{ background: "var(--color-lilac)", aspectRatio: "16 / 9" }}
             >
-              SEVIVELA
-            </span>
-          </div>
-          <div aria-hidden className="relative h-0 border-t border-dashed border-rule">
-            <span className="absolute -left-2 -top-2 h-4 w-4 rounded-full bg-paper" />
-            <span className="absolute -right-2 -top-2 h-4 w-4 rounded-full bg-paper" />
-          </div>
-          <div className="flex flex-1 flex-col px-5 py-4">
-            <p className="label text-faint">SeViveLa · Para marcas</p>
-            <h3 className="mt-1.5 text-lg font-bold tracking-tight leading-snug text-ink transition-colors group-hover:text-brand">
-              ¿Tenés un local? Este espacio vende.
-            </h3>
-            <p className="mt-1.5 text-sm leading-relaxed text-muted">
-              Cupones medibles: sabés cuántos se reclaman y cuántos llegan a caja.
-            </p>
-            <p className="label mt-auto flex items-center gap-1.5 pt-4 text-brand">
-              Conversemos
-              <ArrowRightIcon
-                width={14}
-                height={14}
-                className="transition-transform duration-300 group-hover:translate-x-1"
+              {[
+                { t: "Tu", g: "-rotate-3" },
+                { t: "marca", g: "rotate-2" },
+                { t: "aquí", g: "-rotate-2", bang: true },
+              ].map((s) => (
+                <span
+                  key={s.t}
+                  className={`${s.g} inline-block rounded-[6px] border-[3px] border-white bg-ink px-3 py-1.5 text-base font-black uppercase tracking-wide text-white shadow-[0_10px_22px_-8px_rgba(0,0,0,0.45)] transition-transform duration-300 group-hover:scale-105`}
+                >
+                  {s.t}
+                  {s.bang ? <span className="text-brand">!</span> : null}
+                </span>
+              ))}
+            </div>
+            <div aria-hidden className="relative h-0 border-t-2 border-dashed border-rule">
+              <span
+                className="absolute -left-3 -top-2.5 h-5 w-5 rounded-full"
+                style={{ background: sobreLila ? "var(--color-lilac)" : "var(--color-paper)" }}
               />
-            </p>
-          </div>
-        </Link>
+              <span
+                className="absolute -right-3 -top-2.5 h-5 w-5 rounded-full"
+                style={{ background: sobreLila ? "var(--color-lilac)" : "var(--color-paper)" }}
+              />
+            </div>
+            <div className="flex flex-1 flex-col px-5 pb-4 pt-5">
+              <p className="label text-faint">SeViveLa · Para marcas</p>
+              <h3 className="mt-1.5 text-lg font-bold tracking-tight leading-snug text-ink transition-colors group-hover:text-brand">
+                ¿Tenés un local? Este espacio vende.
+              </h3>
+              <p className="mt-1.5 text-sm leading-relaxed text-muted">
+                Cupones medibles: sabés cuántos se reclaman y cuántos llegan a caja.
+              </p>
+              <p className="label mt-auto flex items-center gap-1.5 pt-4 text-brand">
+                Conversemos
+                <ArrowRightIcon
+                  width={14}
+                  height={14}
+                  className="transition-transform duration-300 group-hover:translate-x-1"
+                />
+              </p>
+            </div>
+          </Link>
+        </div>
       ) : null}
     </div>
   );
