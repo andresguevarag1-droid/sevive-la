@@ -204,7 +204,8 @@ export default async function BeneficioPage({
         <p className="label mt-3 text-faint">{b.marca}</p>
         <h1 className="mt-1 text-[clamp(2rem,6vw,3.2rem)] leading-[1.02]">{b.title}</h1>
 
-        {/* La oferta: bloque del logo si es cifra corta; texto fuerte si no */}
+        {/* La oferta: bloque del logo si es cifra corta; resaltador editorial
+            (marker multilínea en el color de la vertical) si es frase */}
         {ofertaCorta ? (
           <p className="mt-4">
             <span
@@ -216,7 +217,18 @@ export default async function BeneficioPage({
             </span>
           </p>
         ) : (
-          <p className="mt-3 text-xl font-bold leading-snug text-brand">{b.detalle}</p>
+          <p className="mt-4 text-lg font-bold leading-[1.65] md:text-xl">
+            <span
+              className="rounded-[4px] px-2 py-1 text-white"
+              style={{
+                background: agotado ? "#8a8494" : color,
+                boxDecorationBreak: "clone",
+                WebkitBoxDecorationBreak: "clone",
+              }}
+            >
+              {b.detalle}
+            </span>
+          </p>
         )}
 
         <div className="mt-4 flex flex-wrap items-baseline gap-x-4 gap-y-1 border-y border-rule py-3">
@@ -235,6 +247,19 @@ export default async function BeneficioPage({
           ) : null}
         </div>
       </header>
+
+      {/* ── Acción principal primero: canje directo en el sitio de la marca ── */}
+      {b.enlace && vigente && !agotado ? (
+        <a
+          href={b.enlace}
+          target="_blank"
+          rel="noopener noreferrer sponsored"
+          className="pressable mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 bg-brand px-6 py-3.5 text-sm font-bold uppercase tracking-wide text-brand-ink transition-colors hover:bg-brand-hover"
+        >
+          Canjear en el sitio de {b.marca}
+          <ArrowRightIcon width={18} height={18} />
+        </a>
+      ) : null}
 
       <section className="mt-8" aria-label="Reclamar cupón">
         {!vigente || agotado ? (
@@ -257,28 +282,39 @@ export default async function BeneficioPage({
         ) : b.cuponMedible ? (
           <FormCupon benefitSlug={b.slug} />
         ) : (
-          <div className="card px-6 py-8 md:px-10">
-            <p className="label text-brand">Cómo usarlo</p>
-            <p className="mt-3 leading-relaxed text-ink/90">
-              {b.instruccionesCanje ??
-                "Mencioná este beneficio de SeViveLa en el local para aplicarlo."}
-            </p>
+          /* ── "Cómo usarlo" como ticket recortable de la cuponera ── */
+          <div className="relative pt-2">
+            <span
+              aria-hidden
+              className="pointer-events-none absolute inset-0 rounded-[18px] border-2 border-dashed border-ink/25"
+            />
+            <div className="m-2.5 -rotate-[0.5deg] overflow-hidden rounded-[12px] border-[3px] border-white bg-white px-5 py-6 shadow-[0_16px_36px_-14px_rgba(26,21,38,0.35)] md:px-7">
+              <span className="inline-block -rotate-1 rounded-[5px] border-2 border-white bg-ink px-2.5 py-1 text-[11px] font-black uppercase tracking-[0.14em] text-white shadow-[0_6px_14px_-6px_rgba(0,0,0,0.4)]">
+                Cómo usarlo
+              </span>
+              <p className="mt-4 leading-relaxed text-ink/90">
+                {b.instruccionesCanje ??
+                  "Mencioná este beneficio de SeViveLa en el local para aplicarlo."}
+              </p>
+              <div className="mt-5 flex items-end justify-between gap-3 border-t border-dashed border-rule pt-4">
+                <p className="label text-faint">{b.marca}</p>
+                <span aria-hidden className="flex flex-col items-end gap-0.5 opacity-60">
+                  <span
+                    className="h-5 w-16"
+                    style={{
+                      background:
+                        "repeating-linear-gradient(90deg, var(--color-ink) 0 1.5px, transparent 1.5px 3px, var(--color-ink) 3px 5.5px, transparent 5.5px 7px)",
+                    }}
+                  />
+                  <span className="tnum text-[8px] tracking-[0.3em] text-faint">
+                    SEVIVELA
+                  </span>
+                </span>
+              </div>
+            </div>
           </div>
         )}
       </section>
-
-      {/* ── Canje directo en el sitio de la marca ── */}
-      {b.enlace && vigente && !agotado ? (
-        <a
-          href={b.enlace}
-          target="_blank"
-          rel="noopener noreferrer sponsored"
-          className="pressable mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 bg-brand px-6 py-3.5 text-sm font-bold uppercase tracking-wide text-brand-ink transition-colors hover:bg-brand-hover sm:w-auto"
-        >
-          Canjear en el sitio de {b.marca}
-          <ArrowRightIcon width={18} height={18} />
-        </a>
-      ) : null}
 
       {b.cuponMedible && b.instruccionesCanje ? (
         <p className="mt-6 text-sm leading-relaxed text-muted">
