@@ -143,7 +143,7 @@ export default async function HomePage() {
       {/* ── Beneficios ── */}
       {beneficios.length > 0 ? (
         <section className="mx-auto max-w-6xl px-4 py-12 md:py-14">
-          <SectionHead index={num()} label="Beneficios" href="/promociones" action="Todas las promos" />
+          <SectionHead index={num()} label="Cuponera" href="/promociones" action="Todos los cupones" />
           <Beneficios items={beneficios} conVendedora />
         </section>
       ) : null}

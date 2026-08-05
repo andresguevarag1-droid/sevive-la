@@ -28,7 +28,7 @@ export async function SiteFooter() {
         { href: "/agenda", label: "Agenda" },
         { href: "/mi-agenda", label: "Mi agenda" },
         { href: "/videos", label: "Videos" },
-        { href: "/promociones", label: "Beneficios" },
+        { href: "/promociones", label: "Cuponera" },
         { href: "/dinamicas", label: "Dinámicas" },
         ...(campana ? [{ href: "/participar", label: "Participá" }] : []),
         { href: "/buscar", label: "Buscar" },

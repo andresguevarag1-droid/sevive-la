@@ -3,7 +3,7 @@ import { getBeneficiosTodos } from "@/lib/sanity/listados";
 import { Beneficios } from "@/components/beneficios";
 
 export const metadata: Metadata = {
-  title: "Beneficios",
+  title: "Cuponera",
   description:
     "Descuentos y beneficios de marcas aliadas de SeViveLa: restaurantes, tours y experiencias en Costa Rica.",
   alternates: { canonical: "/promociones" },
@@ -18,7 +18,7 @@ export default async function PromocionesPage() {
     <section className="mx-auto max-w-6xl px-4 py-10 md:py-14">
       <header>
         <p className="label text-brand">Para vos</p>
-        <h1 className="mt-2 text-[clamp(2.4rem,7vw,4.5rem)]">Beneficios</h1>
+        <h1 className="mt-2 text-[clamp(2.4rem,7vw,4.5rem)]">Cuponera</h1>
         <p className="measure mt-3 leading-relaxed text-muted">
           Descuentos y ventajas de marcas aliadas. El contenido patrocinado
           siempre está etiquetado.

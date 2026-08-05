@@ -225,7 +225,7 @@ export default async function VerticalPage({
             <section className="mx-auto max-w-6xl px-4 py-10 md:py-12">
               <SectionHead
                 index="05"
-                label="Beneficios"
+                label="Cuponera"
                 href="/promociones"
                 action="Todas las promos"
               />

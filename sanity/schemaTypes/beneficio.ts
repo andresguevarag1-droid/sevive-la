@@ -45,6 +45,22 @@ export const beneficio = defineType({
       description: "Último día en que aplica el beneficio.",
     }),
     defineField({
+      name: "imagen",
+      title: "Arte del cupón",
+      type: "image",
+      options: { hotspot: true },
+      description:
+        "Opcional. Sustituye el talón de color por esta imagen (ideal: arte cuadrado o vertical de la marca). Sin imagen, se usa el color de la sección con la oferta en grande.",
+      fields: [
+        defineField({
+          name: "alt",
+          title: "Texto alternativo",
+          type: "string",
+          description: "Describe la imagen (accesibilidad y SEO).",
+        }),
+      ],
+    }),
+    defineField({
       name: "cupoMaximo",
       title: "Cupo máximo de cupones",
       type: "number",

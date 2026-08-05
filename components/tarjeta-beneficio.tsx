@@ -21,6 +21,8 @@ export type DatosTarjeta = {
   color: string;
   ofertaGrande: string;
   ofertaResto?: string;
+  /** Arte del cupón (Studio): sustituye el talón de color por la imagen. */
+  img?: string;
   /** Sticker de urgencia ("¡Vence hoy!", "Quedan 8"…); brand = magenta. */
   urgencia?: { texto: string; brand: boolean }[];
   /** Prueba social: cupones ya reclamados (se muestra desde 3). */
@@ -87,17 +89,34 @@ export function TarjetaBeneficio(d: DatosTarjeta) {
         <span className="absolute -bottom-2 -left-2 h-4 w-4 rounded-full bg-paper" />
       </div>
 
-      {/* ── Talón sólido: la oferta manda ── */}
+      {/* ── Talón: arte de la marca si hay imagen; si no, color + oferta ── */}
       <div
-        className="relative flex w-[40%] max-w-44 shrink-0 flex-col items-center justify-center px-4 py-6 text-center text-white"
+        className="relative flex w-[40%] max-w-44 shrink-0 flex-col items-center justify-center overflow-hidden px-4 py-6 text-center text-white"
         style={{ background: d.agotado ? "#8a8494" : d.color }}
       >
-        <p className="tnum text-[clamp(1.7rem,4vw,2.2rem)] font-black uppercase leading-none tracking-tight">
-          {d.ofertaGrande}
-        </p>
-        {d.ofertaResto ? (
-          <p className="label mt-2 text-white/85">{d.ofertaResto}</p>
-        ) : null}
+        {d.img ? (
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={d.img}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              className={`absolute inset-0 h-full w-full object-cover ${d.agotado ? "opacity-40 grayscale" : ""}`}
+            />
+            {/* velo sutil para que la micro-firma y el sticker respiren */}
+            <span aria-hidden className="absolute inset-0 bg-black/10" />
+          </>
+        ) : (
+          <>
+            <p className="tnum text-[clamp(1.7rem,4vw,2.2rem)] font-black uppercase leading-none tracking-tight">
+              {d.ofertaGrande}
+            </p>
+            {d.ofertaResto ? (
+              <p className="label mt-2 text-white/85">{d.ofertaResto}</p>
+            ) : null}
+          </>
+        )}
         {/* Stickers de urgencia estilo logo, colgados sobre el talón */}
         {d.urgencia?.length ? (
           <div className="absolute -top-1.5 left-1/2 flex -translate-x-1/2 gap-1.5">

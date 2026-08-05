@@ -88,6 +88,7 @@ export async function Beneficios({
       color: verticalColor(b.vertical),
       ofertaGrande: oferta.grande,
       ofertaResto: oferta.resto,
+      img: b.img,
       urgencia: s ? [{ texto: s.texto, brand: s.brand }] : undefined,
       emitidos,
       agotado: s?.agotado,

@@ -108,6 +108,7 @@ type RawBeneficioFull = {
   patrocinado?: boolean;
   vigencia?: string;
   cupoMaximo?: number;
+  imagen?: unknown;
   slug?: string;
 };
 
@@ -117,7 +118,7 @@ export async function getBeneficiosTodos(): Promise<Beneficio[]> {
     const hoy = new Date().toISOString().slice(0, 10);
     const raw = await client.fetch<RawBeneficioFull[]>(
       /* groq */ `*[_type == "beneficio" && (!defined(vigencia) || vigencia >= $hoy)] | order(orden asc, _createdAt desc)[0...24]{
-        _id, title, vertical, marca, detalle, patrocinado, vigencia, cupoMaximo, "slug": slug.current
+        _id, title, vertical, marca, detalle, patrocinado, vigencia, cupoMaximo, imagen, "slug": slug.current
       }`,
       { hoy },
       { next: { revalidate: 60 } }
@@ -132,6 +133,7 @@ export async function getBeneficiosTodos(): Promise<Beneficio[]> {
       patrocinado: b.patrocinado,
       vigencia: b.vigencia,
       cupoMaximo: b.cupoMaximo,
+      img: urlForImage(b.imagen as Parameters<typeof urlForImage>[0], 600),
       href: b.slug ? `/promociones/${b.slug}` : undefined,
     }));
     return items;

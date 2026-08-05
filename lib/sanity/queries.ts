@@ -32,7 +32,7 @@ const HOME_QUERY = /* groq */ `{
     _id, title, vertical, duracion, miniatura, videoUrl
   },
   "beneficios": *[_type == "beneficio" && (!defined(vigencia) || vigencia >= $hoy)] | order(orden asc, _createdAt desc)[0...6]{
-    _id, title, vertical, marca, detalle, patrocinado, vigencia, cupoMaximo, "slug": slug.current
+    _id, title, vertical, marca, detalle, patrocinado, vigencia, cupoMaximo, imagen, "slug": slug.current
   }
 }`;
 
@@ -76,6 +76,7 @@ export type RawBeneficio = {
   patrocinado?: boolean;
   vigencia?: string;
   cupoMaximo?: number;
+  imagen?: SanityImage;
   slug?: string;
 };
 type RawHome = {
@@ -162,6 +163,7 @@ export function beneficioToStory(b: RawBeneficio): Story {
     sponsored: b.patrocinado,
     vigencia: b.vigencia,
     cupoMaximo: b.cupoMaximo,
+    img: urlForImage(b.imagen, 600),
     href: b.slug ? `/promociones/${b.slug}` : undefined,
   };
 }
