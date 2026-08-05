@@ -90,6 +90,13 @@ export const beneficio = defineType({
       initialValue: false,
     }),
     defineField({
+      name: "enlace",
+      title: "Enlace de canje",
+      type: "url",
+      description:
+        "Opcional. Web donde se canjea o compra (ej. la tienda de la marca). La página del cupón muestra un botón directo.",
+    }),
+    defineField({
       name: "instruccionesCanje",
       title: "Instrucciones de canje",
       type: "text",

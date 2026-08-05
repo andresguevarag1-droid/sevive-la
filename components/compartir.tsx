@@ -9,7 +9,17 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { track } from "@/lib/analytics/track";
 
-export function Compartir({ titulo }: { titulo: string }) {
+export function Compartir({
+  titulo,
+  etiqueta = "Compartí esta nota",
+  frase = "lo leí en SeViveLa",
+}: {
+  titulo: string;
+  /** Rótulo del bloque ("Compartí este cupón"…). */
+  etiqueta?: string;
+  /** Cierre del mensaje antes del link ("cupón vía SeViveLa"…). */
+  frase?: string;
+}) {
   const pathname = usePathname();
   const [copiado, setCopiado] = useState(false);
   const [tieneNativo, setTieneNativo] = useState(false);
@@ -19,7 +29,7 @@ export function Compartir({ titulo }: { titulo: string }) {
   }, []);
 
   const url = typeof window !== "undefined" ? `${location.origin}${pathname}` : "";
-  const mensaje = `${titulo} — lo leí en SeViveLa: ${url}`;
+  const mensaje = `${titulo} — ${frase}: ${url}`;
   // Pastillas en lila de marca con letra blanca (mismo tratamiento que el
   // kicker y el CTA de campaña), cada una con su icono.
   const pill =
@@ -27,7 +37,7 @@ export function Compartir({ titulo }: { titulo: string }) {
 
   return (
     <div className="mt-10 border-y border-rule py-5">
-      <p className="label text-faint">Compartí esta nota</p>
+      <p className="label text-faint">{etiqueta}</p>
       <div className="mt-3 flex flex-wrap gap-2.5">
         <a
           href={`https://wa.me/?text=${encodeURIComponent(mensaje)}`}

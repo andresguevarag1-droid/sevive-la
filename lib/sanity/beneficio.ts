@@ -5,6 +5,7 @@
 import "server-only";
 import { client } from "@/sanity/lib/client";
 import { sanityConfigured } from "@/sanity/env";
+import { urlForImage } from "@/sanity/lib/image";
 import type { VerticalSlug } from "@/lib/site";
 
 export type BeneficioDetalle = {
@@ -19,6 +20,10 @@ export type BeneficioDetalle = {
   cuponMedible?: boolean;
   cupoMaximo?: number;
   instruccionesCanje?: string;
+  /** Web de canje/compra de la marca (botón directo en la página). */
+  enlace?: string;
+  /** URL del arte del cupón, ya resuelta. */
+  img?: string;
 };
 
 export async function getBeneficio(slug: string): Promise<BeneficioDetalle | null> {
@@ -27,12 +32,17 @@ export async function getBeneficio(slug: string): Promise<BeneficioDetalle | nul
     const raw = await client.fetch<BeneficioDetalle | null>(
       /* groq */ `*[_type == "beneficio" && slug.current == $slug][0]{
         "id": _id, title, "slug": slug.current, marca, vertical, detalle,
-        vigencia, patrocinado, cuponMedible, cupoMaximo, instruccionesCanje
+        vigencia, patrocinado, cuponMedible, cupoMaximo, instruccionesCanje, enlace, imagen
       }`,
       { slug },
       { next: { revalidate: 60 } }
     );
-    return raw ?? null;
+    if (!raw) return null;
+    const { imagen, ...resto } = raw as BeneficioDetalle & { imagen?: unknown };
+    return {
+      ...resto,
+      img: urlForImage(imagen as Parameters<typeof urlForImage>[0], 1400),
+    };
   } catch (err) {
     console.error(`[sanity] beneficio "${slug}" falló:`, err);
     return null;
