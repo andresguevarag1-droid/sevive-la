@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getEventosProximos, type EventoAgenda } from "@/lib/sanity/listados";
+import { verticalsVisibles, type VerticalSlug } from "@/lib/site";
+import { verticalColor } from "@/lib/content";
 import { CategoryLabel } from "@/components/kicker";
-import { ArrowRightIcon } from "@/components/icons";
+import { CorazonGuardar } from "@/components/agenda/corazon-guardar";
+import { BoletinAgenda } from "@/components/agenda/boletin-agenda";
+import { TrackClicks } from "@/components/track-clicks";
 import { JsonLd } from "@/components/json-ld";
 import { site } from "@/lib/site";
 
@@ -15,10 +19,10 @@ export const metadata: Metadata = {
 
 type Filtro = "todos" | "hoy" | "finde";
 
-const filtros: { key: Filtro; label: string; href: string }[] = [
-  { key: "todos", label: "Todo", href: "/agenda" },
-  { key: "hoy", label: "Hoy", href: "/agenda?f=hoy" },
-  { key: "finde", label: "Fin de semana", href: "/agenda?f=finde" },
+const filtros: { key: Filtro; label: string }[] = [
+  { key: "todos", label: "Todo" },
+  { key: "hoy", label: "Hoy" },
+  { key: "finde", label: "Fin de semana" },
 ];
 
 /** Día calendario (YYYY-MM-DD) de un ISO en hora de Costa Rica (UTC-6, sin DST). */
@@ -85,20 +89,39 @@ function partesDia(iso: string): {
   };
 }
 
+/** Construye la URL de la agenda con los filtros combinados. */
+function urlAgenda(f: Filtro, v?: VerticalSlug | null): string {
+  const p = new URLSearchParams();
+  if (f !== "todos") p.set("f", f);
+  if (v) p.set("v", v);
+  const q = p.toString();
+  return q ? `/agenda?${q}` : "/agenda";
+}
+
 export default async function AgendaPage({
   searchParams,
 }: {
-  searchParams: Promise<{ f?: string }>;
+  searchParams: Promise<{ f?: string; v?: string }>;
 }) {
-  const { f } = await searchParams;
+  const { f, v } = await searchParams;
   const filtro: Filtro = f === "hoy" ? "hoy" : f === "finde" ? "finde" : "todos";
+  const verticalActiva =
+    verticalsVisibles.find((x) => x.slug === v)?.slug ?? null;
 
   const todos = await getEventosProximos();
-  const eventos = filtrar(todos, filtro);
+  const porFecha = filtrar(todos, filtro);
+  const eventos = verticalActiva
+    ? porFecha.filter((e) => e.vertical === verticalActiva)
+    : porFecha;
+
+  // Conteo editorial de la cabecera (sobre TODO el horizonte, sin filtros).
+  const totalProximos = todos.filter((e) => e.inicio).length;
+  const totalHoy = filtrar(todos, "hoy").length;
 
   // Agrupar por día. Los ya iniciados con fin futuro (exposiciones,
   // temporadas) van en un grupo "En curso" al inicio; el mock sin ISO, al final.
   const hoyCR = diaCR(new Date().toISOString());
+  const mananaCR = diaCR(new Date(Date.now() + 86400000).toISOString());
   const enCurso = (e: EventoAgenda) =>
     Boolean(e.inicio && e.fin && diaCR(e.inicio) < hoyCR && new Date(e.fin) >= new Date());
   const grupos = new Map<string, EventoAgenda[]>();
@@ -112,6 +135,11 @@ export default async function AgendaPage({
     lista.push(e);
     grupos.set(key, lista);
   }
+
+  // Salto rápido por día (solo días reales, en orden).
+  const diasConEventos = [...grupos.keys()]
+    .filter((k) => k !== "encurso" && k !== "proximamente")
+    .sort();
 
   // Eventos con fecha real → datos estructurados (SEO enriquecido + GEO)
   const conFecha = eventos.filter((e) => e.inicio);
@@ -151,51 +179,135 @@ export default async function AgendaPage({
         <p className="measure mt-3 leading-relaxed text-muted">
           Eventos, conciertos y ferias en Costa Rica, curados por la redacción.
         </p>
+        {totalProximos > 0 ? (
+          <p className="headline mt-4 text-[clamp(1.1rem,2.6vw,1.4rem)] leading-snug text-ink">
+            <span className="tnum">{totalProximos}</span>{" "}
+            {totalProximos === 1 ? "plan verificado" : "planes verificados"}
+            {totalHoy > 0 ? (
+              <span className="text-muted">
+                {" "}
+                · <span className="tnum">{totalHoy}</span> {totalHoy === 1 ? "es hoy" : "son hoy"}
+              </span>
+            ) : null}
+          </p>
+        ) : null}
       </header>
 
-      {/* ── Filtros rápidos + acceso a lo guardado ── */}
-      <nav aria-label="Filtros de fecha" className="mt-6 flex flex-wrap items-center gap-2">
-        <Link
-          href="/mi-agenda"
-          className="chip pressable ml-auto order-last border"
-          style={{ borderColor: "var(--color-rule)", color: "var(--color-brand)" }}
-        >
-          ♥ Mi agenda
-        </Link>
-        {filtros.map((opcion) => {
-          const activo = opcion.key === filtro;
-          return (
-            <Link
-              key={opcion.key}
-              href={opcion.href}
-              aria-current={activo ? "page" : undefined}
-              className="chip pressable border"
-              style={
-                activo
-                  ? {
-                      background: "var(--color-ink)",
-                      color: "var(--color-paper)",
-                      borderColor: "var(--color-ink)",
+      <TrackClicks module="agenda_filtros">
+        {/* ── Filtros de fecha + acceso a lo guardado ── */}
+        <nav aria-label="Filtros de fecha" className="mt-6 flex flex-wrap items-center gap-2">
+          <Link
+            href="/mi-agenda"
+            className="chip pressable ml-auto order-last border"
+            style={{ borderColor: "var(--color-rule)", color: "var(--color-brand)" }}
+          >
+            ♥ Mi agenda
+          </Link>
+          {filtros.map((opcion) => {
+            const activo = opcion.key === filtro;
+            return (
+              <Link
+                key={opcion.key}
+                href={urlAgenda(opcion.key, verticalActiva)}
+                aria-current={activo ? "page" : undefined}
+                className="chip pressable border"
+                style={
+                  activo
+                    ? {
+                        background: "var(--color-ink)",
+                        color: "var(--color-paper)",
+                        borderColor: "var(--color-ink)",
+                      }
+                    : { borderColor: "var(--color-rule)", color: "var(--color-muted)" }
+                }
+              >
+                {opcion.label}
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* ── Filtros por sección (color de cada vertical) ── */}
+        <nav aria-label="Filtros por sección" className="mt-2.5 flex flex-wrap items-center gap-2">
+          {verticalsVisibles.map((vert) => {
+            const activo = vert.slug === verticalActiva;
+            const color = verticalColor(vert.slug);
+            return (
+              <Link
+                key={vert.slug}
+                // Tocar la sección activa la des-selecciona (toggle).
+                href={urlAgenda(filtro, activo ? null : vert.slug)}
+                aria-current={activo ? "page" : undefined}
+                className="chip pressable inline-flex items-center gap-2 border"
+                style={
+                  activo
+                    ? { borderColor: color, color, borderWidth: 2, fontWeight: 700 }
+                    : { borderColor: "var(--color-rule)", color: "var(--color-muted)" }
+                }
+              >
+                <span
+                  aria-hidden
+                  className="h-2.5 w-2.5 shrink-0 rounded-full"
+                  style={{ background: color }}
+                />
+                {vert.name}
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* ── Salto rápido por día (sticky al hacer scroll) ── */}
+        {diasConEventos.length > 2 ? (
+          <nav
+            aria-label="Ir a un día"
+            className="sticky top-0 z-30 -mx-4 mt-6 overflow-x-auto border-b border-rule bg-paper px-4 py-2.5"
+          >
+            <div className="flex w-max items-center gap-2">
+              {diasConEventos.slice(0, 14).map((dia) => {
+                const p = partesDia(`${dia}T12:00:00-06:00`);
+                if (!p) return null;
+                const esHoy = dia === hoyCR;
+                const esManana = dia === mananaCR;
+                return (
+                  <a
+                    key={dia}
+                    href={`#d-${dia}`}
+                    className="chip pressable tnum shrink-0 border"
+                    style={
+                      esHoy
+                        ? {
+                            background: "var(--color-brand)",
+                            color: "#fff",
+                            borderColor: "var(--color-brand)",
+                          }
+                        : {
+                            borderColor: "var(--color-rule)",
+                            color: p.finde ? "var(--color-deep)" : "var(--color-muted)",
+                            fontWeight: p.finde ? 700 : 500,
+                          }
                     }
-                  : { borderColor: "var(--color-rule)", color: "var(--color-muted)" }
-              }
-            >
-              {opcion.label}
-            </Link>
-          );
-        })}
-      </nav>
+                  >
+                    {esHoy ? "Hoy" : esManana ? "Mañana" : `${cap(p.semana)} ${p.dia}`}
+                  </a>
+                );
+              })}
+            </div>
+          </nav>
+        ) : null}
+      </TrackClicks>
 
       {eventos.length === 0 ? (
         /* ── Estado vacío ── */
         <div className="py-16 text-center md:py-24">
           <p className="label text-faint">Nada por aquí</p>
           <h2 className="mx-auto mt-3 max-w-lg text-2xl">
-            {filtro === "hoy"
-              ? "Hoy no tenemos eventos registrados."
-              : filtro === "finde"
-                ? "Este fin de semana aún no tiene eventos registrados."
-                : "La agenda se está cocinando."}
+            {verticalActiva
+              ? "Esa sección aún no tiene eventos con este filtro."
+              : filtro === "hoy"
+                ? "Hoy no tenemos eventos registrados."
+                : filtro === "finde"
+                  ? "Este fin de semana aún no tiene eventos registrados."
+                  : "La agenda se está cocinando."}
           </h2>
           <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted">
             Probá con otro filtro o volvé pronto: el equipo publica planes toda
@@ -223,7 +335,8 @@ export default async function AgendaPage({
             return (
               <section
                 key={dia}
-                className="mb-12 grid gap-2 md:grid-cols-[128px_1fr] md:gap-10"
+                id={esEnCurso || dia === "proximamente" ? undefined : `d-${dia}`}
+                className="mb-12 grid scroll-mt-16 gap-2 md:grid-cols-[128px_1fr] md:gap-10"
               >
                 {/* ── Bloque de fecha, calendario de pared ── */}
                 <h2
@@ -258,13 +371,17 @@ export default async function AgendaPage({
                   )}
                 </h2>
 
-                {/* ── Eventos del día: la hora manda ── */}
+                {/* ── Eventos del día: la hora manda, el corazón guarda ── */}
                 <ul className="border-t border-rule">
-                  {items.map((e) => (
-                    <li key={e.id} data-reveal className="border-b border-rule">
-                      <Link
-                        href={e.href ?? `/${e.vertical}`}
-                        className="group flex items-baseline gap-4 py-5 md:gap-6"
+                  {items.map((e) => {
+                    const slug = e.href?.startsWith("/agenda/")
+                      ? e.href.split("/")[2]
+                      : null;
+                    return (
+                      <li
+                        key={e.id}
+                        data-reveal
+                        className="flex items-baseline gap-4 border-b border-rule py-5 md:gap-6"
                       >
                         <span className="tnum w-12 shrink-0 md:w-16">
                           {e.hora ? (
@@ -281,46 +398,59 @@ export default async function AgendaPage({
                           )}
                         </span>
                         <div className="min-w-0 flex-1">
-                          <CategoryLabel vertical={e.vertical} className="mb-1.5" />
-                          <h3 className="text-lg font-semibold tracking-tight leading-snug text-ink transition-colors group-hover:text-brand md:text-xl">
-                            {e.title}
-                          </h3>
-                          {e.lugarNombre || !e.hora || enCurso(e) ? (
-                            <p className="mt-1 text-sm text-muted">
-                              {e.lugarNombre}
-                              {enCurso(e) && e.fin ? (
-                                <>
-                                  {e.lugarNombre ? " · " : ""}Hasta el{" "}
-                                  <time dateTime={diaCR(e.fin)}>
-                                    {new Intl.DateTimeFormat("es-CR", {
-                                      day: "numeric",
-                                      month: "long",
-                                      timeZone: "America/Costa_Rica",
-                                    }).format(new Date(e.fin))}
-                                  </time>
-                                </>
-                              ) : !e.hora ? (
-                                `${e.lugarNombre ? " · " : ""}Hora por confirmar`
-                              ) : (
-                                ""
-                              )}
-                            </p>
-                          ) : null}
+                          <Link href={e.href ?? `/${e.vertical}`} className="group block">
+                            <CategoryLabel vertical={e.vertical} className="mb-1.5" />
+                            <h3 className="text-lg font-semibold tracking-tight leading-snug text-ink transition-colors group-hover:text-brand md:text-xl">
+                              {e.title}
+                            </h3>
+                            {e.lugarNombre || !e.hora || enCurso(e) ? (
+                              <p className="mt-1 text-sm text-muted">
+                                {e.lugarNombre}
+                                {enCurso(e) && e.fin ? (
+                                  <>
+                                    {e.lugarNombre ? " · " : ""}Hasta el{" "}
+                                    <time dateTime={diaCR(e.fin)}>
+                                      {new Intl.DateTimeFormat("es-CR", {
+                                        day: "numeric",
+                                        month: "long",
+                                        timeZone: "America/Costa_Rica",
+                                      }).format(new Date(e.fin))}
+                                    </time>
+                                  </>
+                                ) : !e.hora ? (
+                                  `${e.lugarNombre ? " · " : ""}Hora por confirmar`
+                                ) : (
+                                  ""
+                                )}
+                              </p>
+                            ) : null}
+                          </Link>
                         </div>
-                        <ArrowRightIcon
-                          width={18}
-                          height={18}
-                          className="hidden shrink-0 self-center text-brand opacity-0 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100 md:block"
-                        />
-                      </Link>
-                    </li>
-                  ))}
+                        {slug && e.inicio ? (
+                          <CorazonGuardar
+                            slug={slug}
+                            titulo={e.title}
+                            inicio={e.inicio}
+                            lugar={e.lugarNombre}
+                            vertical={e.vertical}
+                          />
+                        ) : null}
+                      </li>
+                    );
+                  })}
                 </ul>
               </section>
             );
           })}
         </div>
       )}
+
+      {/* ── Captura contextual: la agenda por correo ── */}
+      <BoletinAgenda />
     </section>
   );
+}
+
+function cap(s: string): string {
+  return s.charAt(0).toUpperCase() + s.slice(1);
 }
