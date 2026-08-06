@@ -60,7 +60,7 @@ export function HeroCampana({ campana }: { campana: Campana }) {
       />
 
       {/* velo de tinta: sube el contraste del texto sobre el degradado */}
-      <div aria-hidden className="absolute inset-0 bg-[rgba(26,21,38,0.18)]" />
+      <div aria-hidden className="absolute inset-0 bg-[rgba(26,21,38,0.05)]" />
       <div className="relative mx-auto grid max-w-6xl items-center gap-8 px-4 py-12 md:grid-cols-[1.2fr_1fr] md:gap-12 md:py-16">
         <div className="relative">
           {/* kicker — lila de marca */}
