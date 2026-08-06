@@ -141,3 +141,30 @@ export async function declareInterest(
   );
   if (error) throw error;
 }
+
+/**
+ * Guarda la atribución de origen (UTM/referrer/landing) en la persona.
+ * NO fatal: la columna `people.attribution` llega con la migración 0010;
+ * si aún no está aplicada, solo se avisa por consola y el alta sigue.
+ */
+export async function saveAttribution(
+  db: SupabaseClient,
+  personId: string,
+  utm: Record<string, string | undefined> | undefined
+): Promise<void> {
+  if (!utm) return;
+  const limpio = Object.fromEntries(
+    Object.entries(utm).filter(([, v]) => typeof v === "string" && v)
+  );
+  if (Object.keys(limpio).length === 0) return;
+  const { error } = await db
+    .from("people")
+    .update({ attribution: limpio })
+    .eq("id", personId);
+  if (error) {
+    console.warn(
+      "[capture] atribución no guardada (¿falta la migración 0010?):",
+      error.message
+    );
+  }
+}

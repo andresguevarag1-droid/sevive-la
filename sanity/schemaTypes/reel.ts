@@ -33,13 +33,20 @@ export const reel = defineType({
       title: "Enlace del video",
       type: "url",
       description:
-        "URL del reel (Instagram, TikTok, YouTube o video propio). Se abre al tocar.",
+        "URL del reel (Instagram, TikTok, YouTube o video propio). Se abre al tocar. Sin enlace, la tarjeta no lleva a ningún lado.",
+      validation: (rule) => rule.required().error("Pegá el enlace del video: sin él, la tarjeta queda muerta."),
     }),
     defineField({
       name: "duracion",
       title: "Duración",
       type: "string",
       description: 'Formato mm:ss, por ejemplo "1:04".',
+      validation: (rule) =>
+        rule.custom((v?: string) =>
+          !v || /^\d{1,2}:[0-5]\d$/.test(v)
+            ? true
+            : 'Usá el formato mm:ss, por ejemplo "1:04".'
+        ),
     }),
     defineField({
       name: "fecha",
@@ -66,6 +73,10 @@ export const reel = defineType({
     },
   ],
   preview: {
-    select: { title: "title", subtitle: "vertical", media: "miniatura" },
+    select: { title: "title", vertical: "vertical", duracion: "duracion", videoUrl: "videoUrl", media: "miniatura" },
+    prepare({ title, vertical, duracion, videoUrl, media }) {
+      const partes = [videoUrl ? "▶" : "⚠ sin video", duracion, vertical].filter(Boolean);
+      return { title, subtitle: partes.join(" · "), media };
+    },
   },
 });

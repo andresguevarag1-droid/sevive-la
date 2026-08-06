@@ -84,6 +84,8 @@ export async function POST(req: Request) {
     );
   }
 
+  // true cuando se envió correo de confirmación (la UI lo anuncia).
+  let confirmar = false;
   try {
     // Titularidad no verificada = 'pending': ningún envío futuro va a un
     // correo que no confirmó ser suyo.
@@ -107,7 +109,10 @@ export async function POST(req: Request) {
           parsed.data.email,
           `Alguien (ojalá vos) pidió que le avisemos de la próxima edición de «${pieza.title}» con este correo. Confirmá para recibir el aviso.`
         );
-        if (plantilla) await enviarCorreo(parsed.data.email, plantilla);
+        if (plantilla) {
+          await enviarCorreo(parsed.data.email, plantilla);
+          confirmar = true;
+        }
       } catch (err) {
         console.error("[interes-evento] confirmación falló (no fatal):", err);
       }
@@ -133,5 +138,5 @@ export async function POST(req: Request) {
     );
   }
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, confirmar });
 }

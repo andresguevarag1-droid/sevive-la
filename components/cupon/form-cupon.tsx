@@ -11,6 +11,8 @@ import { useRouter } from "next/navigation";
 import { consentBeneficio } from "@/lib/consent";
 import { isValidEmail } from "@/lib/validation/client";
 import { TurnstileWidget } from "@/components/turnstile";
+import { ConsentText } from "@/components/consent-text";
+import { utmEnvio } from "@/lib/analytics/utm-client";
 
 type Status = "idle" | "sending" | "ok" | "error";
 
@@ -62,6 +64,9 @@ export function FormCupon({ benefitSlug }: { benefitSlug: string }) {
           consent: true,
           turnstileToken,
           website: honeypot,
+          // Atribución del cupón: el backend ya la guardaba (coupons.source)
+          // pero el formulario nunca la enviaba — todo quedaba "directo".
+          utm: utmEnvio(),
         }),
       });
       const data = (await res.json().catch(() => null)) as
@@ -159,18 +164,14 @@ export function FormCupon({ benefitSlug }: { benefitSlug: string }) {
           className="mt-0.5 h-5 w-5 shrink-0"
         />
         <span>
-          {consentDef.text}{" "}
-          <Link href="/legal/privacidad" className="underline">
-            Política de Privacidad
-          </Link>
-          .
+          <ConsentText text={consentDef.text} />
         </span>
       </label>
 
       <TurnstileWidget onToken={setTurnstileToken} />
 
       {status === "error" && error ? (
-        <p role="alert" className="mt-4 text-sm font-medium text-brand">
+        <p role="alert" className="mt-4 text-sm font-medium text-error">
           ⚠ {error}
         </p>
       ) : null}

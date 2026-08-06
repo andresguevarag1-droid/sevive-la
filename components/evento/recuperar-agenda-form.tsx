@@ -97,7 +97,7 @@ export function RecuperarAgendaForm() {
       </div>
       <TurnstileWidget onToken={setTurnstileToken} />
       {status === "error" && error ? (
-        <p role="alert" className="mt-3 text-left text-sm font-medium text-ink">
+        <p role="alert" className="mt-3 text-left text-sm font-medium text-error">
           ⚠ {error}
         </p>
       ) : null}

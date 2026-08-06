@@ -43,6 +43,10 @@ export const beneficio = defineType({
       title: "Vigencia",
       type: "date",
       description: "Último día en que aplica el beneficio.",
+      validation: (rule) =>
+        rule.custom((v?: string) =>
+          v ? true : "Sin fecha de vigencia, el cupón queda publicado para siempre."
+        ).warning(),
     }),
     defineField({
       name: "imagen",
@@ -59,6 +63,12 @@ export const beneficio = defineType({
           description: "Describe la imagen (accesibilidad y SEO).",
         }),
       ],
+      validation: (rule) =>
+        rule.custom((img?: { asset?: unknown; alt?: string }) =>
+          img?.asset && !img.alt
+            ? "Agregá el texto alternativo de la imagen (accesibilidad y SEO)."
+            : true
+        ).warning(),
     }),
     defineField({
       name: "cupoMaximo",
@@ -112,6 +122,29 @@ export const beneficio = defineType({
     },
   ],
   preview: {
-    select: { title: "title", subtitle: "marca" },
+    select: {
+      title: "title",
+      marca: "marca",
+      vigencia: "vigencia",
+      patrocinado: "patrocinado",
+      media: "imagen",
+    },
+    prepare({ title, marca, vigencia, patrocinado, media }) {
+      let estado = "⚪ sin vigencia";
+      if (vigencia) {
+        const fin = new Date(`${vigencia}T23:59:59`);
+        const dias = Math.ceil((fin.getTime() - Date.now()) / 86400000);
+        estado =
+          dias < 0
+            ? "🔴 Vencido"
+            : dias === 0
+              ? "🟠 Vence hoy"
+              : dias <= 7
+                ? `🟠 Vence en ${dias} día${dias === 1 ? "" : "s"}`
+                : "🟢 Vigente";
+      }
+      const partes = [estado, marca, patrocinado ? "patrocinado" : ""].filter(Boolean);
+      return { title, subtitle: partes.join(" · "), media };
+    },
   },
 });

@@ -1,6 +1,7 @@
 "use client";
 
-import Link from "next/link";
+import { ConsentText } from "@/components/consent-text";
+import { utmEnvio } from "@/lib/analytics/utm-client";
 /**
  * Boletín — bloque de tinta plano (sin orbes ni degradados).
  * Inputs con subrayado editorial. Consentimiento NO premarcado (Ley 8968):
@@ -52,6 +53,7 @@ export function SubscribeEditorial() {
           consent: true,
           turnstileToken,
           website: honeypot,
+          utm: utmEnvio(),
         }),
       });
       const data = (await res.json().catch(() => null)) as
@@ -164,18 +166,14 @@ export function SubscribeEditorial() {
                   className="mt-0.5 h-5 w-5 shrink-0"
                 />
                 <span>
-                  {CONSENT_NEWSLETTER.text}{" "}
-                  <Link href="/legal/privacidad" className="underline">
-                    Política de Privacidad
-                  </Link>
-                  .
+                  <ConsentText text={CONSENT_NEWSLETTER.text} />
                 </span>
               </label>
 
               <TurnstileWidget onToken={setTurnstileToken} theme="dark" />
 
               {status === "error" && error ? (
-                <p role="alert" className="mt-4 text-sm font-medium text-paper">
+                <p role="alert" className="mt-4 text-sm font-medium text-error-dark">
                   ⚠ {error}
                 </p>
               ) : null}

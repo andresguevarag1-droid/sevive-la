@@ -30,7 +30,7 @@ import {
 
 /* ── Consulta única por vertical ── */
 const VERTICAL_QUERY = /* groq */ `{
-  "cronicas": *[_type == "cronica" && vertical == $vertical] | order(fecha desc)[0...12]{
+  "cronicas": *[_type == "cronica" && vertical == $vertical && (!defined(fecha) || fecha <= now())] | order(fecha desc)[0...12]{
     _id, title, vertical, bajada, autor, formato, lecturaMin, imagen, "slug": slug.current
   },
   "eventos": *[_type == "evento" && vertical == $vertical && defined(inicio) && inicio >= $desde] | order(inicio asc)[0...8]{

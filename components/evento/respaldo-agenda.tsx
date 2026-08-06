@@ -7,21 +7,24 @@
  * premarcado (Ley 8968). El correo respaldado queda en localStorage para
  * ofrecer "Actualizar respaldo" en visitas siguientes.
  */
-import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 import { CONSENT_AGENDA } from "@/lib/consent";
 import { getFavoritos } from "@/lib/favoritos";
 import { isValidEmail } from "@/lib/validation/client";
 import { TurnstileWidget } from "@/components/turnstile";
 import { RecuperarAgendaForm } from "@/components/evento/recuperar-agenda-form";
+import { ConsentText } from "@/components/consent-text";
 import { track } from "@/lib/analytics/track";
-import { getAttribution } from "@/lib/analytics/attribution";
+import { utmEnvio } from "@/lib/analytics/utm-client";
 
 const CLAVE_CORREO = "sv_agenda_correo";
 
 type Status = "idle" | "sending" | "ok" | "error";
 
-async function respaldar(email: string, turnstileToken: string): Promise<{ ok: boolean; error?: string }> {
+async function respaldar(
+  email: string,
+  turnstileToken: string
+): Promise<{ ok: boolean; error?: string; confirmar?: boolean }> {
   const items = getFavoritos().map((f) => ({
     slug: f.slug,
     title: f.title,
@@ -38,11 +41,15 @@ async function respaldar(email: string, turnstileToken: string): Promise<{ ok: b
       items,
       turnstileToken,
       website: "",
-      utm: getAttribution(),
+      utm: utmEnvio(),
     }),
   });
-  const data = (await res.json().catch(() => null)) as { ok: boolean; error?: string } | null;
-  return res.ok && data?.ok ? { ok: true } : { ok: false, error: data?.error };
+  const data = (await res.json().catch(() => null)) as
+    | { ok: boolean; error?: string; confirmar?: boolean }
+    | null;
+  return res.ok && data?.ok
+    ? { ok: true, confirmar: data.confirmar }
+    : { ok: false, error: data?.error };
 }
 
 export function RespaldoAgenda() {
@@ -53,6 +60,8 @@ export function RespaldoAgenda() {
   const [turnstileToken, setTurnstileToken] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
+  // El respaldo quedó pendiente de confirmar por correo (doble opt-in).
+  const [porConfirmar, setPorConfirmar] = useState(false);
 
   useEffect(() => {
     try {
@@ -86,6 +95,7 @@ export function RespaldoAgenda() {
         /* sin memoria local */
       }
       setCorreoGuardado(email.trim().toLowerCase());
+      setPorConfirmar(Boolean(r.confirmar));
       setStatus("ok");
     } else {
       setStatus("error");
@@ -113,7 +123,14 @@ export function RespaldoAgenda() {
       <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-y border-rule py-4">
         <p className="text-sm text-muted">
           {status === "ok" ? (
-            <span className="font-semibold text-ink">Respaldo actualizado ✓</span>
+            porConfirmar ? (
+              <span className="font-semibold text-ink">
+                Respaldo guardado ✓ — te enviamos un correo: abrilo y confirmá
+                para activar los recordatorios.
+              </span>
+            ) : (
+              <span className="font-semibold text-ink">Respaldo actualizado ✓</span>
+            )
           ) : (
             <>
               Tu agenda está respaldada como{" "}
@@ -132,7 +149,7 @@ export function RespaldoAgenda() {
           </button>
         ) : null}
         {status === "error" && error ? (
-          <p role="alert" className="w-full text-sm font-medium text-ink">
+          <p role="alert" className="w-full text-sm font-medium text-error">
             ⚠ {error}
           </p>
         ) : null}
@@ -214,18 +231,14 @@ export function RespaldoAgenda() {
                 className="mt-0.5 h-5 w-5 shrink-0"
               />
               <span>
-                {CONSENT_AGENDA.text}{" "}
-                <Link href="/legal/privacidad" className="underline">
-                  Política de Privacidad
-                </Link>
-                .
+                <ConsentText text={CONSENT_AGENDA.text} />
               </span>
             </label>
 
             <TurnstileWidget onToken={setTurnstileToken} />
 
             {status === "error" && error ? (
-              <p role="alert" className="mt-4 text-sm font-medium text-ink">
+              <p role="alert" className="mt-4 text-sm font-medium text-error">
                 ⚠ {error}
               </p>
             ) : null}

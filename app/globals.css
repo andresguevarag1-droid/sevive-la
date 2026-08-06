@@ -26,6 +26,8 @@
   --color-brand: #c71e70; /* magenta — enlaces, CTA, activo */
   --color-brand-hover: #a81860;
   --color-brand-ink: #ffffff;
+  --color-error: #a61b1b; /* rojo semántico — SOLO mensajes de fallo (AA sobre papel) */
+  --color-error-dark: #ffb4a8; /* fallo sobre fondos oscuros (tinta/lila) */
 
   /* ── Marcas de vertical (solo puntos/etiquetas pequeñas) ── */
   --color-experiencias: #c25e00;

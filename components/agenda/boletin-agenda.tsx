@@ -5,7 +5,8 @@
  * planificando — el momento perfecto para ofrecerle la agenda por correo.
  * Mismo flujo que el boletín (consentimiento Ley 8968, honeypot, Turnstile).
  */
-import Link from "next/link";
+import { ConsentText } from "@/components/consent-text";
+import { utmEnvio } from "@/lib/analytics/utm-client";
 import { useState, type FormEvent } from "react";
 import { CONSENT_NEWSLETTER } from "@/lib/consent";
 import { isValidEmail } from "@/lib/validation/client";
@@ -54,6 +55,7 @@ export function BoletinAgenda() {
           consent: true,
           turnstileToken,
           website: honeypot,
+          utm: utmEnvio(),
         }),
       });
       const data = (await res.json().catch(() => null)) as
@@ -133,18 +135,14 @@ export function BoletinAgenda() {
               className="mt-0.5 h-5 w-5 shrink-0"
             />
             <span>
-              {CONSENT_NEWSLETTER.text}{" "}
-              <Link href="/legal/privacidad" className="underline">
-                Política de Privacidad
-              </Link>
-              .
+              <ConsentText text={CONSENT_NEWSLETTER.text} />
             </span>
           </label>
 
           <TurnstileWidget onToken={setTurnstileToken} />
 
           {status === "error" && error ? (
-            <p role="alert" className="mt-4 text-sm font-medium text-ink">
+            <p role="alert" className="mt-4 text-sm font-medium text-error">
               ⚠ {error}
             </p>
           ) : null}

@@ -143,10 +143,16 @@ export async function POST(req: Request) {
     const dynamicId = await ensureDynamicRow(db, dinamica);
 
     // Una participación por persona: el unique (dynamic_id, person_id) manda.
+    // La atribución viaja dentro de answers (jsonb): sin migración extra.
+    const answers: Record<string, unknown> = {};
+    if (parsed.data.answer) answers.respuesta = parsed.data.answer;
+    if (parsed.data.utm && Object.keys(parsed.data.utm).length > 0) {
+      answers._utm = parsed.data.utm;
+    }
     const { error: entryErr } = await db.from("entries").insert({
       dynamic_id: dynamicId,
       person_id: personId,
-      answers: parsed.data.answer ? { respuesta: parsed.data.answer } : null,
+      answers: Object.keys(answers).length > 0 ? answers : null,
     });
     if (entryErr) {
       if (entryErr.code === "23505") {

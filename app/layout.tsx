@@ -29,6 +29,19 @@ export const metadata: Metadata = {
   },
   description: site.description,
   applicationName: site.name,
+  // PWA: ícono de inicio en iOS + modo standalone con barra acorde al tema.
+  icons: {
+    icon: [
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: "/apple-touch-icon.png",
+  },
+  appleWebApp: {
+    capable: true,
+    title: site.name,
+    statusBarStyle: "default",
+  },
   // Sin title/description absolutos en og/twitter: si el raíz los fija,
   // Next deja de derivarlos por página y TODO share muestra el de la home.
   openGraph: {

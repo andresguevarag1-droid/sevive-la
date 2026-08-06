@@ -74,6 +74,8 @@ export async function POST(req: Request) {
     );
   }
 
+  // true cuando se envió correo de confirmación (la UI lo anuncia).
+  let confirmar = false;
   try {
     // Titularidad no verificada = 'pending': los crons de correo solo
     // escriben a personas 'active' (nadie puede inscribir correos ajenos).
@@ -89,7 +91,10 @@ export async function POST(req: Request) {
           parsed.data.email,
           "Alguien (ojalá vos) respaldó su agenda de SeViveLa con este correo. Confirmá para activar los recordatorios de tus planes."
         );
-        if (plantilla) await enviarCorreo(parsed.data.email, plantilla);
+        if (plantilla) {
+          await enviarCorreo(parsed.data.email, plantilla);
+          confirmar = true;
+        }
       } catch (err) {
         console.error("[agenda] confirmación falló (no fatal):", err);
       }
@@ -122,5 +127,5 @@ export async function POST(req: Request) {
     );
   }
 
-  return NextResponse.json({ ok: true, respaldados: parsed.data.items.length });
+  return NextResponse.json({ ok: true, respaldados: parsed.data.items.length, confirmar });
 }

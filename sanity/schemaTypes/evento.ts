@@ -75,6 +75,12 @@ export const evento = defineType({
       fields: [
         defineField({ name: "alt", title: "Texto alternativo", type: "string" }),
       ],
+      validation: (rule) =>
+        rule.custom((img?: { asset?: unknown; alt?: string }) =>
+          img?.asset && !img.alt
+            ? "Agregá el texto alternativo de la imagen (accesibilidad y SEO)."
+            : true
+        ).warning(),
     }),
     defineField({
       name: "enlace",
@@ -112,8 +118,28 @@ export const evento = defineType({
       name: "inicioAsc",
       by: [{ field: "inicio", direction: "asc" }],
     },
+    {
+      title: "Más recientes primero",
+      name: "inicioDesc",
+      by: [{ field: "inicio", direction: "desc" }],
+    },
   ],
   preview: {
-    select: { title: "title", subtitle: "lugar", media: "imagen" },
+    select: { title: "title", lugar: "lugar", inicio: "inicio", media: "imagen" },
+    prepare({ title, lugar, inicio, media }) {
+      const d = inicio ? new Date(inicio) : null;
+      const hoy = new Date().toDateString();
+      const esHoy = d && d.toDateString() === hoy;
+      const pasado = d && !esHoy && d.getTime() < Date.now();
+      const estado = esHoy ? "🔴 HOY" : pasado ? "✔ Pasado" : "📅 Próximo";
+      const dia = d
+        ? d.toLocaleDateString("es-CR", { weekday: "short", day: "numeric", month: "short" })
+        : "sin fecha";
+      return {
+        title,
+        subtitle: [estado, dia, lugar].filter(Boolean).join(" · "),
+        media,
+      };
+    },
   },
 });

@@ -53,6 +53,9 @@ export async function POST(req: NextRequest) {
   if (body?.vertical) marcar(`/${body.vertical}`);
 
   switch (body?._type) {
+    case "cronica":
+      if (body.slug) marcar(`/cronica/${body.slug}`);
+      break;
     case "evento":
       marcar("/agenda");
       if (body.slug) marcar(`/agenda/${body.slug}`);

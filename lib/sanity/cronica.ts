@@ -84,7 +84,7 @@ export async function getCronicasRelacionadas(
   if (!sanityConfigured) return [];
   try {
     const raw = await client.fetch<RawCronica[]>(
-      /* groq */ `*[_type == "cronica" && vertical == $vertical && _id != $excluirId] | order(fecha desc)[0...3]{
+      /* groq */ `*[_type == "cronica" && vertical == $vertical && _id != $excluirId && (!defined(fecha) || fecha <= now())] | order(fecha desc)[0...3]{
         _id, title, vertical, bajada, autor, formato, lecturaMin, imagen, "slug": slug.current
       }`,
       { vertical, excluirId },
@@ -104,7 +104,7 @@ export async function getCronicasParaSitemap(): Promise<
   if (!sanityConfigured) return [];
   try {
     const raw = await client.fetch<{ slug: string; fecha: string }[]>(
-      /* groq */ `*[_type == "cronica" && defined(slug.current)] | order(fecha desc)[0...100]{
+      /* groq */ `*[_type == "cronica" && defined(slug.current) && (!defined(fecha) || fecha <= now())] | order(fecha desc)[0...100]{
         "slug": slug.current, fecha
       }`,
       {},

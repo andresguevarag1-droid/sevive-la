@@ -13,6 +13,14 @@ export const dinamica = defineType({
   type: "document",
   fields: [
     defineField({
+      name: "activa",
+      title: "Activa (visible en el sitio)",
+      type: "boolean",
+      description:
+        "Interruptor de emergencia: apagalo para retirar la dinámica del sitio al instante, aunque no haya llegado su fecha de cierre.",
+      initialValue: true,
+    }),
+    defineField({
       name: "title",
       title: "Título",
       type: "string",
@@ -49,6 +57,12 @@ export const dinamica = defineType({
       fields: [
         defineField({ name: "alt", title: "Texto alternativo", type: "string" }),
       ],
+      validation: (rule) =>
+        rule.custom((img?: { asset?: unknown; alt?: string }) =>
+          img?.asset && !img.alt
+            ? "Agregá el texto alternativo de la imagen (accesibilidad y SEO)."
+            : true
+        ).warning(),
     }),
     defineField({
       name: "inicio",
@@ -101,6 +115,28 @@ export const dinamica = defineType({
     },
   ],
   preview: {
-    select: { title: "title", subtitle: "premio", media: "imagen" },
+    select: {
+      title: "title",
+      premio: "premio",
+      inicio: "inicio",
+      cierre: "cierre",
+      activa: "activa",
+      media: "imagen",
+    },
+    prepare({ title, premio, inicio, cierre, activa, media }) {
+      const ahora = Date.now();
+      const abierta =
+        (!inicio || new Date(inicio).getTime() <= ahora) &&
+        (!cierre || new Date(cierre).getTime() >= ahora);
+      const estado =
+        activa === false
+          ? "⏸ Pausada"
+          : inicio && new Date(inicio).getTime() > ahora
+            ? "🕑 Por abrir"
+            : abierta
+              ? "🟢 Abierta"
+              : "🔴 Cerrada";
+      return { title, subtitle: [estado, premio].filter(Boolean).join(" · "), media };
+    },
   },
 });

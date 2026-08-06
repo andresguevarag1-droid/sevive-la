@@ -31,7 +31,11 @@ export function Compartir({
     // y React no lo parchaba al hidratar.
     setUrl(`${location.origin}${pathname}`);
   }, [pathname]);
-  const mensaje = `${titulo} — ${frase}: ${url}`;
+  // Cada link compartido viaja con su origen: cuando alguien llega por un
+  // link de WhatsApp, el panel lo sabe (utm_source=compartir).
+  const urlCon = (metodo: string) =>
+    url ? `${url}${url.includes("?") ? "&" : "?"}utm_source=compartir&utm_medium=${metodo}` : url;
+  const mensaje = `${titulo} — ${frase}: ${urlCon("whatsapp")}`;
   // Pastillas en lila de marca con letra blanca (mismo tratamiento que el
   // kicker y el CTA de campaña), cada una con su icono.
   const pill =
@@ -61,7 +65,7 @@ export function Compartir({
           onClick={async () => {
             track("share_click", { metodo: "copiar", path: pathname ?? "" });
             try {
-              await navigator.clipboard.writeText(url);
+              await navigator.clipboard.writeText(urlCon("copiar"));
               setCopiado(true);
               setTimeout(() => setCopiado(false), 2000);
             } catch {
@@ -87,7 +91,7 @@ export function Compartir({
             type="button"
             onClick={() => {
               track("share_click", { metodo: "nativo", path: pathname ?? "" });
-              navigator.share({ title: titulo, url }).catch(() => {});
+              navigator.share({ title: titulo, url: urlCon("nativo") }).catch(() => {});
             }}
             className={pill}
           >

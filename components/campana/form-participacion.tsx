@@ -16,8 +16,9 @@ import {
 } from "@/lib/validation/client";
 import { TurnstileWidget } from "@/components/turnstile";
 import { InstagramIcon } from "@/components/icons";
+import { ConsentText } from "@/components/consent-text";
 import { track } from "@/lib/analytics/track";
-import { getAttribution } from "@/lib/analytics/attribution";
+import { utmEnvio } from "@/lib/analytics/utm-client";
 
 type ErrorCampo = { campo: string; mensaje: string };
 
@@ -209,7 +210,7 @@ export function FormParticipacion({
           turnstileToken,
           website: honeypot,
           // Atribución: los UTM de la URL actual pisan al first-touch guardado.
-          utm: { ...getAttribution(), ...(utm ?? {}) },
+          utm: { ...utmEnvio(), ...(utm ?? {}) },
         }),
       });
       const data = (await res.json().catch(() => null)) as
@@ -583,11 +584,7 @@ export function FormParticipacion({
           className="mt-0.5 h-5 w-5 shrink-0"
         />
         <span>
-          {consentDef.text}{" "}
-          <Link href="/legal/privacidad" className="underline">
-            Política de Privacidad
-          </Link>
-          .
+          <ConsentText text={consentDef.text} />
         </span>
       </label>
       <label className="mt-3 flex items-start gap-2.5 text-sm leading-relaxed text-muted">
@@ -618,7 +615,7 @@ export function FormParticipacion({
           ref={resumenRef}
           role="alert"
           tabIndex={-1}
-          className="mt-5 border-l-2 border-brand bg-paper px-4 py-3 outline-none"
+          className="mt-5 border-l-2 border-error bg-paper px-4 py-3 outline-none"
         >
           <p className="text-sm font-bold text-ink">
             Revisá {errores.length === 1 ? "este campo" : "estos campos"}:
@@ -626,7 +623,7 @@ export function FormParticipacion({
           <ul className="mt-1.5 space-y-1">
             {errores.map((f) => (
               <li key={f.campo}>
-                <a href={`#${f.campo}`} className="text-sm text-brand underline">
+                <a href={`#${f.campo}`} className="text-sm text-error underline">
                   {f.mensaje}
                 </a>
               </li>
@@ -636,7 +633,7 @@ export function FormParticipacion({
       ) : null}
 
       {status === "error" && error ? (
-        <p role="alert" className="mt-4 text-sm font-medium text-brand">
+        <p role="alert" className="mt-4 text-sm font-medium text-error">
           ⚠ {error}
         </p>
       ) : null}

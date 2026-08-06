@@ -19,10 +19,10 @@ import type { VerticalSlug } from "@/lib/site";
 
 /* ── Consulta única (una sola ida a Sanity) ── */
 const HOME_QUERY = /* groq */ `{
-  "portadas": *[_type == "cronica" && esPortada == true] | order(fecha desc)[0...5]{
+  "portadas": *[_type == "cronica" && esPortada == true && (!defined(fecha) || fecha <= now())] | order(fecha desc)[0...5]{
     _id, title, vertical, bajada, autor, formato, lecturaMin, imagen, "slug": slug.current
   },
-  "features": *[_type == "cronica" && destacada == true] | order(fecha desc)[0...3]{
+  "features": *[_type == "cronica" && destacada == true && (!defined(fecha) || fecha <= now())] | order(fecha desc)[0...3]{
     _id, title, vertical, bajada, autor, formato, lecturaMin, imagen, "slug": slug.current
   },
   "week": *[_type == "evento" && defined(inicio) && inicio >= $desde] | order(inicio asc)[0...6]{

@@ -10,7 +10,7 @@ import { NextResponse } from "next/server";
 import { subscribeSchema } from "@/lib/validation/subscribe";
 import { CONSENT_NEWSLETTER } from "@/lib/consent";
 import { getServiceClient } from "@/lib/supabase/server";
-import { upsertPerson, recordConsent } from "@/lib/server/capture";
+import { upsertPerson, recordConsent, saveAttribution } from "@/lib/server/capture";
 import { getClientIp, getUserAgent } from "@/lib/server/request-meta";
 import { checkRateLimit } from "@/lib/server/rate-limit";
 import { verifyTurnstile } from "@/lib/server/turnstile";
@@ -98,6 +98,8 @@ export async function POST(req: Request) {
       reactivateTo: dobleOptIn ? "pending" : "active",
     });
     await recordConsent(db, persona.id, CONSENT_NEWSLETTER, { ip, userAgent });
+    // Qué canal trajo a esta persona (el argumento de venta ante marcas).
+    await saveAttribution(db, persona.id, parsed.data.utm);
   } catch (err) {
     console.error("[subscribe] error guardando en Supabase:", err);
     return NextResponse.json(

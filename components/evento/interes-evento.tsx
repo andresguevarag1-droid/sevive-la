@@ -6,13 +6,13 @@
  * por evento (audiencia monetizable ante el organizador). Consentimiento
  * NO premarcado (Ley 8968); el servidor re-valida y registra todo.
  */
-import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { consentInteresEvento } from "@/lib/consent";
 import { isValidEmail } from "@/lib/validation/client";
 import { TurnstileWidget } from "@/components/turnstile";
+import { ConsentText } from "@/components/consent-text";
 import { track } from "@/lib/analytics/track";
-import { getAttribution } from "@/lib/analytics/attribution";
+import { utmEnvio } from "@/lib/analytics/utm-client";
 
 type Status = "idle" | "sending" | "ok" | "error";
 
@@ -33,6 +33,8 @@ export function InteresEvento({
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
   const [empezado, setEmpezado] = useState(false);
+  // El registro quedó pendiente de confirmar por correo (doble opt-in).
+  const [porConfirmar, setPorConfirmar] = useState(false);
 
   const consentDef = consentInteresEvento(slug);
 
@@ -71,14 +73,15 @@ export function InteresEvento({
           consent: true,
           turnstileToken,
           website: honeypot,
-          utm: getAttribution(),
+          utm: utmEnvio(),
         }),
       });
       const data = (await res.json().catch(() => null)) as
-        | { ok: boolean; error?: string }
+        | { ok: boolean; error?: string; confirmar?: boolean }
         | null;
       if (res.ok && data?.ok) {
         track("form_submit_success", { form: "interes_evento", event_slug: slug });
+        setPorConfirmar(Boolean(data.confirmar));
         setStatus("ok");
       } else {
         setStatus("error");
@@ -112,7 +115,9 @@ export function InteresEvento({
         <div className="mt-5">
           <p className="font-semibold text-ink">¡Listo! Quedaste en la lista.</p>
           <p className="mt-1 text-sm leading-relaxed text-muted">
-            Apenas haya noticias de la próxima edición, te escribimos.
+            {porConfirmar
+              ? "Te enviamos un correo: abrilo y confirmá que es tuyo para que el aviso te llegue."
+              : "Apenas haya noticias de la próxima edición, te escribimos."}
           </p>
         </div>
       ) : (
@@ -177,18 +182,14 @@ export function InteresEvento({
               className="mt-0.5 h-5 w-5 shrink-0"
             />
             <span>
-              {consentDef.text}{" "}
-              <Link href="/legal/privacidad" className="underline">
-                Política de Privacidad
-              </Link>
-              .
+              <ConsentText text={consentDef.text} />
             </span>
           </label>
 
           <TurnstileWidget onToken={setTurnstileToken} />
 
           {status === "error" && error ? (
-            <p role="alert" className="mt-4 text-sm font-medium text-ink">
+            <p role="alert" className="mt-4 text-sm font-medium text-error">
               ⚠ {error}
             </p>
           ) : null}

@@ -64,6 +64,12 @@ export const cronica = defineType({
           description: "Describe la imagen (accesibilidad y SEO).",
         }),
       ],
+      validation: (rule) =>
+        rule.custom((img?: { asset?: unknown; alt?: string }) =>
+          img?.asset && !img.alt
+            ? "Agregá el texto alternativo de la imagen (accesibilidad y SEO)."
+            : true
+        ).warning(),
     }),
     defineField({
       name: "cuerpo",
@@ -75,15 +81,17 @@ export const cronica = defineType({
       name: "fecha",
       title: "Fecha de publicación",
       type: "datetime",
+      description:
+        "Con fecha futura, la nota queda PROGRAMADA: se publica sola en el sitio cuando llegue esa hora.",
       initialValue: () => new Date().toISOString(),
       validation: (rule) => rule.required(),
     }),
     defineField({
       name: "esPortada",
-      title: "Nota líder de portada",
+      title: "En el carrusel de portada",
       type: "boolean",
       description:
-        "Marca UNA sola crónica como la nota principal del home. Si hay varias, se usa la más reciente.",
+        "Hasta 5 crónicas marcadas forman el carrusel de portada del home (las más recientes primero). De la sexta en adelante no aparecen.",
       initialValue: false,
     }),
     defineField({
@@ -102,6 +110,27 @@ export const cronica = defineType({
     },
   ],
   preview: {
-    select: { title: "title", subtitle: "vertical", media: "imagen" },
+    select: {
+      title: "title",
+      vertical: "vertical",
+      formato: "formato",
+      fecha: "fecha",
+      esPortada: "esPortada",
+      destacada: "destacada",
+      media: "imagen",
+    },
+    prepare({ title, vertical, formato, fecha, esPortada, destacada, media }) {
+      const programada = fecha && new Date(fecha).getTime() > Date.now();
+      const estado = programada ? "🕑 " : esPortada ? "⭐ " : destacada ? "✦ " : "";
+      const dia = fecha
+        ? new Date(fecha).toLocaleDateString("es-CR", { day: "numeric", month: "short" })
+        : "";
+      const partes = [
+        programada ? `programada · ${dia}` : dia,
+        formato,
+        vertical,
+      ].filter(Boolean);
+      return { title: `${estado}${title}`, subtitle: partes.join(" · "), media };
+    },
   },
 });

@@ -59,6 +59,14 @@ export const campana = defineType({
       type: "image",
       description:
         "Versión horizontal 1200×630 del arte. Es lo que se ve al pegar el link en IG/WhatsApp. Si falta, se usa el arte del flyer.",
+      fields: [
+        defineField({
+          name: "alt",
+          title: "Texto alternativo",
+          type: "string",
+          description: "Describe la imagen (accesibilidad y SEO).",
+        }),
+      ],
     }),
     defineField({
       name: "ctaTexto",

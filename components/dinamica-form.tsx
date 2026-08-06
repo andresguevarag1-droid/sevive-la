@@ -10,7 +10,9 @@ import { useState, type FormEvent } from "react";
 import { consentDinamica } from "@/lib/consent";
 import { isValidEmail, isValidPhone } from "@/lib/validation/client";
 import { TurnstileWidget } from "@/components/turnstile";
+import { ConsentText } from "@/components/consent-text";
 import { track } from "@/lib/analytics/track";
+import { utmEnvio } from "@/lib/analytics/utm-client";
 
 type Status = "idle" | "sending" | "ok" | "error";
 
@@ -79,6 +81,7 @@ export function DinamicaForm({
           consent: true,
           turnstileToken,
           website: honeypot,
+          utm: utmEnvio(),
         }),
       });
       const data = (await res.json().catch(() => null)) as
@@ -214,22 +217,14 @@ export function DinamicaForm({
           className="mt-0.5 h-5 w-5 shrink-0"
         />
         <span>
-          {consentDef.text}{" "}
-          <Link href="/legal/privacidad" className="underline">
-            Política de Privacidad
-          </Link>{" "}
-          ·{" "}
-          <Link href={`/legal/bases/${slug}`} className="underline">
-            Bases de la dinámica
-          </Link>
-          .
+          <ConsentText text={consentDef.text} basesHref={`/legal/bases/${slug}`} />
         </span>
       </label>
 
       <TurnstileWidget onToken={setTurnstileToken} />
 
       {status === "error" && error ? (
-        <p role="alert" className="mt-4 text-sm font-medium text-brand">
+        <p role="alert" className="mt-4 text-sm font-medium text-error">
           ⚠ {error}
         </p>
       ) : null}

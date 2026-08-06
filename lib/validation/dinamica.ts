@@ -3,6 +3,7 @@
  * El servidor SIEMPRE re-valida (regla dura del proyecto).
  */
 import { z } from "zod";
+import { utmSchema } from "@/lib/validation/utm";
 
 export const dinamicaEntrySchema = z.object({
   /** Slug de la dinámica (documento en Sanity + fila en `dynamics`). */
@@ -28,6 +29,8 @@ export const dinamicaEntrySchema = z.object({
   turnstileToken: z.string().optional(),
   /** Honeypot anti-bot: debe venir vacío. */
   website: z.literal("").optional(),
+  /** Atribución de origen (qué canal trajo a la persona). */
+  utm: utmSchema,
 });
 
 export type DinamicaEntryInput = z.infer<typeof dinamicaEntrySchema>;

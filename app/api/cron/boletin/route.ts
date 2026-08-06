@@ -57,7 +57,7 @@ async function armarContenido(): Promise<BoletinContenido> {
   if (sanityConfigured) {
     try {
       const raw = await client.fetch<{ title: string; slug: string }[]>(
-        /* groq */ `*[_type == "cronica"] | order(fecha desc)[0...3]{ title, "slug": slug.current }`
+        /* groq */ `*[_type == "cronica" && (!defined(fecha) || fecha <= now())] | order(fecha desc)[0...3]{ title, "slug": slug.current }`
       );
       cronicas = (raw ?? [])
         .filter((c) => c.slug)

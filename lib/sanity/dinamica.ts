@@ -72,7 +72,7 @@ export async function getDinamica(slug: string): Promise<Dinamica | null> {
   if (!sanityConfigured) return null;
   try {
     const raw = await client.fetch<RawDinamica | null>(
-      /* groq */ `*[_type == "dinamica" && slug.current == $slug][0]{ ${DINAMICA_FIELDS} }`,
+      /* groq */ `*[_type == "dinamica" && slug.current == $slug && activa != false][0]{ ${DINAMICA_FIELDS} }`,
       { slug },
       { next: { revalidate: 60 } }
     );
@@ -88,7 +88,7 @@ export async function getDinamicasAbiertas(): Promise<Dinamica[]> {
   if (!sanityConfigured) return [];
   try {
     const raw = await client.fetch<RawDinamica[]>(
-      /* groq */ `*[_type == "dinamica" && cierre >= now()] | order(cierre asc)[0...12]{ ${DINAMICA_FIELDS} }`,
+      /* groq */ `*[_type == "dinamica" && cierre >= now() && activa != false] | order(cierre asc)[0...12]{ ${DINAMICA_FIELDS} }`,
       {},
       { next: { revalidate: 60 } }
     );
