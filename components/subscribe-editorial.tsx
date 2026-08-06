@@ -13,12 +13,15 @@ import { useState, type FormEvent } from "react";
 import { CONSENT_NEWSLETTER } from "@/lib/consent";
 import { isValidEmail } from "@/lib/validation/client";
 import { TurnstileWidget } from "@/components/turnstile";
+import { verticalsVisibles } from "@/lib/site";
 
 type Status = "idle" | "sending" | "ok" | "error";
 
 export function SubscribeEditorial() {
   const [email, setEmail] = useState("");
   const [consent, setConsent] = useState(false);
+  // Segmentación desde el día uno: cada chip marcado es interés declarado.
+  const [intereses, setIntereses] = useState<string[]>([]);
   const [turnstileToken, setTurnstileToken] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
@@ -54,6 +57,7 @@ export function SubscribeEditorial() {
           turnstileToken,
           website: honeypot,
           utm: utmEnvio(),
+          intereses,
         }),
       });
       const data = (await res.json().catch(() => null)) as
@@ -155,6 +159,41 @@ export function SubscribeEditorial() {
                 aria-hidden="true"
                 className="absolute -left-[9999px] h-0 w-0 opacity-0"
               />
+
+              {/* Intereses (opcional): audiencia segmentada desde el alta —
+                  exactamente lo que se le vende a las marcas. */}
+              <fieldset className="mt-6">
+                <legend className="label text-paper/75">
+                  ¿Qué te interesa más? (opcional)
+                </legend>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {verticalsVisibles.map((v) => {
+                    const activo = intereses.includes(v.slug);
+                    return (
+                      <button
+                        key={v.slug}
+                        type="button"
+                        aria-pressed={activo}
+                        disabled={status === "sending"}
+                        onClick={() =>
+                          setIntereses((prev) =>
+                            prev.includes(v.slug)
+                              ? prev.filter((s) => s !== v.slug)
+                              : [...prev, v.slug]
+                          )
+                        }
+                        className={`chip pressable min-h-11 border transition-colors ${
+                          activo
+                            ? "border-paper bg-paper text-ink"
+                            : "border-paper/35 text-paper/75 hover:border-paper hover:text-paper"
+                        }`}
+                      >
+                        {v.name}
+                      </button>
+                    );
+                  })}
+                </div>
+              </fieldset>
 
               <label className="mt-5 flex items-start gap-2.5 text-sm text-paper/65">
                 <input

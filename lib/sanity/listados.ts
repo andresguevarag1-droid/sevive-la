@@ -112,6 +112,45 @@ type RawBeneficioFull = {
   slug?: string;
 };
 
+/**
+ * UN beneficio sugerido para el cierre de crónica: prefiere la vertical de
+ * la nota y cae a cualquiera vigente. Antes se traía la cuponera ENTERA
+ * para mostrar un solo cupón.
+ */
+export async function getBeneficioSugerido(
+  vertical: VerticalSlug
+): Promise<Beneficio | null> {
+  if (!sanityConfigured) return mockBeneficios[0] ?? null;
+  try {
+    const hoy = new Date().toISOString().slice(0, 10);
+    const raw = await client.fetch<RawBeneficioFull | null>(
+      /* groq */ `*[_type == "beneficio" && defined(slug.current) && (!defined(vigencia) || vigencia >= $hoy)]
+        | order(select(vertical == $vertical => 0, 1) asc, orden asc, _createdAt desc)[0]{
+        _id, title, vertical, marca, detalle, patrocinado, vigencia, cupoMaximo, imagen, "slug": slug.current
+      }`,
+      { hoy, vertical },
+      { next: { revalidate: 60 } }
+    );
+    if (!raw) return null;
+    return {
+      id: raw._id,
+      type: "promo" as const,
+      vertical: raw.vertical,
+      title: raw.title,
+      author: raw.marca,
+      meta: raw.detalle || "",
+      patrocinado: raw.patrocinado,
+      vigencia: raw.vigencia,
+      cupoMaximo: raw.cupoMaximo,
+      img: urlForImage(raw.imagen as Parameters<typeof urlForImage>[0], 600),
+      href: raw.slug ? `/promociones/${raw.slug}` : undefined,
+    };
+  } catch (err) {
+    console.error("[sanity] beneficio sugerido falló:", err);
+    return null;
+  }
+}
+
 export async function getBeneficiosTodos(): Promise<Beneficio[]> {
   if (!sanityConfigured) return mockBeneficios;
   try {
@@ -165,6 +204,7 @@ function hrefResultado(r: RawResultado): string | undefined {
   if (r._type === "evento" && r.slug) return `/agenda/${r.slug}`;
   if (r._type === "beneficio" && r.slug) return `/promociones/${r.slug}`;
   if (r._type === "reel" && r.videoUrl) return r.videoUrl;
+  if (r._type === "lugar" && r.slug) return `/lugares/${r.slug}`;
   return undefined;
 }
 

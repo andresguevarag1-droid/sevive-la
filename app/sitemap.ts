@@ -4,6 +4,7 @@ import { getDinamicasAbiertas } from "@/lib/sanity/dinamica";
 import { getCampanaActiva } from "@/lib/sanity/campana";
 import { getEventosProximos, getBeneficiosTodos } from "@/lib/sanity/listados";
 import { getCronicasParaSitemap } from "@/lib/sanity/cronica";
+import { getSlugsDeTipo } from "@/lib/sanity/slugs";
 
 /**
  * Sitemap: rutas estáticas + verticales + dinámicas abiertas.
@@ -33,12 +34,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   // Dinámicas abiertas (si Sanity falla, devuelve [] y el sitemap no revienta).
-  const [dinamicas, campana, eventos, cronicas, beneficios] = await Promise.all([
+  const [dinamicas, campana, eventos, cronicas, beneficios, lugares] = await Promise.all([
     getDinamicasAbiertas(),
     getCampanaActiva(),
     getEventosProximos(),
     getCronicasParaSitemap(),
     getBeneficiosTodos(),
+    getSlugsDeTipo("lugar"),
   ]);
   const deCronicas: MetadataRoute.Sitemap = cronicas.map((c) => ({
     url: `${site.url}/cronica/${c.slug}`,
@@ -79,6 +81,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ]
     : [];
 
+  // SEO local: cada lugar con página propia también se indexa.
+  const deLugares: MetadataRoute.Sitemap = lugares.map((l) => ({
+    url: `${site.url}/lugares/${l.slug}`,
+    changeFrequency: "monthly",
+    priority: 0.6,
+  }));
+
   return [
     ...estaticas,
     ...deBeneficios,
@@ -87,5 +96,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...deCampana,
     ...deEventos,
     ...deCronicas,
+    ...deLugares,
   ];
 }

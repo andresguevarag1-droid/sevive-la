@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { verificarFirma } from "@/lib/server/email";
 
 export const metadata: Metadata = {
   title: "Confirmar baja",
@@ -17,13 +18,27 @@ export default async function ConfirmarBajaPage({
 }) {
   const { e, t, x } = await searchParams;
 
-  if (!e || !t) {
+  // Firma verificada ANTES de mostrar el botón: un token vencido o
+  // manipulado ya no invita a confirmar una baja que va a fallar.
+  let email: string | null = null;
+  try {
+    email = e ? Buffer.from(e, "base64url").toString("utf8").toLowerCase() : null;
+  } catch {
+    email = null;
+  }
+  const valido = Boolean(email && t && verificarFirma(email!, t!, "baja", x ?? null));
+
+  if (!valido) {
     return (
       <section className="mx-auto max-w-2xl px-4 py-16 text-center md:py-24">
-        <p className="label text-faint">Enlace incompleto</p>
+        <p className="label text-faint">Enlace no válido</p>
         <h1 className="mx-auto mt-3 max-w-lg text-3xl">
-          Este enlace de baja no es válido.
+          Este enlace de baja venció o no es válido.
         </h1>
+        <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted">
+          Usá el enlace de baja del correo más reciente que te enviamos, o
+          escribinos y lo resolvemos al toque.
+        </p>
         <Link href="/" className="label mt-6 inline-block text-brand underline">
           Volver a la portada
         </Link>

@@ -10,7 +10,13 @@ import { NextResponse } from "next/server";
 import { subscribeSchema } from "@/lib/validation/subscribe";
 import { CONSENT_NEWSLETTER } from "@/lib/consent";
 import { getServiceClient } from "@/lib/supabase/server";
-import { upsertPerson, recordConsent, saveAttribution } from "@/lib/server/capture";
+import {
+  upsertPerson,
+  recordConsent,
+  saveAttribution,
+  declareInterest,
+} from "@/lib/server/capture";
+import { verticals } from "@/lib/site";
 import { getClientIp, getUserAgent } from "@/lib/server/request-meta";
 import { checkRateLimit } from "@/lib/server/rate-limit";
 import { verifyTurnstile } from "@/lib/server/turnstile";
@@ -100,6 +106,14 @@ export async function POST(req: Request) {
     await recordConsent(db, persona.id, CONSENT_NEWSLETTER, { ip, userAgent });
     // Qué canal trajo a esta persona (el argumento de venta ante marcas).
     await saveAttribution(db, persona.id, parsed.data.utm);
+    // Chips marcados al suscribirse = interés declarado (peso máximo),
+    // filtrados contra la lista real de verticales.
+    const validas = new Set(verticals.map((v) => v.slug));
+    for (const s of parsed.data.intereses ?? []) {
+      if (validas.has(s as (typeof verticals)[number]["slug"])) {
+        await declareInterest(db, persona.id, s);
+      }
+    }
   } catch (err) {
     console.error("[subscribe] error guardando en Supabase:", err);
     return NextResponse.json(

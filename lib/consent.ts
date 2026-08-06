@@ -52,12 +52,19 @@ export const CONSENT_AGENDA: ConsentDefinition = {
   text: "Acepto que SeViveLa trate mis datos personales (correo electrónico y mis eventos guardados) para respaldar mi agenda y avisarme sobre esos planes, según su Política de Privacidad. Puedo darme de baja en cualquier momento.",
 };
 
-/** Consentimiento de interés en la próxima edición de un evento (desde la
- *  página del evento pasado o desde una crónica de cobertura). */
+/** Consentimiento de interés en un evento: próxima edición (evento pasado o
+ *  crónica de cobertura) o novedades (evento futuro, lista de aviso). */
 export function consentInteresEvento(
   slug: string,
-  tipo: "evento" | "cronica" = "evento"
+  tipo: "evento" | "cronica" | "proximo" = "evento"
 ): ConsentDefinition {
+  if (tipo === "proximo") {
+    return {
+      purpose: `evento-proximo:${slug}`,
+      version: "2026-08-06.v1",
+      text: "Acepto que SeViveLa trate mis datos personales (correo electrónico y nombre) para avisarme novedades de este evento y planes similares, según su Política de Privacidad. Puedo darme de baja en cualquier momento.",
+    };
+  }
   return {
     purpose: `${tipo}:${slug}`,
     version: "2026-08-04.v1",

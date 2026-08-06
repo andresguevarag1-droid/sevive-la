@@ -21,6 +21,8 @@ export const lugar = defineType({
       title: "Slug (URL)",
       type: "slug",
       options: { source: "title", maxLength: 96 },
+      description: "La página del lugar queda en /lugares/<slug>.",
+      validation: (rule) => rule.required(),
     }),
     verticalField(),
     defineField({

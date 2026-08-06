@@ -95,10 +95,14 @@ export async function POST(req: Request) {
       source: "interes-evento",
       initialStatus: "pending",
     });
+    // Evento con fecha futura = lista de aviso de novedades (waitlist);
+    // pasado o crónica = interés en la próxima edición.
+    const futuro =
+      evento && evento.inicio && new Date(evento.inicio).getTime() > Date.now();
     await recordConsent(
       db,
       persona.id,
-      consentInteresEvento(pieza.slug, evento ? "evento" : "cronica"),
+      consentInteresEvento(pieza.slug, futuro ? "proximo" : evento ? "evento" : "cronica"),
       { ip, userAgent }
     );
     // Sin confirmación la persona queda 'pending' para siempre (los crons

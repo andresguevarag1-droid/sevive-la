@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getSlugsDeTipo } from "@/lib/sanity/slugs";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { PortableText, type PortableTextComponents } from "@portabletext/react";
@@ -18,6 +19,11 @@ import { InteresEvento } from "@/components/evento/interes-evento";
 type Params = { slug: string };
 
 export const revalidate = 300;
+
+// Prerender de los slugs publicados; los nuevos caen a on-demand (ISR).
+export async function generateStaticParams() {
+  return getSlugsDeTipo("cronica");
+}
 
 /** "3 de agosto de 2026" en hora de Costa Rica. */
 function fmtFecha(iso: string): string {

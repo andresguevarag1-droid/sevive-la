@@ -43,7 +43,7 @@ const VERTICAL_QUERY = /* groq */ `{
     _id, title, vertical, marca, detalle, patrocinado, vigencia, cupoMaximo, imagen, "slug": slug.current
   },
   "lugares": *[_type == "lugar" && vertical == $vertical] | order(_createdAt desc)[0...6]{
-    _id, title, vertical, ubicacion, imagen
+    _id, title, vertical, ubicacion, imagen, "slug": slug.current
   }
 }`;
 
@@ -53,6 +53,7 @@ type RawLugar = {
   vertical: VerticalSlug;
   ubicacion?: string;
   imagen?: SanityImage;
+  slug?: string;
 };
 
 type RawVertical = {
@@ -71,6 +72,8 @@ function lugarToStory(l: RawLugar): Story {
     title: l.title,
     meta: l.ubicacion || "",
     img: urlForImage(l.imagen, 800),
+    // Antes la tarjeta caía en la misma página de vertical (link circular).
+    href: l.slug ? `/lugares/${l.slug}` : undefined,
   };
 }
 

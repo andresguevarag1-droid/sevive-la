@@ -5,7 +5,7 @@
  * fecha tipo calendario, guardado directo y link al detalle. Todo medido.
  */
 import Link from "next/link";
-import { getEventosProximos, getBeneficiosTodos } from "@/lib/sanity/listados";
+import { getEventosProximos, getBeneficioSugerido } from "@/lib/sanity/listados";
 import type { EventoAgenda } from "@/lib/sanity/listados";
 import type { VerticalSlug } from "@/lib/site";
 import { CategoryLabel } from "@/components/kicker";
@@ -57,9 +57,11 @@ export async function SeguiExplorando({
   bajada?: string;
   vertical: VerticalSlug;
 }) {
-  const [eventos, beneficios] = await Promise.all([
+  // Eventos completos (la afinidad temática necesita la lista) + UN solo
+  // beneficio elegido en la consulta (antes venía la cuponera entera).
+  const [eventos, sugerido] = await Promise.all([
     getEventosProximos(),
-    getBeneficiosTodos(),
+    getBeneficioSugerido(vertical),
   ]);
 
   // Evento: primero por afinidad temática; si no hay, el próximo de la vertical.
@@ -73,11 +75,8 @@ export async function SeguiExplorando({
       ? porAfinidad.e
       : (conHref.find((e) => e.vertical === vertical) ?? conHref[0]);
 
-  const beneficio = beneficios
-    .filter((b) => b.href)
-    .sort((a, b) => (a.vertical === vertical ? -1 : 0) - (b.vertical === vertical ? -1 : 0))
-    .slice(0, 1)
-    .map((b) => ({ ...b, sponsored: b.patrocinado }));
+  const beneficio =
+    sugerido && sugerido.href ? [{ ...sugerido, sponsored: sugerido.patrocinado }] : [];
 
   if (!evento && beneficio.length === 0) return null;
 

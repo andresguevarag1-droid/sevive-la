@@ -29,9 +29,8 @@ export async function GET(req: NextRequest) {
   const irA = (path: string) =>
     NextResponse.redirect(new URL(path, req.nextUrl.origin), 303);
 
-  const { allowed } = await checkRateLimit("baja", getClientIp(req));
-  if (!allowed) return irA("/baja?error=1");
-
+  // Sin rate-limit en el GET: no muta nada (solo valida y redirige) y un
+  // escáner de links corporativo en ráfaga bloqueaba al usuario legítimo.
   const e = req.nextUrl.searchParams.get("e");
   const t = req.nextUrl.searchParams.get("t");
   const x = req.nextUrl.searchParams.get("x");
@@ -49,11 +48,22 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const irA = (path: string) =>
-    NextResponse.redirect(new URL(path, req.nextUrl.origin), 303);
+  // One-Click (RFC 8058): Gmail/Yahoo mandan los parámetros por query y
+  // esperan un 2xx, no un redirect. El formulario de la página manda los
+  // campos en el body y sí espera el 303 a /baja.
+  const oneClick = Boolean(
+    req.nextUrl.searchParams.get("e") && req.nextUrl.searchParams.get("t")
+  );
+  const responder = (ok: boolean) =>
+    oneClick
+      ? NextResponse.json({ ok }, { status: ok ? 200 : 400 })
+      : NextResponse.redirect(
+          new URL(ok ? "/baja" : "/baja?error=1", req.nextUrl.origin),
+          303
+        );
 
   const { allowed } = await checkRateLimit("baja", getClientIp(req));
-  if (!allowed) return irA("/baja?error=1");
+  if (!allowed) return responder(false);
 
   // Acepta los parámetros por query (One-Click) o por formulario (página).
   let e = req.nextUrl.searchParams.get("e");
@@ -72,11 +82,11 @@ export async function POST(req: NextRequest) {
 
   const email = decodificar(e);
   if (!email || !t || !verificarFirma(email, t, "baja", x)) {
-    return irA("/baja?error=1");
+    return responder(false);
   }
 
   const db = getServiceClient();
-  if (!db) return irA("/baja?error=1");
+  if (!db) return responder(false);
 
   const { error } = await db
     .from("people")
@@ -84,7 +94,7 @@ export async function POST(req: NextRequest) {
     .eq("email", email);
   if (error) {
     console.error("[baja] error dando de baja:", error);
-    return irA("/baja?error=1");
+    return responder(false);
   }
 
   try {
@@ -93,5 +103,5 @@ export async function POST(req: NextRequest) {
     console.error("[baja] audiencia Resend falló (no fatal):", err);
   }
 
-  return irA("/baja");
+  return responder(true);
 }

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getSlugsDeTipo } from "@/lib/sanity/slugs";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getBeneficio, beneficioVigente } from "@/lib/sanity/beneficio";
@@ -17,6 +18,11 @@ import { site } from "@/lib/site";
 type Params = { slug: string };
 
 export const revalidate = 60;
+
+// Prerender de los slugs publicados; los nuevos caen a on-demand (ISR).
+export async function generateStaticParams() {
+  return getSlugsDeTipo("beneficio");
+}
 
 /** "martes 5 de agosto" en hora CR (la fecha cruda no se le muestra a nadie). */
 function fmtVigencia(iso: string): string {

@@ -16,6 +16,9 @@ export const subscribeSchema = z.object({
   website: z.literal("").optional(),
   /** Atribución de origen (qué canal trajo a la persona). */
   utm: utmSchema,
+  /** Verticales de interés marcadas al suscribirse (segmentación). El
+   *  servidor las filtra contra la lista real de verticales. */
+  intereses: z.array(z.string().trim().max(40)).max(8).optional(),
 });
 
 export type SubscribeInput = z.infer<typeof subscribeSchema>;

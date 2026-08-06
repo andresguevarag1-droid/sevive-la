@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getSlugsDeTipo } from "@/lib/sanity/slugs";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { PortableText } from "@portabletext/react";
@@ -11,10 +12,16 @@ import { BotonesCalendario } from "@/components/evento/botones-calendario";
 import { InteresEvento } from "@/components/evento/interes-evento";
 import { JsonLd } from "@/components/json-ld";
 import { ArrowRightIcon } from "@/components/icons";
+import { getGuardadosPorEvento, MIN_PRUEBA_SOCIAL } from "@/lib/server/populares";
 
 type Params = { slug: string };
 
 export const revalidate = 300;
+
+// Prerender de los slugs publicados; los nuevos caen a on-demand (ISR).
+export async function generateStaticParams() {
+  return getSlugsDeTipo("evento");
+}
 
 /** "Viernes 14 de agosto, 20:00" (o sin hora), en hora de Costa Rica. */
 function fmtLargo(iso: string, conHora: boolean): string {
@@ -98,7 +105,12 @@ export default async function EventoPage({
   if (!e) notFound();
 
   const v = getVertical(e.vertical);
-  const relacionados = await getEventosRelacionados(e.vertical, e.id);
+  const [relacionados, guardados] = await Promise.all([
+    getEventosRelacionados(e.vertical, e.id),
+    getGuardadosPorEvento(),
+  ]);
+  // Prueba social: cuánta gente guardó este plan o pidió aviso.
+  const interesados = guardados.get(e.slug) ?? 0;
   const conHora = !e.horaPorConfirmar;
   const esRango = e.fin && !mismoDia(e.inicio, e.fin);
   const pasado = new Date(e.fin ?? e.inicio).getTime() < Date.now() - 12 * 60 * 60 * 1000;
@@ -183,6 +195,12 @@ export default async function EventoPage({
         {e.descripcion ? (
           <p className="measure mt-3 text-lg leading-relaxed text-muted">
             {e.descripcion}
+          </p>
+        ) : null}
+        {interesados >= MIN_PRUEBA_SOCIAL ? (
+          <p className="mt-3 inline-flex items-center gap-1.5 border-2 border-ink px-3 py-1 text-[13px] font-bold uppercase tracking-wide text-ink">
+            🔥 {new Intl.NumberFormat("es-CR").format(interesados)} personas ya
+            tienen este plan en su agenda
           </p>
         ) : null}
       </header>
@@ -298,7 +316,11 @@ export default async function EventoPage({
         /* Evento pasado → captura de interés para la próxima edición:
            leads segmentados por evento, monetizables ante el organizador. */
         <InteresEvento slug={e.slug} titulo={e.title} />
-      ) : null}
+      ) : (
+        /* Evento futuro → lista de aviso de novedades: el mismo lead,
+           capturado ANTES del evento (cuando más vale). */
+        <InteresEvento slug={e.slug} titulo={e.title} variante="proximo" />
+      )}
 
       {/* ── Detalle largo ── */}
       {e.cuerpo?.length ? (

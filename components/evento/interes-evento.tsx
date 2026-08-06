@@ -23,8 +23,9 @@ export function InteresEvento({
 }: {
   slug: string;
   titulo: string;
-  /** "evento": página de evento pasado · "cronica": cierre de cobertura. */
-  variante?: "evento" | "cronica";
+  /** "evento": evento pasado · "cronica": cierre de cobertura ·
+   *  "proximo": evento futuro (lista de aviso de novedades). */
+  variante?: "evento" | "cronica" | "proximo";
 }) {
   const [email, setEmail] = useState("");
   const [nombre, setNombre] = useState("");
@@ -36,7 +37,9 @@ export function InteresEvento({
   // El registro quedó pendiente de confirmar por correo (doble opt-in).
   const [porConfirmar, setPorConfirmar] = useState(false);
 
-  const consentDef = consentInteresEvento(slug);
+  // El texto legal cambia según el caso (novedades vs. próxima edición);
+  // el servidor registra el suyo con la misma lógica.
+  const consentDef = consentInteresEvento(slug, variante === "proximo" ? "proximo" : "evento");
 
   function marcarInicio() {
     if (empezado) return;
@@ -96,16 +99,23 @@ export function InteresEvento({
   return (
     <div className="card mt-6 px-5 py-6 md:px-7">
       <p className="label text-faint">
-        {variante === "evento" ? "Este evento ya pasó" : "La próxima edición"}
+        {variante === "evento"
+          ? "Este evento ya pasó"
+          : variante === "proximo"
+            ? "No te lo perdás"
+            : "La próxima edición"}
       </p>
       <h2 className="mt-2 text-xl font-bold tracking-tight leading-snug text-ink">
         {variante === "evento"
           ? "¿Te lo perdiste? Te aviso de la próxima edición."
-          : "¿Querés que te avise cuando vuelva?"}
+          : variante === "proximo"
+            ? "Te aviso si hay novedades de este evento."
+            : "¿Querés que te avise cuando vuelva?"}
       </h2>
       <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted">
-        Dejá tu correo y cuando se anuncie la próxima edición de {titulo} —o un
-        plan parecido— te llega primero a vos.
+        {variante === "proximo"
+          ? `Cambios de fecha, entradas o avisos de última hora de ${titulo}: te escribimos solo si hay algo que valga la pena.`
+          : `Dejá tu correo y cuando se anuncie la próxima edición de ${titulo} —o un plan parecido— te llega primero a vos.`}
       </p>
 
       <p aria-live="polite" className="sr-only">
@@ -117,7 +127,9 @@ export function InteresEvento({
           <p className="mt-1 text-sm leading-relaxed text-muted">
             {porConfirmar
               ? "Te enviamos un correo: abrilo y confirmá que es tuyo para que el aviso te llegue."
-              : "Apenas haya noticias de la próxima edición, te escribimos."}
+              : variante === "proximo"
+                ? "Apenas haya novedades del evento, te escribimos."
+                : "Apenas haya noticias de la próxima edición, te escribimos."}
           </p>
         </div>
       ) : (

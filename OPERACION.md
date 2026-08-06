@@ -71,7 +71,10 @@ o 503 (falla). Montá el monitor gratis:
 ## 🔑 Recordatorios de seguridad
 
 - Migraciones pendientes de aplicar en Supabase (SQL Editor, en orden):
-  `0008_agenda_respaldo.sql` y `0009_recordatorios.sql`.
+  `0008_agenda_respaldo.sql`, `0009_recordatorios.sql` y
+  `0010_marcas_y_atribucion.sql` (leads del formulario "Para marcas" +
+  columna de atribución de personas; sin ella el sitio funciona igual,
+  solo avisa por logs y no guarda esos dos datos).
 - `ADMIN_PANEL_KEY` en Vercel para el panel (`/admin/datos` y `/admin/locales`).
 - `SENTRY_DSN` cuando abras la cuenta (el código ya está listo).
 - Rotar/borrar el token de escritura de Sanity al terminar las siembras.
