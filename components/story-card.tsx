@@ -9,7 +9,7 @@ export function StoryCard({ story }: { story: Story }) {
   return (
     <article>
       <Link href={href} className="imgzoom block">
-        <EditorialImage src={story.img} alt={story.title} ratio="3 / 2" />
+        <EditorialImage src={story.img} alt="" ratio="3 / 2" sizes="(min-width: 768px) 33vw, 100vw" />
       </Link>
       <div className="pt-3.5">
         <CategoryLabel vertical={story.vertical} type={story.type} />

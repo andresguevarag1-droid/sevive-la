@@ -5,7 +5,7 @@
  * Estados: idle → sending → ok | error. Al emitir, redirige a /mi-cupon/<code>.
  */
 import { track } from "@/lib/analytics/track";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { consentBeneficio } from "@/lib/consent";
@@ -15,6 +15,16 @@ import { TurnstileWidget } from "@/components/turnstile";
 type Status = "idle" | "sending" | "ok" | "error";
 
 export function FormCupon({ benefitSlug }: { benefitSlug: string }) {
+  const [miCodigo, setMiCodigo] = useState<string | null>(null);
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("sv_cupones");
+      const mios = raw ? (JSON.parse(raw) as Record<string, string>) : {};
+      setMiCodigo(mios?.[benefitSlug] ?? null);
+    } catch {
+      /* sin memoria local */
+    }
+  }, [benefitSlug]);
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [consent, setConsent] = useState(false);
@@ -79,6 +89,25 @@ export function FormCupon({ benefitSlug }: { benefitSlug: string }) {
       setStatus("error");
       setError("Sin conexión. Revisá tu red e intentá de nuevo.");
     }
+  }
+
+  // Ya reclamado en este dispositivo → directo al QR, sin re-pedir correo.
+  if (miCodigo) {
+    return (
+      <div className="card px-6 py-8 text-center md:px-10">
+        <p className="label text-brand">Ya tenés este cupón</p>
+        <h2 className="mx-auto mt-2 max-w-md text-2xl">
+          Tu cupón está listo para usarse.
+        </h2>
+        <Link
+          href={`/mi-cupon/${miCodigo}`}
+          className="pressable mt-6 inline-block bg-brand px-6 py-3 text-sm font-bold uppercase tracking-wide text-brand-ink transition-colors hover:bg-brand-hover"
+        >
+          Ver mi cupón (con QR)
+        </Link>
+        <p className="label mt-3 text-faint">Un cupón por persona · Un solo uso</p>
+      </div>
+    );
   }
 
   return (

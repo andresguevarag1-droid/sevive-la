@@ -3,7 +3,7 @@
  * Devuelve null si no existe o Sanity falla (→ 404 en la página).
  */
 import "server-only";
-import type { PortableTextBlock } from "next-sanity";
+import type { PortableTextBlock } from "@portabletext/types";
 import { client } from "@/sanity/lib/client";
 import { sanityConfigured } from "@/sanity/env";
 import { urlForImage } from "@/sanity/lib/image";

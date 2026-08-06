@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getEventosProximos, type EventoAgenda } from "@/lib/sanity/listados";
 import { verticalsVisibles, type VerticalSlug } from "@/lib/site";
-import { verticalColor } from "@/lib/content";
+import { verticalColor, verticalColorTexto } from "@/lib/content";
 import { CategoryLabel } from "@/components/kicker";
 import { CorazonGuardar } from "@/components/agenda/corazon-guardar";
 import { BoletinAgenda } from "@/components/agenda/boletin-agenda";
@@ -152,6 +152,7 @@ export default async function AgendaPage({
             "@context": "https://schema.org",
             "@type": "ItemList",
             name: "Agenda de eventos en Costa Rica",
+            inLanguage: site.locale,
             itemListElement: conFecha.slice(0, 20).map((e, i) => ({
               "@type": "ListItem",
               position: i + 1,
@@ -160,14 +161,13 @@ export default async function AgendaPage({
                 name: e.title,
                 startDate: e.inicio,
                 eventStatus: "https://schema.org/EventScheduled",
-                location: e.lugarNombre
-                  ? {
-                      "@type": "Place",
-                      name: e.lugarNombre,
-                      address: { "@type": "PostalAddress", addressCountry: "CR" },
-                    }
-                  : undefined,
+                location: {
+                  "@type": "Place",
+                  name: e.lugarNombre ?? "Costa Rica",
+                  address: { "@type": "PostalAddress", addressCountry: "CR" },
+                },
                 organizer: { "@type": "Organization", name: site.name, url: site.url },
+                ...(e.href ? { url: `${site.url}${e.href}` } : {}),
               },
             })),
           }}
@@ -241,7 +241,12 @@ export default async function AgendaPage({
                 className="chip pressable inline-flex items-center gap-2 border"
                 style={
                   activo
-                    ? { borderColor: color, color, borderWidth: 2, fontWeight: 700 }
+                    ? {
+                        borderColor: color,
+                        color: verticalColorTexto(vert.slug),
+                        borderWidth: 2,
+                        fontWeight: 700,
+                      }
                     : { borderColor: "var(--color-rule)", color: "var(--color-muted)" }
                 }
               >
@@ -260,7 +265,7 @@ export default async function AgendaPage({
         {diasConEventos.length > 2 ? (
           <nav
             aria-label="Ir a un día"
-            className="sticky top-0 z-30 -mx-4 mt-6 overflow-x-auto border-b border-rule bg-paper px-4 py-2.5"
+            className="sticky top-[41px] z-30 -mx-4 mt-6 overflow-x-auto border-b border-rule bg-paper px-4 py-2.5"
           >
             <div className="flex w-max items-center gap-2">
               {diasConEventos.slice(0, 14).map((dia) => {
@@ -336,7 +341,7 @@ export default async function AgendaPage({
               <section
                 key={dia}
                 id={esEnCurso || dia === "proximamente" ? undefined : `d-${dia}`}
-                className="mb-12 grid scroll-mt-16 gap-2 md:grid-cols-[128px_1fr] md:gap-10"
+                className="mb-12 grid scroll-mt-28 gap-2 md:grid-cols-[128px_1fr] md:gap-10"
               >
                 {/* ── Bloque de fecha, calendario de pared ── */}
                 <h2

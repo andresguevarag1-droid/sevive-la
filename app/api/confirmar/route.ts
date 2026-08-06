@@ -26,6 +26,7 @@ export async function GET(req: NextRequest) {
 
   const e = req.nextUrl.searchParams.get("e");
   const t = req.nextUrl.searchParams.get("t");
+  const x = req.nextUrl.searchParams.get("x");
   if (!e || !t) return irA("/confirmado?error=1");
 
   let email: string;
@@ -34,7 +35,7 @@ export async function GET(req: NextRequest) {
   } catch {
     return irA("/confirmado?error=1");
   }
-  if (!verificarFirma(email, t)) return irA("/confirmado?error=1");
+  if (!verificarFirma(email, t, "confirmar", x)) return irA("/confirmado?error=1");
 
   const db = getServiceClient();
   if (!db) return irA("/confirmado?error=1");
@@ -50,7 +51,7 @@ export async function GET(req: NextRequest) {
     return irA("/confirmado?error=1");
   }
 
-  // El link firmado no expira: si no había nada 'pending' (re-click, persona
+  // Si no había nada 'pending' (re-click, persona
   // ya activa o dada de baja), NO se reenvía nada ni se toca la audiencia.
   const activada = (activadas?.length ?? 0) > 0;
 

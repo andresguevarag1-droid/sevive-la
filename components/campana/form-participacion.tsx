@@ -135,7 +135,7 @@ export function FormParticipacion({
     const alVolver = () => {
       if (document.visibilityState === "visible") consultar();
     };
-    const intervalo = setInterval(consultar, 30000);
+    const intervalo = setInterval(() => { if (document.visibilityState === "visible") consultar(); }, 30000);
     document.addEventListener("visibilitychange", alVolver);
     return () => {
       cancelado = true;

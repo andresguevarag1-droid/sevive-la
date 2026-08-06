@@ -4,9 +4,10 @@
  * un mapa vacío y las tarjetas se dibujan sin números (nada revienta).
  */
 import "server-only";
+import { cache } from "react";
 import { getServiceClient } from "@/lib/supabase/server";
 
-export async function getEmitidosPorBeneficio(): Promise<Map<string, number>> {
+export const getEmitidosPorBeneficio = cache(async (): Promise<Map<string, number>> => {
   const mapa = new Map<string, number>();
   const db = getServiceClient();
   if (!db) return mapa;
@@ -22,4 +23,4 @@ export async function getEmitidosPorBeneficio(): Promise<Map<string, number>> {
     /* sin datos: tarjetas sin números */
   }
   return mapa;
-}
+});

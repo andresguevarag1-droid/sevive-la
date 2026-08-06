@@ -36,7 +36,7 @@ export function BotonesCalendario({
   // Pastillas en lila de marca con letra blanca e icono (mismo tratamiento
   // que los botones de compartir de las crónicas).
   const pill =
-    "pressable inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-lilac px-5 py-2.5 text-sm font-bold text-white shadow-[0_10px_24px_-10px_rgba(26,21,38,0.45)] transition-[filter] duration-200 hover:brightness-110";
+    "pressable inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-lilac px-5 py-2.5 text-sm font-bold text-ink shadow-[0_10px_24px_-10px_rgba(26,21,38,0.45)] transition-[filter] duration-200 hover:brightness-110";
 
   const iconoCalendario = (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>

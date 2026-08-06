@@ -51,6 +51,10 @@ export async function GET() {
   const critico = Object.values(checks).includes("fallo");
   return NextResponse.json(
     { ok: !critico, checks, ts: new Date().toISOString() },
-    { status: critico ? 503 : 200 }
+    {
+      status: critico ? 503 : 200,
+      // 30 s de caché compartida: el monitor no amplifica carga a Sanity/Supabase.
+      headers: { "Cache-Control": "public, max-age=0, s-maxage=30" },
+    }
   );
 }

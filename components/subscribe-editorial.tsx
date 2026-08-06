@@ -94,9 +94,14 @@ export function SubscribeEditorial() {
             redacción. Sin relleno.
           </p>
 
+          {/* Región viva persistente: existe ANTES del éxito, así el lector
+              de pantalla sí anuncia el cambio. */}
+          <p aria-live="polite" className="sr-only">
+            {status === "ok" ? "Suscripción registrada con éxito." : ""}
+          </p>
           {status === "ok" ? (
             /* ── Estado de éxito ── */
-            <div aria-live="polite" className="mt-8">
+            <div className="mt-8">
               <p className="text-xl font-medium text-paper">
                 {porConfirmar
                   ? "Un paso más: revisá tu correo."
@@ -116,7 +121,7 @@ export function SubscribeEditorial() {
             >
               <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
                 <label className="flex-1">
-                  <span className="label text-paper/50">Correo</span>
+                  <span className="label text-paper/75">Correo</span>
                   <input
                     type="email"
                     name="email"
@@ -127,7 +132,7 @@ export function SubscribeEditorial() {
                     autoComplete="email"
                     aria-label="Correo electrónico"
                     disabled={status === "sending"}
-                    className="mt-2 w-full border-b border-paper/30 bg-transparent pb-2 text-paper outline-none placeholder:text-paper/40 focus:border-paper disabled:opacity-60"
+                    className="mt-2 w-full border-b border-paper/30 bg-transparent pb-2 text-paper outline-none placeholder:text-paper/55 focus:border-paper disabled:opacity-60"
                   />
                 </label>
                 <button

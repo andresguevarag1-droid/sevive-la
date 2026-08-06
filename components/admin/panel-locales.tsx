@@ -55,7 +55,7 @@ export function PanelLocales() {
 
   useEffect(() => {
     try {
-      const guardada = localStorage.getItem(CLAVE_ADMIN);
+      const guardada = sessionStorage.getItem(CLAVE_ADMIN);
       if (guardada) {
         setClave(guardada);
         setClaveLista(true);
@@ -76,7 +76,7 @@ export function PanelLocales() {
         const data = await res.json().catch(() => null);
         if (res.status === 401) {
           try {
-            localStorage.removeItem(CLAVE_ADMIN);
+            sessionStorage.removeItem(CLAVE_ADMIN);
           } catch {
             /* nada */
           }
@@ -89,7 +89,7 @@ export function PanelLocales() {
           return;
         }
         try {
-          localStorage.setItem(CLAVE_ADMIN, k);
+          sessionStorage.setItem(CLAVE_ADMIN, k);
         } catch {
           /* nada */
         }
@@ -246,7 +246,7 @@ export function PanelLocales() {
           type="button"
           onClick={() => {
             try {
-              localStorage.removeItem(CLAVE_ADMIN);
+              sessionStorage.removeItem(CLAVE_ADMIN);
             } catch {
               /* nada */
             }

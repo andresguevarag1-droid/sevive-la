@@ -8,7 +8,7 @@ import type { NextConfig } from "next";
 const CSP = [
   "default-src 'self'",
   // Next inyecta estilos/scripts inline; PostHog, Turnstile y Vercel Insights son los únicos terceros.
-  "script-src 'self' 'unsafe-inline' https://*.posthog.com https://challenges.cloudflare.com https://va.vercel-scripts.com",
+  "frame-ancestors 'self'; script-src 'self' 'unsafe-inline' https://*.posthog.com https://challenges.cloudflare.com https://va.vercel-scripts.com",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' https://cdn.sanity.io data: blob:",
   "font-src 'self'",
@@ -25,10 +25,28 @@ const securityHeaders = [
   { key: "X-Frame-Options", value: "SAMEORIGIN" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
-  { key: "Content-Security-Policy-Report-Only", value: CSP },
+  { key: "Content-Security-Policy", value: CSP },
 ];
 
+/**
+ * Día de la migración a sevive.la: poner MIGRAR_DOMINIO=1 en Vercel y
+ * redeployar — todo el tráfico de *.vercel.app salta 308 al dominio final.
+ * Antes de eso, la variable no existe y no se emite ningún redirect.
+ */
+const redirectsDominio = async () =>
+  process.env.MIGRAR_DOMINIO === "1"
+    ? [
+        {
+          source: "/:path*",
+          has: [{ type: "host" as const, value: "sevive-la.vercel.app" }],
+          destination: "https://sevive.la/:path*",
+          permanent: true,
+        },
+      ]
+    : [];
+
 const nextConfig: NextConfig = {
+  redirects: redirectsDominio,
   // Garantiza que las fuentes/logo de la og:image viajen en el bundle serverless.
   outputFileTracingIncludes: {
     "/opengraph-image": ["./app/og/*.ttf", "./public/logo.svg"],

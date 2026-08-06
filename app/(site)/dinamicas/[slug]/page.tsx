@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { PortableText } from "next-sanity";
+import { PortableText } from "@portabletext/react";
 import { getDinamica, estadoDinamica } from "@/lib/sanity/dinamica";
 import { getCampana } from "@/lib/sanity/campana";
 import { getVertical } from "@/lib/site";
@@ -42,7 +42,7 @@ export async function generateMetadata({
       openGraph: {
         title,
         description,
-        images: c.ogImage ? [{ url: c.ogImage }] : undefined,
+        ...(c.ogImage ? { images: [{ url: c.ogImage }] } : {}),
       },
       alternates: { canonical: `/dinamicas/${c.slug}` },
     };
@@ -57,7 +57,7 @@ export async function generateMetadata({
     openGraph: {
       title: d.title,
       description,
-      images: d.imagen ? [{ url: d.imagen }] : undefined,
+      ...(d.imagen ? { images: [{ url: d.imagen }] } : {}),
     },
     alternates: { canonical: `/dinamicas/${d.slug}` },
   };

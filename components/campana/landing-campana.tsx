@@ -68,7 +68,7 @@ export function CampanaLanding({
       >
         <div className="mx-auto grid max-w-4xl items-center gap-6 px-4 py-10 md:grid-cols-[1.4fr_1fr] md:py-12">
           <div>
-            <span className="label inline-block rounded-full bg-lilac px-3.5 py-1.5 text-white">
+            <span className="label inline-block rounded-full bg-lilac px-3.5 py-1.5 text-ink">
               Dinámica · Participá gratis
             </span>
             {/* Titular en mayúsculas y minúsculas, serif editorial */}

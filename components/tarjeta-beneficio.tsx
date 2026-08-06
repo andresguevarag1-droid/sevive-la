@@ -187,7 +187,10 @@ export function TarjetaBeneficio(d: DatosTarjeta) {
           ) : null}
 
           <div className="mt-1.5 flex flex-wrap items-center gap-x-2.5 gap-y-1">
-            <span className="label" style={{ color: d.color }}>
+            <span
+              className="label"
+              style={{ color: `color-mix(in srgb, ${d.color} 68%, var(--color-ink))` }}
+            >
               {d.verticalNombre}
             </span>
             {typeof d.emitidos === "number" && d.emitidos >= 3 ? (

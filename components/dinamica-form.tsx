@@ -32,6 +32,7 @@ export function DinamicaForm({
   const [turnstileToken, setTurnstileToken] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
+  const [repetido, setRepetido] = useState(false);
 
   const consentDef = consentDinamica(slug);
 
@@ -84,6 +85,7 @@ export function DinamicaForm({
         | { ok: boolean; error?: string; yaParticipaba?: boolean }
         | null;
       if (res.ok && data?.ok) {
+        setRepetido(Boolean(data.yaParticipaba));
         track("dynamic_entry_submit_success", { dynamic_slug: slug });
         setStatus("ok");
       } else {
@@ -103,14 +105,24 @@ export function DinamicaForm({
         aria-live="polite"
         className="card px-6 py-10 text-center md:px-10"
       >
-        <p className="label text-brand">Participación registrada</p>
+        <p className="label text-brand">
+          {repetido ? "Ya estabas participando" : "Participación registrada"}
+        </p>
         <h3 className="mx-auto mt-3 max-w-md text-2xl">
-          ¡Estás dentro! Mucha suerte.
+          {repetido
+            ? "Tu participación ya estaba registrada."
+            : "¡Estás dentro! Mucha suerte."}
         </h3>
         <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted">
           Si resultás ganador(a), te contactamos al correo que nos dejaste.
           Revisá las bases para fechas y condiciones.
         </p>
+        <Link
+          href="/agenda"
+          className="pressable mt-6 inline-block bg-brand px-6 py-3 text-sm font-semibold uppercase tracking-wide text-brand-ink transition-colors hover:bg-brand-hover"
+        >
+          Mientras tanto, mirá la agenda
+        </Link>
       </div>
     );
   }

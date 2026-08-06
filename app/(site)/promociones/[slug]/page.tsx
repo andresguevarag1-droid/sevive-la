@@ -57,7 +57,7 @@ export async function generateMetadata({
     openGraph: {
       title: `${b.title} · ${b.marca}`,
       description,
-      images: b.img ? [{ url: b.img }] : undefined,
+      ...(b.img ? { images: [{ url: b.img }] } : {}),
     },
     alternates: { canonical: `/promociones/${b.slug}` },
   };
@@ -123,19 +123,23 @@ export default async function BeneficioPage({
       <JsonLd
         data={{
           "@context": "https://schema.org",
-          "@type": "Offer",
+          "@type": "Product",
           name: b.title,
           description: b.detalle,
           url: `${site.url}/promociones/${b.slug}`,
-          inLanguage: site.locale,
-          image: b.img,
-          seller: { "@type": "Organization", name: b.marca },
-          offeredBy: { "@type": "Organization", name: site.name, url: site.url },
-          availability:
-            vigente && !agotado
-              ? "https://schema.org/InStock"
-              : "https://schema.org/SoldOut",
-          ...(b.vigencia ? { validThrough: `${b.vigencia}T23:59:59-06:00` } : {}),
+          ...(b.img ? { image: b.img } : {}),
+          brand: { "@type": "Brand", name: b.marca },
+          offers: {
+            "@type": "Offer",
+            url: `${site.url}/promociones/${b.slug}`,
+            price: "0",
+            priceCurrency: "CRC",
+            availability:
+              vigente && !agotado
+                ? "https://schema.org/InStock"
+                : "https://schema.org/SoldOut",
+            ...(b.vigencia ? { validThrough: `${b.vigencia}T23:59:59-06:00` } : {}),
+          },
         }}
       />
       <JsonLd

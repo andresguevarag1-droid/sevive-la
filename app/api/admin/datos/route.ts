@@ -33,11 +33,13 @@ export async function GET(req: Request) {
       { status: 503 }
     );
   }
+  // Rate-limit ANTES de evaluar la clave: los intentos fallidos también
+  // consumen cuota (anti fuerza bruta).
+  const { allowed } = await checkRateLimit("admin", getClientIp(req));
+  if (!allowed) return NextResponse.json({ ok: false, estado: "rate_limited" }, { status: 429 });
   if (!checkAdminKey(req)) {
     return NextResponse.json({ ok: false, estado: "clave_incorrecta" }, { status: 401 });
   }
-  const { allowed } = await checkRateLimit("admin", getClientIp(req));
-  if (!allowed) return NextResponse.json({ ok: false, estado: "rate_limited" }, { status: 429 });
 
   const db = getServiceClient();
   if (!db) {

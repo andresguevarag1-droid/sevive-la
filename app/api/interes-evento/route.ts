@@ -84,10 +84,13 @@ export async function POST(req: Request) {
   }
 
   try {
+    // Titularidad no verificada = 'pending': ningún envío futuro va a un
+    // correo que no confirmó ser suyo.
     const persona = await upsertPerson(db, {
       email: parsed.data.email,
       firstName: parsed.data.firstName || undefined,
       source: "interes-evento",
+      initialStatus: "pending",
     });
     await recordConsent(
       db,

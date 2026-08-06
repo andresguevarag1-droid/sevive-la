@@ -52,6 +52,12 @@ export const IMG = {
   street: `${CDN}/hf_20260801_050345_acb138f2-3255-47fc-8c35-9255c16b8117_min.webp`,
 } as const;
 
+/** Versión oscurecida del color de la vertical para TEXTO pequeño sobre
+ *  fondos claros (varios tonos originales no llegan a 4.5:1 de AA). */
+export function verticalColorTexto(slug: VerticalSlug): string {
+  return `color-mix(in srgb, ${verticalColor(slug)} 68%, var(--color-ink))`;
+}
+
 export function verticalColor(slug: VerticalSlug): string {
   const map: Record<VerticalSlug, string> = {
     experiencias: "var(--color-experiencias)",

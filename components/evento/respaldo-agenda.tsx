@@ -136,6 +136,9 @@ export function RespaldoAgenda() {
             ⚠ {error}
           </p>
         ) : null}
+        <div className="w-full">
+          <TurnstileWidget onToken={setTurnstileToken} />
+        </div>
       </div>
     );
   }
@@ -167,9 +170,12 @@ export function RespaldoAgenda() {
         ) : null}
       </div>
 
+      <p aria-live="polite" className="sr-only">
+        {status === "ok" ? "Agenda respaldada con éxito." : ""}
+      </p>
       {abierto ? (
         status === "ok" ? (
-          <div aria-live="polite" className="mt-4">
+          <div className="mt-4">
             <p className="font-semibold text-ink">¡Listo! Tu agenda quedó respaldada.</p>
           </div>
         ) : (

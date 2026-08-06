@@ -29,7 +29,8 @@ export const CONSENT_NEWSLETTER: ConsentDefinition = {
  */
 export function consentParticipacion(slug: string): ConsentDefinition {
   return {
-    purpose: `dinamica:${slug}`,
+    // Purpose propio: no colisiona con consentDinamica (texto/versión distintos).
+    purpose: `campana:${slug}`,
     version: "lg-2026-v1",
     text: "Autorizo a SeViveLa a tratar mis datos personales (correo, nombre, residencia y teléfono) para gestionar mi participación en esta dinámica y enviarme comunicaciones, según su Política de Privacidad. Puedo darme de baja cuando quiera.",
   };

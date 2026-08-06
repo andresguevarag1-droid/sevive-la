@@ -28,38 +28,65 @@ function linkSecret(): string | null {
   );
 }
 
-/** Firma un correo para links de confirmación/baja. null si no hay secreto. */
-export function firmarEmail(email: string): string | null {
+/** Cada link firmado declara SU propósito y SU vigencia: el token de baja
+ *  no sirve para abrir la agenda, y ninguno vive para siempre. */
+export type PropositoLink = "confirmar" | "baja" | "agenda";
+const DIAS_VALIDEZ: Record<PropositoLink, number> = {
+  confirmar: 14,
+  baja: 90, // la baja debe seguir funcionando en correos viejos
+  agenda: 7,
+};
+
+/** Firma correo+propósito+expiración. null si no hay secreto. */
+export function firmarEmail(
+  email: string,
+  proposito: PropositoLink,
+  exp: number
+): string | null {
   const secret = linkSecret();
   if (!secret) return null;
   return createHmac("sha256", secret)
-    .update(email.toLowerCase())
+    .update(`${proposito}:${email.toLowerCase()}:${exp}`)
     .digest("hex")
     .slice(0, 32);
 }
 
-export function verificarFirma(email: string, token: string): boolean {
+export function verificarFirma(
+  email: string,
+  token: string,
+  proposito: PropositoLink,
+  expStr: string | null
+): boolean {
   // Solo hex de 32: evita RangeError de timingSafeEqual con multibyte.
   if (!/^[a-f0-9]{32}$/.test(token)) return false;
-  const esperada = firmarEmail(email);
+  const exp = Number(expStr);
+  if (!Number.isFinite(exp) || exp * 1000 < Date.now()) return false;
+  const esperada = firmarEmail(email, proposito, exp);
   if (!esperada) return false;
   return timingSafeEqual(Buffer.from(esperada), Buffer.from(token));
 }
 
-/** URL absoluta de un endpoint con email+token firmado. */
-function linkFirmado(path: string, email: string): string | null {
-  const token = firmarEmail(email);
+/** URL absoluta de un endpoint con email+token firmado+expiración. */
+function linkFirmado(
+  path: string,
+  email: string,
+  proposito: PropositoLink
+): string | null {
+  const exp = Math.floor(Date.now() / 1000) + DIAS_VALIDEZ[proposito] * 86400;
+  const token = firmarEmail(email, proposito, exp);
   if (!token) return null;
   const url = new URL(path, site.url);
   url.searchParams.set("e", Buffer.from(email.toLowerCase()).toString("base64url"));
   url.searchParams.set("t", token);
+  url.searchParams.set("x", String(exp));
   return url.toString();
 }
 
-export const linkConfirmar = (email: string) => linkFirmado("/api/confirmar", email);
-export const linkBaja = (email: string) => linkFirmado("/api/baja", email);
+export const linkConfirmar = (email: string) =>
+  linkFirmado("/api/confirmar", email, "confirmar");
+export const linkBaja = (email: string) => linkFirmado("/api/baja", email, "baja");
 export const linkRecuperarAgenda = (email: string) =>
-  linkFirmado("/mi-agenda/recuperar", email);
+  linkFirmado("/mi-agenda/recuperar", email, "agenda");
 
 /* ── Plantillas (español, colores de marca, HTML simple que rinde en todo cliente) ── */
 
@@ -210,6 +237,26 @@ export function plantillaPinLocal(
   };
 }
 
+/** Confirmación de titularidad para flujos fuera del boletín (agenda,
+ *  interés en eventos): nadie queda "active" sin haber hecho clic. */
+export function plantillaConfirmarCorreo(
+  email: string,
+  motivo: string
+): { subject: string; html: string } | null {
+  const confirmar = linkConfirmar(email);
+  if (!confirmar) return null;
+  return {
+    subject: "Confirmá tu correo · SeViveLa",
+    html: layoutHtml(
+      `<h1 style="font-size:22px;margin:0 0 12px;">¿Sos vos? Confirmalo con un toque.</h1>
+       <p style="line-height:1.6;margin:0 0 6px;">${motivo}</p>
+       ${btn(confirmar, "Confirmar mi correo")}
+       <p style="font-size:13px;color:#666174;line-height:1.6;margin:0;">Si no fuiste vos, ignorá este correo: no te escribiremos de nuevo.</p>`,
+      email
+    ),
+  };
+}
+
 /* ── Recordatorio de plan guardado (Mi agenda): "mañana es tu plan" ── */
 
 export function plantillaRecordatorioEvento(
@@ -335,11 +382,19 @@ export async function enviarCorreo(
   if (!apiKey) return;
   const { Resend } = await import("resend");
   const resend = new Resend(apiKey);
+  // List-Unsubscribe: exigido por Gmail/Yahoo para remitentes masivos (2024).
+  const baja = linkBaja(to);
   const { error } = await resend.emails.send({
     from: FROM,
     to,
     subject: plantilla.subject,
     html: plantilla.html,
+    headers: baja
+      ? {
+          "List-Unsubscribe": `<${baja}>`,
+          "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+        }
+      : undefined,
   });
   if (error) throw new Error(error.message);
 }

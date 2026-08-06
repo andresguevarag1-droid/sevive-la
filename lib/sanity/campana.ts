@@ -3,7 +3,7 @@
  * Lado editorial en Sanity; la captura vive en Supabase (campaign_entries).
  */
 import "server-only";
-import type { PortableTextBlock } from "next-sanity";
+import type { PortableTextBlock } from "@portabletext/types";
 import { client } from "@/sanity/lib/client";
 import { sanityConfigured } from "@/sanity/env";
 import { urlForImage } from "@/sanity/lib/image";

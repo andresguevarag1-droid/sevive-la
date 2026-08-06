@@ -20,12 +20,18 @@ export const runtime = "nodejs";
 
 type BeneficioOpcion = { slug: string; title: string; marca?: string; vigencia?: string };
 
-function noAutorizado(req: Request): NextResponse | null {
+async function noAutorizado(req: Request): Promise<NextResponse | null> {
   if (!adminConfigured) {
     return NextResponse.json(
       { ok: false, estado: "no_configurado", error: "Falta ADMIN_PANEL_KEY en Vercel." },
       { status: 503 }
     );
+  }
+  // Rate-limit ANTES de evaluar la clave: los intentos fallidos también
+  // consumen cuota (anti fuerza bruta).
+  const { allowed } = await checkRateLimit("admin", getClientIp(req));
+  if (!allowed) {
+    return NextResponse.json({ ok: false, estado: "rate_limited" }, { status: 429 });
   }
   if (!checkAdminKey(req)) {
     return NextResponse.json({ ok: false, estado: "clave_incorrecta" }, { status: 401 });
@@ -50,11 +56,8 @@ async function beneficiosConCupon(): Promise<BeneficioOpcion[]> {
 }
 
 export async function GET(req: Request) {
-  const bloqueo = noAutorizado(req);
+  const bloqueo = await noAutorizado(req);
   if (bloqueo) return bloqueo;
-
-  const { allowed } = await checkRateLimit("admin", getClientIp(req));
-  if (!allowed) return NextResponse.json({ ok: false, estado: "rate_limited" }, { status: 429 });
 
   const db = getServiceClient();
   if (!db) {
@@ -80,11 +83,8 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  const bloqueo = noAutorizado(req);
+  const bloqueo = await noAutorizado(req);
   if (bloqueo) return bloqueo;
-
-  const { allowed } = await checkRateLimit("admin", getClientIp(req));
-  if (!allowed) return NextResponse.json({ ok: false, estado: "rate_limited" }, { status: 429 });
 
   let body: unknown;
   try {

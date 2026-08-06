@@ -59,10 +59,12 @@ export function HeroCampana({ campana }: { campana: Campana }) {
         style={{ animationDelay: "2.6s" }}
       />
 
-      <div className="mx-auto grid max-w-6xl items-center gap-8 px-4 py-12 md:grid-cols-[1.2fr_1fr] md:gap-12 md:py-16">
+      {/* velo de tinta: sube el contraste del texto sobre el degradado */}
+      <div aria-hidden className="absolute inset-0 bg-[rgba(26,21,38,0.30)]" />
+      <div className="relative mx-auto grid max-w-6xl items-center gap-8 px-4 py-12 md:grid-cols-[1.2fr_1fr] md:gap-12 md:py-16">
         <div className="relative">
           {/* kicker — lila de marca */}
-          <span className="label inline-block rounded-full bg-lilac px-3.5 py-1.5 text-white">
+          <span className="label inline-block rounded-full bg-lilac px-3.5 py-1.5 text-ink">
             Dinámica · Participá gratis
           </span>
 
@@ -78,7 +80,7 @@ export function HeroCampana({ campana }: { campana: Campana }) {
           <div className="mt-8 flex flex-col items-start gap-3">
             <Link
               href={`/dinamicas/${campana.slug}`}
-              className="pressable inline-block rounded-[var(--radius-full)] bg-lilac px-8 py-4 text-base font-bold uppercase tracking-wide text-white shadow-[0_10px_30px_-8px_rgba(0,0,0,0.45)] ring-2 ring-white/90 transition-all hover:brightness-105"
+              className="pressable inline-block rounded-[var(--radius-full)] bg-lilac px-8 py-4 text-base font-bold uppercase tracking-wide text-ink shadow-[0_10px_30px_-8px_rgba(0,0,0,0.45)] ring-2 ring-white/90 transition-all hover:brightness-105"
             >
               {campana.ctaTexto}
             </Link>

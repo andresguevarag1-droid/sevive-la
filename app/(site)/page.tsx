@@ -55,6 +55,12 @@ export default async function HomePage() {
                 "@type": "Event",
                 name: s.title,
                 startDate: s.fechaIso,
+                eventStatus: "https://schema.org/EventScheduled",
+                location: {
+                  "@type": "Place",
+                  name: "Costa Rica",
+                  address: { "@type": "PostalAddress", addressCountry: "CR" },
+                },
                 url: `${site.url}${s.href}`,
               },
             })),
@@ -78,7 +84,7 @@ export default async function HomePage() {
               className="w-full bg-transparent text-base text-ink outline-none placeholder:text-faint"
             />
           </form>
-          <nav className="hidden shrink-0 items-center gap-3 text-[13px] text-muted md:flex">
+          <nav aria-label="Accesos rápidos" className="hidden shrink-0 items-center gap-3 text-[13px] text-muted md:flex">
             {quickFilters.map((f, i) => (
               <span key={f.href} className="flex items-center gap-3">
                 <Link href={f.href} className="ulink hover:text-ink">
@@ -119,7 +125,7 @@ export default async function HomePage() {
       {/* ── Destacado ── */}
       {features.length > 0 ? (
         <section className="mx-auto max-w-6xl px-4 py-12 md:py-14">
-          <SectionHead index={num()} label="Destacado" href="/cultura" action="Más notas" />
+          <SectionHead index={num()} label="Destacado" href={`/${features[0]?.vertical ?? "cultura"}`} action="Más notas" />
           <div className="grid grid-cols-1 gap-x-8 gap-y-8 sm:grid-cols-2 md:grid-cols-3">
             {features.map((s) => (
               <div key={s.id} data-reveal>

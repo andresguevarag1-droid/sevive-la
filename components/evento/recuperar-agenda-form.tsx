@@ -6,6 +6,7 @@
  */
 import { useState, type FormEvent } from "react";
 import { isValidEmail } from "@/lib/validation/client";
+import { TurnstileWidget } from "@/components/turnstile";
 import { track } from "@/lib/analytics/track";
 
 type Status = "idle" | "sending" | "ok" | "error";
@@ -13,6 +14,7 @@ type Status = "idle" | "sending" | "ok" | "error";
 export function RecuperarAgendaForm() {
   const [abierto, setAbierto] = useState(false);
   const [email, setEmail] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
 
@@ -30,7 +32,7 @@ export function RecuperarAgendaForm() {
       const res = await fetch("/api/agenda/recuperar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim().toLowerCase(), website: "" }),
+        body: JSON.stringify({ email: email.trim().toLowerCase(), turnstileToken, website: "" }),
       });
       const data = (await res.json().catch(() => null)) as
         | { ok: boolean; error?: string }
@@ -93,6 +95,7 @@ export function RecuperarAgendaForm() {
           {status === "sending" ? "Enviando…" : "Enviarme el enlace"}
         </button>
       </div>
+      <TurnstileWidget onToken={setTurnstileToken} />
       {status === "error" && error ? (
         <p role="alert" className="mt-3 text-left text-sm font-medium text-ink">
           ⚠ {error}

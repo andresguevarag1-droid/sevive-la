@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { PortableText } from "next-sanity";
+import { PortableText } from "@portabletext/react";
 import { getDinamica } from "@/lib/sanity/dinamica";
 import { getCampana } from "@/lib/sanity/campana";
 

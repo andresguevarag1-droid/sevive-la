@@ -53,6 +53,24 @@ export default function PrivacidadPage() {
           <li>
             <strong>Dinámicas y giveaways:</strong> nombre, correo electrónico,
             teléfono (opcional) y tus respuestas al formulario de la dinámica.
+            En campañas específicas (por ejemplo, sorteos de viajes) el
+            formulario puede pedir además tu provincia de residencia y
+            confirmaciones de elegibilidad (mayoría de edad, tenencia de
+            pasaporte o visa) exigidas por las bases del premio; esos datos se
+            usan únicamente para validar tu elegibilidad en esa campaña.
+          </li>
+          <li>
+            <strong>Cuponera:</strong> tu correo electrónico al reclamar un
+            cupón, y el registro de emisión y canje de ese cupón.
+          </li>
+          <li>
+            <strong>Mi agenda:</strong> si respaldás tu agenda, tu correo y la
+            lista de eventos que guardaste (para restaurarla y, si lo
+            aceptaste, recordarte tus planes).
+          </li>
+          <li>
+            <strong>Interés en eventos:</strong> si pedís que te avisemos de la
+            próxima edición de un evento, tu correo y el evento de interés.
           </li>
           <li>
             <strong>Registro de consentimiento:</strong> junto con tu alta
@@ -102,9 +120,16 @@ export default function PrivacidadPage() {
         <p>
           Tus datos se almacenan en proveedores de infraestructura que actúan
           como encargados del tratamiento: Supabase (base de datos), Vercel
-          (alojamiento del sitio) y Resend (envío de correos). Todos aplican
-          medidas de seguridad técnicas y organizativas, y el acceso a los
-          datos está restringido al equipo autorizado de {site.name}.
+          (alojamiento y métricas del sitio), Resend (envío de correos),
+          Sanity (gestión del contenido editorial), Cloudflare (verificación
+          anti-bots Turnstile, que procesa tu dirección IP al enviar un
+          formulario), Upstash (límites anti-abuso) y — solo si aceptás la
+          analítica en el aviso de cookies — PostHog (métricas de uso).
+          Varios de estos proveedores procesan datos en Estados Unidos u otros
+          países: al aceptar esta política consentís esa transferencia
+          internacional, que se realiza con proveedores que aplican medidas de
+          seguridad técnicas y contractuales adecuadas. El acceso a los datos
+          está restringido al equipo autorizado de {site.name}.
         </p>
 
         <h2>6. Cuánto tiempo los conservamos</h2>

@@ -23,21 +23,26 @@ export function Compartir({
   const pathname = usePathname();
   const [copiado, setCopiado] = useState(false);
   const [tieneNativo, setTieneNativo] = useState(false);
+  const [url, setUrl] = useState("");
 
   useEffect(() => {
     setTieneNativo(typeof navigator !== "undefined" && "share" in navigator);
-  }, []);
-
-  const url = typeof window !== "undefined" ? `${location.origin}${pathname}` : "";
+    // En estado (no en render): el HTML del servidor salía con href vacío
+    // y React no lo parchaba al hidratar.
+    setUrl(`${location.origin}${pathname}`);
+  }, [pathname]);
   const mensaje = `${titulo} — ${frase}: ${url}`;
   // Pastillas en lila de marca con letra blanca (mismo tratamiento que el
   // kicker y el CTA de campaña), cada una con su icono.
   const pill =
-    "pressable inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-lilac px-5 py-2.5 text-sm font-bold text-white shadow-[0_10px_24px_-10px_rgba(26,21,38,0.45)] transition-[filter] duration-200 hover:brightness-110";
+    "pressable inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-lilac px-5 py-2.5 text-sm font-bold text-ink shadow-[0_10px_24px_-10px_rgba(26,21,38,0.45)] transition-[filter] duration-200 hover:brightness-110";
 
   return (
     <div className="mt-10 border-y border-rule py-5">
       <p className="label text-faint">{etiqueta}</p>
+      <p aria-live="polite" className="sr-only">
+        {copiado ? "Enlace copiado al portapapeles." : ""}
+      </p>
       <div className="mt-3 flex flex-wrap gap-2.5">
         <a
           href={`https://wa.me/?text=${encodeURIComponent(mensaje)}`}

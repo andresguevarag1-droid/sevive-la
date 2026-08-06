@@ -7,7 +7,7 @@
  * por WhatsApp, respaldo por correo y sugerencias para guardar ahí mismo.
  * Sin login: la lista vive en el teléfono; el respaldo la liga a un correo.
  */
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { VerticalSlug } from "@/lib/site";
 import { site } from "@/lib/site";
@@ -60,6 +60,7 @@ type Cuando = "hoy" | "manana" | "semana" | "adelante";
 
 function cuando(iso: string): Cuando {
   const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "adelante";
   const dia = diaCR(d);
   if (dia === diaCR(Date.now())) return "hoy";
   if (dia === diaCR(Date.now() + 86400000)) return "manana";
@@ -83,6 +84,7 @@ function Sticker({ texto, brand }: { texto: string; brand?: boolean }) {
 export function MiAgendaLista({ sugerencias }: { sugerencias: Sugerencia[] }) {
   const [favoritos, setFavoritos] = useState<Favorito[] | null>(null);
   const [deshacer, setDeshacer] = useState<Favorito | null>(null);
+  const botonDeshacer = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     const leer = () => setFavoritos(getFavoritos());
@@ -93,18 +95,27 @@ export function MiAgendaLista({ sugerencias }: { sugerencias: Sugerencia[] }) {
 
   useEffect(() => {
     if (!deshacer) return;
-    const id = setTimeout(() => setDeshacer(null), 6000);
+    // El foco viaja al "Deshacer": tras quitar, el botón enfocado se
+    // desmonta y el teclado quedaría en el body.
+    botonDeshacer.current?.focus();
+    const id = setTimeout(() => setDeshacer(null), 10000);
     return () => clearTimeout(id);
   }, [deshacer]);
 
   if (favoritos === null) return null;
 
   const corte = Date.now() - 12 * 3600000;
+  // Sin fecha válida (ej. respaldo antiguo) cuenta como próximo, nunca
+  // como "ya pasó".
+  const esPasado = (f: Favorito) => {
+    const t = new Date(f.inicio).getTime();
+    return Number.isFinite(t) && t < corte;
+  };
   const proximos = favoritos
-    .filter((f) => new Date(f.inicio).getTime() >= corte)
+    .filter((f) => !esPasado(f))
     .sort((a, b) => a.inicio.localeCompare(b.inicio));
   const pasados = favoritos
-    .filter((f) => new Date(f.inicio).getTime() < corte)
+    .filter(esPasado)
     .sort((a, b) => b.inicio.localeCompare(a.inicio));
 
   const slugsGuardados = new Set(favoritos.map((f) => f.slug));
@@ -179,7 +190,7 @@ export function MiAgendaLista({ sugerencias }: { sugerencias: Sugerencia[] }) {
         <button
           type="button"
           onClick={() => quitar(f)}
-          className="label shrink-0 text-faint underline hover:text-ink"
+          className="label min-h-11 shrink-0 px-1 text-faint underline hover:text-ink"
         >
           Quitar
         </button>
@@ -222,7 +233,7 @@ export function MiAgendaLista({ sugerencias }: { sugerencias: Sugerencia[] }) {
               <button
                 type="button"
                 onClick={() => guardarSugerencia(s)}
-                className="label flex shrink-0 items-center gap-1.5 text-brand"
+                className="label flex min-h-11 shrink-0 items-center gap-1.5 px-1 text-brand"
               >
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
                   <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
@@ -306,7 +317,7 @@ export function MiAgendaLista({ sugerencias }: { sugerencias: Sugerencia[] }) {
           <button
             type="button"
             onClick={compartirPlan}
-            className="pressable inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full bg-lilac px-5 py-2.5 text-sm font-bold text-white shadow-[0_10px_24px_-10px_rgba(26,21,38,0.45)] transition-[filter] duration-200 hover:brightness-110"
+            className="pressable inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full bg-lilac px-5 py-2.5 text-sm font-bold text-ink shadow-[0_10px_24px_-10px_rgba(26,21,38,0.45)] transition-[filter] duration-200 hover:brightness-110"
           >
             <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
               <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.52.149-.174.198-.298.297-.497.1-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413" />
@@ -358,13 +369,14 @@ export function MiAgendaLista({ sugerencias }: { sugerencias: Sugerencia[] }) {
 
       {/* ── Deshacer (B7) ── */}
       {deshacer ? (
-        <div className="fixed inset-x-0 bottom-20 z-50 flex justify-center px-4 md:bottom-6">
+        <div className="fixed inset-x-0 bottom-24 z-[60] flex justify-center px-4 md:bottom-6">
           <div
             role="status"
             className="flex items-center gap-4 rounded-full bg-ink px-5 py-3 text-sm text-white shadow-[0_16px_40px_-12px_rgba(0,0,0,0.5)]"
           >
             <span className="max-w-[55vw] truncate">Quitado de tu agenda</span>
             <button
+              ref={botonDeshacer}
               type="button"
               onClick={() => {
                 restaurarFavorito(deshacer);

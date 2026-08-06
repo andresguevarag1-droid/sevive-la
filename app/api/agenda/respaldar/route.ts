@@ -12,6 +12,11 @@ import { upsertPerson, recordConsent, declareInterest } from "@/lib/server/captu
 import { getClientIp, getUserAgent } from "@/lib/server/request-meta";
 import { checkRateLimit } from "@/lib/server/rate-limit";
 import { verifyTurnstile } from "@/lib/server/turnstile";
+import {
+  emailEnabled,
+  enviarCorreo,
+  plantillaConfirmarCorreo,
+} from "@/lib/server/email";
 
 export const runtime = "nodejs";
 
@@ -70,11 +75,25 @@ export async function POST(req: Request) {
   }
 
   try {
+    // Titularidad no verificada = 'pending': los crons de correo solo
+    // escriben a personas 'active' (nadie puede inscribir correos ajenos).
     const persona = await upsertPerson(db, {
       email: parsed.data.email,
       source: "agenda",
+      initialStatus: "pending",
     });
     await recordConsent(db, persona.id, CONSENT_AGENDA, { ip, userAgent });
+    if (persona.status === "pending" && emailEnabled) {
+      try {
+        const plantilla = plantillaConfirmarCorreo(
+          parsed.data.email,
+          "Alguien (ojalá vos) respaldó su agenda de SeViveLa con este correo. Confirmá para activar los recordatorios de tus planes."
+        );
+        if (plantilla) await enviarCorreo(parsed.data.email, plantilla);
+      } catch (err) {
+        console.error("[agenda] confirmación falló (no fatal):", err);
+      }
+    }
 
     // Cada vertical guardada es interés declarado (peso máximo).
     const verticales = [...new Set(parsed.data.items.map((i) => i.vertical))];

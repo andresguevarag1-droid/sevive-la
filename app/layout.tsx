@@ -10,6 +10,8 @@ const fraunces = localFont({
   variable: "--font-fraunces",
   weight: "300 700",
   display: "swap",
+  // Solo titulares: no compite con la imagen LCP en el preload.
+  preload: false,
 });
 
 const inter = localFont({
@@ -27,17 +29,15 @@ export const metadata: Metadata = {
   },
   description: site.description,
   applicationName: site.name,
+  // Sin title/description absolutos en og/twitter: si el raíz los fija,
+  // Next deja de derivarlos por página y TODO share muestra el de la home.
   openGraph: {
     type: "website",
     locale: "es_CR",
     siteName: site.name,
-    title: `${site.name} · ${site.tagline}`,
-    description: site.description,
   },
   twitter: {
     card: "summary_large_image",
-    title: `${site.name} · ${site.tagline}`,
-    description: site.description,
   },
 };
 
@@ -59,7 +59,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className={`${fraunces.variable} ${inter.variable}`}>
+    <html lang="es-CR" className={`${fraunces.variable} ${inter.variable}`}>
+      <head>
+        {/* La imagen LCP vive en cdn.sanity.io: el handshake arranca ya. */}
+        <link rel="preconnect" href="https://cdn.sanity.io" />
+      </head>
       <body>
         {/* Entidad y sitio para SEO/GEO (motores de búsqueda y de IA) */}
         <JsonLd

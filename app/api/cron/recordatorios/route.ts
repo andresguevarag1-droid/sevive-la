@@ -15,10 +15,15 @@ import {
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
+import { createHash, timingSafeEqual } from "node:crypto";
+
 function autorizado(req: Request): boolean {
   const secret = process.env.CRON_SECRET;
   if (!secret) return false;
-  return req.headers.get("authorization") === `Bearer ${secret}`;
+  const recibido = req.headers.get("authorization") ?? "";
+  const a = createHash("sha256").update(recibido).digest();
+  const b = createHash("sha256").update(`Bearer ${secret}`).digest();
+  return timingSafeEqual(a, b);
 }
 
 /** Día calendario YYYY-MM-DD en CR. */

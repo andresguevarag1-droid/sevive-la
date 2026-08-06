@@ -93,27 +93,32 @@ export function PortadaCarrusel({
               // Los slides ocultos no participan del tab-order.
               {...(i !== indice ? { inert: true } : {})}
             >
-              {/* Solo la portada visible primero lleva el heading principal */}
-              <LeadStory story={s} as={i === 0 ? as : "h2"} />
+              {/* El heading principal vive en el slide ACTIVO (los ocultos
+                  están fuera del árbol de accesibilidad por inert) */}
+              <LeadStory story={s} as={i === indice ? as : "h2"} prioridad={i === 0} />
             </div>
           ))}
         </div>
       </div>
 
       {/* ── Puntos: uno por portada, con el activo alargado ── */}
-      <div className="mt-5 flex items-center justify-center gap-2.5" role="tablist" aria-label="Elegir portada">
+      <div className="mt-5 flex items-center justify-center gap-2" role="group" aria-label="Elegir portada">
         {stories.map((s, i) => (
           <button
             key={s.id}
             type="button"
-            role="tab"
-            aria-selected={i === indice}
+            aria-pressed={i === indice}
             aria-label={`Portada ${i + 1}: ${s.title}`}
             onClick={() => ir(i, true)}
-            className={`pressable h-2.5 rounded-full transition-all duration-300 ${
-              i === indice ? "w-7 bg-brand" : "w-2.5 bg-ink/25 hover:bg-ink/45"
-            }`}
-          />
+            className="pressable flex h-6 min-w-6 items-center justify-center"
+          >
+            <span
+              aria-hidden
+              className={`block h-2.5 rounded-full transition-all duration-300 ${
+                i === indice ? "w-7 bg-brand" : "w-2.5 bg-ink/25 hover:bg-ink/45"
+              }`}
+            />
+          </button>
         ))}
       </div>
     </section>

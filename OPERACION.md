@@ -56,11 +56,17 @@ o 503 (falla). Montá el monitor gratis:
 ## 🌐 Migración a sevive.la (O7) — checklist para el día del cambio
 
 1. Vercel → Settings → Domains → agregar `sevive.la` (y `www`).
-2. Verificar que `lib/site.ts` ya apunta a `https://sevive.la` (así está).
-3. Resend: verificar el dominio si no se hizo antes (arriba).
-4. Google Search Console: agregar la propiedad nueva y enviar `sitemap.xml`.
-5. Actualizar el monitor de uptime a la URL nueva.
-6. Los links de IG/TikTok: actualizarlos al dominio nuevo.
+2. Vercel → Environment Variables (Production): `NEXT_PUBLIC_SITE_URL=https://sevive.la`
+   — la URL del sitio sale de esta variable; sin ella, canonicals, sitemap,
+   QR de cupones y links de correo siguen apuntando a `sevive-la.vercel.app`.
+3. Agregar también `MIGRAR_DOMINIO=1` — activa el redirect 308 de
+   `sevive-la.vercel.app` hacia `sevive.la` (evita contenido duplicado).
+4. **Redeploy forzado** (Deployments → ⋯ → Redeploy): agregar el dominio NO
+   redeploya solo, y la metadata queda congelada en el dominio viejo.
+5. Resend: verificar el dominio si no se hizo antes (arriba).
+6. Google Search Console: agregar la propiedad nueva y **reenviar** `sitemap.xml`.
+7. Actualizar el monitor de uptime a la URL nueva.
+8. Los links de IG/TikTok: actualizarlos al dominio nuevo.
 
 ## 🔑 Recordatorios de seguridad
 

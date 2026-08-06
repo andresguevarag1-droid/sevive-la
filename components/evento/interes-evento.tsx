@@ -105,8 +105,11 @@ export function InteresEvento({
         plan parecido— te llega primero a vos.
       </p>
 
+      <p aria-live="polite" className="sr-only">
+        {status === "ok" ? "Registro exitoso: te avisaremos de la próxima edición." : ""}
+      </p>
       {status === "ok" ? (
-        <div aria-live="polite" className="mt-5">
+        <div className="mt-5">
           <p className="font-semibold text-ink">¡Listo! Quedaste en la lista.</p>
           <p className="mt-1 text-sm leading-relaxed text-muted">
             Apenas haya noticias de la próxima edición, te escribimos.

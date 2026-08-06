@@ -31,9 +31,9 @@ function Estado({ titulo, texto }: { titulo: string; texto: string }) {
 export default async function RecuperarAgendaPage({
   searchParams,
 }: {
-  searchParams: Promise<{ e?: string; t?: string }>;
+  searchParams: Promise<{ e?: string; t?: string; x?: string }>;
 }) {
-  const { e, t } = await searchParams;
+  const { e, t, x } = await searchParams;
   let email = "";
   try {
     email = e ? Buffer.from(e, "base64url").toString("utf8") : "";
@@ -41,7 +41,7 @@ export default async function RecuperarAgendaPage({
     email = "";
   }
 
-  if (!email || !t || !verificarFirma(email, t)) {
+  if (!email || !t || !verificarFirma(email, t, "agenda", x ?? null)) {
     return (
       <Estado
         titulo="Este enlace no es válido."

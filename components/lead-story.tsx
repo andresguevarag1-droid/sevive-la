@@ -12,10 +12,13 @@ import { ArrowRightIcon } from "@/components/icons";
 export function LeadStory({
   story,
   as: Heading = "h1",
+  prioridad = true,
 }: {
   story: Story;
   /** "h2" cuando hay una campaña activa (el hero de campaña lleva el h1). */
   as?: "h1" | "h2";
+  /** false en slides no visibles del carrusel (no compiten por el LCP). */
+  prioridad?: boolean;
 }) {
   const href = story.href ?? `/${story.vertical}`;
   const color = verticalColor(story.vertical);
@@ -41,9 +44,9 @@ export function LeadStory({
         <Link href={href} className="imgzoom relative block md:col-span-7">
           <EditorialImage
             src={story.img}
-            alt={story.title}
+            alt=""
             ratio="3 / 2"
-            priority
+            priority={prioridad}
           />
           {/* barra de identidad de la vertical sobre la foto */}
           <span
@@ -74,7 +77,7 @@ export function LeadStory({
               href={href}
               className="group flex shrink-0 items-center gap-1.5 text-sm font-semibold text-brand"
             >
-              Ver sección
+              {story.href ? "Leer la nota" : "Ver sección"}
               <ArrowRightIcon
                 width={16}
                 height={16}

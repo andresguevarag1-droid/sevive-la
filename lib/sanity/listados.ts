@@ -155,7 +155,18 @@ type RawResultado = {
   detalle?: string;
   imagen?: { asset?: { _ref?: string } };
   miniatura?: { asset?: { _ref?: string } };
+  slug?: string;
+  videoUrl?: string;
 };
+
+/** Destino real de cada resultado (sin esto, todo caía en la vertical). */
+function hrefResultado(r: RawResultado): string | undefined {
+  if (r._type === "cronica" && r.slug) return `/cronica/${r.slug}`;
+  if (r._type === "evento" && r.slug) return `/agenda/${r.slug}`;
+  if (r._type === "beneficio" && r.slug) return `/promociones/${r.slug}`;
+  if (r._type === "reel" && r.videoUrl) return r.videoUrl;
+  return undefined;
+}
 
 const TYPE_TO_CONTENT: Record<string, Story["type"]> = {
   cronica: "articulo",
@@ -176,7 +187,8 @@ export async function buscarContenido(q: string): Promise<Story[]> {
       /* groq */ `*[_type in ["cronica","evento","lugar","beneficio","reel","galeria"] &&
         (title match $term || bajada match $term || lugar match $term || detalle match $term)
       ] | score(title match $term) | order(_score desc)[0...24]{
-        _id, _type, title, vertical, bajada, lugar, detalle, imagen, miniatura
+        _id, _type, title, vertical, bajada, lugar, detalle, imagen, miniatura,
+        "slug": slug.current, videoUrl
       }`,
       { term },
       { next: { revalidate: 60 } }
@@ -189,6 +201,7 @@ export async function buscarContenido(q: string): Promise<Story[]> {
       dek: r.bajada || r.detalle || r.lugar,
       meta: "",
       img: urlForImage(r.imagen ?? r.miniatura, 800),
+      href: hrefResultado(r),
     }));
   } catch (err) {
     console.error("[sanity] búsqueda falló:", err);

@@ -31,8 +31,11 @@ export async function generateMetadata({
   return {
     title: `${v.name} · ${v.verb}`,
     description,
-    openGraph: { title: v.name, description },
+    // Sin openGraph explícito: el título/description se auto-derivan y la
+    // og:image global del sitio aplica (declararlo la borraba).
     alternates: { canonical: `/${v.slug}` },
+    // Verticales ocultas (Turismo espera permiso del ICT): fuera del índice.
+    ...(v.oculta ? { robots: { index: false, follow: false } } : {}),
   };
 }
 
@@ -136,19 +139,21 @@ export default async function VerticalPage({
           {portada ? (
             <section className="mx-auto max-w-6xl px-4 pt-8 pb-4 md:pt-12">
               <article className="grid items-start gap-6 md:grid-cols-2 md:gap-10">
-                <div className="imgzoom">
+                <Link href={portada.href ?? `/${v.slug}`} className="imgzoom block">
                   <EditorialImage
                     src={portada.img}
-                    alt={portada.title}
+                    alt=""
                     ratio="4 / 3"
                     priority
                   />
-                </div>
+                </Link>
                 <div>
                   <p className="label text-faint">{portada.meta}</p>
-                  <h2 className="mt-2 text-[clamp(1.7rem,4vw,2.6rem)]">
-                    {portada.title}
-                  </h2>
+                  <Link href={portada.href ?? `/${v.slug}`} className="mt-2 block">
+                    <h2 className="text-[clamp(1.7rem,4vw,2.6rem)] transition-colors hover:text-brand">
+                      {portada.title}
+                    </h2>
+                  </Link>
                   {portada.dek ? (
                     <p className="measure mt-3 leading-relaxed text-muted">
                       {portada.dek}

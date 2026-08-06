@@ -38,7 +38,9 @@ export function CuentaRegresiva({
   const [r, setR] = useState<Restante | null>(null);
   useEffect(() => {
     setR(calc(cierre));
-    const id = setInterval(() => setR(calc(cierre)), 1000);
+    const id = setInterval(() => {
+      if (document.visibilityState === "visible") setR(calc(cierre));
+    }, 1000);
     return () => clearInterval(id);
   }, [cierre]);
 

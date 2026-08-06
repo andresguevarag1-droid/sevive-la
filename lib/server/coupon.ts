@@ -10,11 +10,15 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 const ALFABETO = "23456789ABCDEFGHJKMNPQRSTUVWXYZ";
 
 function salt(): string {
-  return (
-    process.env.COUPON_CODE_SALT ||
-    process.env.SUPABASE_SERVICE_ROLE_KEY ||
-    "sevivela"
-  );
+  const valor =
+    process.env.COUPON_CODE_SALT || process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!valor) {
+    // Nunca degradar a un literal del repo: un código predecible rompe
+    // toda la mecánica de cupones. (Emitir exige Supabase, así que en la
+    // práctica el service role siempre está cuando se llega aquí.)
+    throw new Error("Falta COUPON_CODE_SALT o SUPABASE_SERVICE_ROLE_KEY.");
+  }
+  return valor;
 }
 
 export function generarCodigoCupon(): string {

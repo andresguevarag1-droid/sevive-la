@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { PortableText, type PortableTextComponents } from "next-sanity";
+import { PortableText, type PortableTextComponents } from "@portabletext/react";
 import { getCronica, getCronicasRelacionadas } from "@/lib/sanity/cronica";
 import { urlForImage } from "@/sanity/lib/image";
 import { getVertical, site } from "@/lib/site";
@@ -82,7 +82,9 @@ export async function generateMetadata({
       type: "article",
       title: c.title,
       description,
-      images: c.imagen ? [{ url: c.imagen }] : undefined,
+      // Solo declarar images cuando HAY imagen (declararla undefined
+      // bloquea la og:image por defecto del sitio).
+      ...(c.imagen ? { images: [{ url: c.imagen }] } : {}),
     },
     alternates: { canonical: `/cronica/${c.slug}` },
   };

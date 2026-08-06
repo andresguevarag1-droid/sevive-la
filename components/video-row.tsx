@@ -28,7 +28,7 @@ export function VideoRow({ items }: { items: Story[] }) {
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={v.img}
-                  alt={v.title}
+                  alt=""
                   className="h-full w-full object-cover"
                   loading="lazy"
                   decoding="async"

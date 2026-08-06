@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react";
 import type { VerticalSlug } from "@/lib/site";
 import { getVertical } from "@/lib/site";
-import { verticalColor, typeLabel, type ContentType } from "@/lib/content";
+import { verticalColor, verticalColorTexto, typeLabel, type ContentType } from "@/lib/content";
 
 /**
  * Marca de categoría como chip de color: tinte claro del color de la vertical
@@ -19,7 +19,8 @@ export function CategoryLabel({
   const v = getVertical(vertical);
   const color = verticalColor(vertical);
   const style: CSSProperties = {
-    color,
+    // Texto oscurecido (AA) sobre el tinte claro del color original.
+    color: verticalColorTexto(vertical),
     background: `color-mix(in srgb, ${color} 12%, transparent)`,
   };
   return (

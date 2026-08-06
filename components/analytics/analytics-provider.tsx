@@ -33,13 +33,19 @@ async function cargarPostHog() {
 export function AnalyticsProvider() {
   const pathname = usePathname();
 
-  // Atribución first-touch + PostHog si ya había consentimiento previo.
+  // Atribución first-touch y PostHog: SOLO tras consentir analítica
+  // (el banner promete "solo si aceptás" — y se cumple).
   useEffect(() => {
-    captureAttribution();
-    if (getConsentimiento()?.analitica) cargarPostHog();
+    if (getConsentimiento()?.analitica) {
+      captureAttribution();
+      cargarPostHog();
+    }
     const alConsentir = (e: Event) => {
       const detalle = (e as CustomEvent<{ analitica?: boolean }>).detail;
-      if (detalle?.analitica) cargarPostHog();
+      if (detalle?.analitica) {
+        captureAttribution();
+        cargarPostHog();
+      }
     };
     window.addEventListener(CONSENT_EVENT, alConsentir);
     return () => window.removeEventListener(CONSENT_EVENT, alConsentir);

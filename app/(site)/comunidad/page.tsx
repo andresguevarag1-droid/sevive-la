@@ -15,7 +15,7 @@ export default function ComunidadPage() {
         <p className="label text-brand">Sé parte</p>
         <h1 className="mt-2 text-[clamp(2.4rem,7vw,4.5rem)]">Comunidad</h1>
         <p className="measure mt-3 leading-relaxed text-muted">
-          Perfiles, favoritos y planes guardados vienen en camino. Mientras
+          Guardá tus planes en Mi agenda, respaldalos por correo y recibí el boletín. Mientras
           tanto, estas son las dos mejores formas de ser parte:
         </p>
       </header>

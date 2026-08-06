@@ -8,7 +8,7 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: "*",
         allow: "/",
         // El Studio, los endpoints y el panel interno no son contenido indexable.
-        disallow: ["/studio", "/api/", "/admin/", "/mi-cupon/"],
+        disallow: ["/studio", "/api/", "/admin/", "/mi-cupon/", "/ingest/"],
       },
     ],
     sitemap: `${site.url}/sitemap.xml`,

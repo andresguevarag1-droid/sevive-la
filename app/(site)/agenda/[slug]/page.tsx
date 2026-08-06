@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { PortableText } from "next-sanity";
+import { PortableText } from "@portabletext/react";
 import { getEvento, getEventosRelacionados } from "@/lib/sanity/evento";
 import { getVertical, site } from "@/lib/site";
 import { CategoryLabel } from "@/components/kicker";
@@ -122,13 +122,11 @@ export default async function EventoPage({
           performer: e.artista
             ? { "@type": "PerformingGroup", name: e.artista }
             : undefined,
-          location: e.lugar
-            ? {
-                "@type": "Place",
-                name: e.lugar,
-                address: { "@type": "PostalAddress", addressCountry: "CR" },
-              }
-            : undefined,
+          location: {
+            "@type": "Place",
+            name: e.lugar ?? "Costa Rica",
+            address: { "@type": "PostalAddress", addressCountry: "CR" },
+          },
           organizer: e.organizador
             ? { "@type": "Organization", name: e.organizador }
             : { "@type": "Organization", name: site.name, url: site.url },
