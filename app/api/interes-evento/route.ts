@@ -11,6 +11,7 @@ import { getEvento } from "@/lib/sanity/evento";
 import { getCronica } from "@/lib/sanity/cronica";
 import { getServiceClient } from "@/lib/supabase/server";
 import { upsertPerson, recordConsent, declareInterest } from "@/lib/server/capture";
+import { emailEnabled, enviarCorreo, plantillaConfirmarCorreo } from "@/lib/server/email";
 import { getClientIp, getUserAgent } from "@/lib/server/request-meta";
 import { checkRateLimit } from "@/lib/server/rate-limit";
 import { verifyTurnstile } from "@/lib/server/turnstile";
@@ -98,6 +99,19 @@ export async function POST(req: Request) {
       consentInteresEvento(pieza.slug, evento ? "evento" : "cronica"),
       { ip, userAgent }
     );
+    // Sin confirmación la persona queda 'pending' para siempre (los crons
+    // solo escriben a 'active'): el correo de confirmación cierra el ciclo.
+    if (persona.status === "pending" && emailEnabled) {
+      try {
+        const plantilla = plantillaConfirmarCorreo(
+          parsed.data.email,
+          `Alguien (ojalá vos) pidió que le avisemos de la próxima edición de «${pieza.title}» con este correo. Confirmá para recibir el aviso.`
+        );
+        if (plantilla) await enviarCorreo(parsed.data.email, plantilla);
+      } catch (err) {
+        console.error("[interes-evento] confirmación falló (no fatal):", err);
+      }
+    }
     await declareInterest(db, persona.id, pieza.vertical);
     // Idempotente: repetir el registro del mismo evento no duplica ni falla.
     const { error } = await db.from("event_interest").upsert(

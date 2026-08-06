@@ -64,6 +64,9 @@ export async function upsertPerson(
       .single();
     // Si la migración 0003 (status 'pending') aún no se aplicó, degradar a 'active'.
     if (inserted.error?.code === "23514" && status === "pending") {
+      console.warn(
+        "[capture] La base no acepta status 'pending' (¿falta la migración 0003?); la persona se crea 'active' sin verificar titularidad."
+      );
       status = "active";
       inserted = await db
         .from("people")

@@ -7,13 +7,16 @@ import type { NextConfig } from "next";
  */
 const CSP = [
   "default-src 'self'",
+  "frame-ancestors 'self'",
   // Next inyecta estilos/scripts inline; PostHog, Turnstile y Vercel Insights son los únicos terceros.
-  "frame-ancestors 'self'; script-src 'self' 'unsafe-inline' https://*.posthog.com https://challenges.cloudflare.com https://va.vercel-scripts.com",
+  "script-src 'self' 'unsafe-inline' https://*.posthog.com https://challenges.cloudflare.com https://va.vercel-scripts.com",
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' https://cdn.sanity.io data: blob:",
+  // CloudFront = imágenes del contenido mock (fallback cuando Sanity no responde);
+  // googleusercontent/githubusercontent = avatares del login del Studio.
+  "img-src 'self' https://cdn.sanity.io https://d8j0ntlcm91z4.cloudfront.net https://lh3.googleusercontent.com https://avatars.githubusercontent.com data: blob:",
   "font-src 'self'",
   "connect-src 'self' https://*.posthog.com https://*.sanity.io https://*.supabase.co https://challenges.cloudflare.com https://vitals.vercel-insights.com",
-  "frame-src https://challenges.cloudflare.com",
+  "frame-src 'self' https://challenges.cloudflare.com",
   "worker-src 'self' blob:",
   "base-uri 'self'",
   "form-action 'self'",
