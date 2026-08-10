@@ -31,10 +31,43 @@ CTA magenta) — no hay que diseñar nada.
 |---|---|---|
 | `/api/cron/recordatorios` | Diario 14:00 UTC (8:00 CR) | "Mañana es tu plan" a agendas respaldadas |
 | `/api/cron/boletin` | Jueves 14:00 UTC (8:00 CR) | Boletín semanal a suscriptores activos |
+| `/api/cron/articulos` | Diario 13:00 UTC (7:00 CR) | Redacta con IA borradores de Guía (eventos próximos) y Cobertura (recién pasados) → Studio |
+| `/api/cron/reels` | Diario 15:00 UTC (9:00 CR) | Trae los reels nuevos de @sevive.la a la videoteca (con miniatura propia) |
 
-Ambos son idempotentes (tabla `email_log`): aunque corran dos veces, nadie
-recibe un correo repetido. Sin `CRON_SECRET` o sin Resend responden "ok, 0
-enviados" y no hacen nada.
+Todos son idempotentes: aunque corran dos veces, nadie recibe un correo
+repetido (tabla `email_log`) ni se duplica un artículo o reel (_id
+determinístico en Sanity). Sin sus variables de entorno responden
+"dormido" y no hacen nada.
+
+## 🤖 Activar las automatizaciones de contenido — 3 variables
+
+Las dos automatizaciones nuevas duermen hasta que estén sus llaves en
+Vercel (Settings → Environment Variables → Production, y **redeploy**):
+
+1. **`SANITY_API_WRITE_TOKEN`** (la necesitan ambas) — 2 min:
+   [sanity.io/manage](https://sanity.io/manage) → proyecto SeViveLa → API →
+   Tokens → *Add API token* → nombre "robot-vercel", permisos **Editor** →
+   copiá el token (se muestra una sola vez).
+2. **`ANTHROPIC_API_KEY`** (artículos con IA) — 5 min:
+   [console.anthropic.com](https://console.anthropic.com) → crear cuenta →
+   API Keys → *Create key*. Cargá un saldo chico (USD 5 rinde meses: cada
+   artículo cuesta centavos). Los artículos nacen como **borrador** en el
+   Studio — bandeja de Crónicas — para revisar y publicar con un clic.
+3. **`IG_ACCESS_TOKEN`** (reels) — 15 min, una vez:
+   1. Convertí @sevive.la en cuenta **profesional** (Business o Creator)
+      desde la app de Instagram, si no lo es ya.
+   2. En [developers.facebook.com](https://developers.facebook.com) →
+      *My Apps* → *Create App* → caso de uso **Instagram** → tipo Business.
+   3. En el panel de la app → Instagram → **API setup with Instagram login**
+      → agregá @sevive.la como cuenta → *Generate token* (iniciá sesión con
+      la cuenta) → copiá el **token de larga duración**.
+   4. Pegalo en Vercel como `IG_ACCESS_TOKEN`.
+   El cron lo **renueva solo** cada día y guarda el renovado en Supabase
+   (tabla `app_config`, migración 0011) — no hay que volver a tocarlo. Si
+   alguna vez responde "token vencido", repetí el paso 3.
+
+Prueba manual de cualquier cron (sin esperar a la hora):
+`curl -H "Authorization: Bearer TU_CRON_SECRET" https://sevive-la.vercel.app/api/cron/reels`
 
 ## 🩺 Uptime (O4) — 5 min, una vez
 
@@ -70,11 +103,10 @@ o 503 (falla). Montá el monitor gratis:
 
 ## 🔑 Recordatorios de seguridad
 
-- Migraciones pendientes de aplicar en Supabase (SQL Editor, en orden):
-  `0008_agenda_respaldo.sql`, `0009_recordatorios.sql` y
-  `0010_marcas_y_atribucion.sql` (leads del formulario "Para marcas" +
-  columna de atribución de personas; sin ella el sitio funciona igual,
-  solo avisa por logs y no guarda esos dos datos).
+- Migración pendiente de aplicar en Supabase (SQL Editor):
+  `0011_config_app.sql` (guarda el token renovado de Instagram; sin ella
+  el cron de reels funciona igual, pero el token vence a los 60 días y
+  hay que pegarlo de nuevo a mano). Las 0001–0010 ya están aplicadas.
 - `ADMIN_PANEL_KEY` en Vercel para el panel (`/admin/datos` y `/admin/locales`).
 - `SENTRY_DSN` cuando abras la cuenta (el código ya está listo).
 - Rotar/borrar el token de escritura de Sanity al terminar las siembras.

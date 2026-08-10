@@ -7,6 +7,14 @@
     {
       "path": "/api/cron/boletin",
       "schedule": "0 14 * * 4"
+    },
+    {
+      "path": "/api/cron/articulos",
+      "schedule": "0 13 * * *"
+    },
+    {
+      "path": "/api/cron/reels",
+      "schedule": "0 15 * * *"
     }
   ]
 }
