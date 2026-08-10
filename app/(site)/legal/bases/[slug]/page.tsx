@@ -29,7 +29,9 @@ async function getBasesDoc(slug: string) {
       slug: c.slug,
     };
   }
-  const d = await getDinamica(slug);
+  // Las bases son el registro legal: siguen públicas aunque la dinámica
+  // esté pausada con el kill-switch (quien participó puede consultarlas).
+  const d = await getDinamica(slug, { incluirPausadas: true });
   if (!d) return null;
   return {
     title: d.title,

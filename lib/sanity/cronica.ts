@@ -48,7 +48,9 @@ export async function getCronica(slug: string): Promise<CronicaDetalle | null> {
   if (!sanityConfigured) return null;
   try {
     const raw = await client.fetch<RawCronicaDetalle | null>(
-      /* groq */ `*[_type == "cronica" && slug.current == $slug][0]{
+      // El filtro de fecha también aquí: una crónica PROGRAMADA no debe
+      // poder leerse por URL directa antes de su publicación.
+      /* groq */ `*[_type == "cronica" && slug.current == $slug && (!defined(fecha) || fecha <= now())][0]{
         _id, title, "slug": slug.current, vertical, bajada, autor, formato,
         lecturaMin, fecha, imagen{ asset, "alt": alt }, cuerpo
       }`,

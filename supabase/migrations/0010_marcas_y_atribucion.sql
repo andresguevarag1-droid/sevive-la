@@ -22,6 +22,11 @@ create table if not exists public.brand_leads (
   interest text,                         -- formato de interés: 'dinamica' | 'patrocinado' | 'cuponera' | 'boletin' | 'otro'
   message text,                          -- qué quiere lograr, en sus palabras
   utm jsonb,                             -- atribución de origen de la consulta
+  -- Prueba de consentimiento (Ley 8968): el contacto también es una persona.
+  consent_text text not null,            -- TEXTO EXACTO mostrado
+  consent_version text not null,
+  ip inet,
+  user_agent text,
   status text not null default 'nuevo'   -- 'nuevo' | 'contactado' | 'cerrado'
     check (status in ('nuevo', 'contactado', 'cerrado')),
   created_at timestamptz not null default now()

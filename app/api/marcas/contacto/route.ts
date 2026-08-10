@@ -5,6 +5,7 @@
  */
 import { NextResponse } from "next/server";
 import { marcaLeadSchema } from "@/lib/validation/marcas";
+import { CONSENT_MARCAS } from "@/lib/consent";
 import { getServiceClient } from "@/lib/supabase/server";
 import { getClientIp, getUserAgent } from "@/lib/server/request-meta";
 import { checkRateLimit } from "@/lib/server/rate-limit";
@@ -75,6 +76,11 @@ export async function POST(req: Request) {
     interest: d.interest ?? null,
     message: d.message || null,
     utm: d.utm && Object.keys(d.utm).length > 0 ? d.utm : null,
+    // Prueba del consentimiento aceptado (mismo patrón que `consents`).
+    consent_text: CONSENT_MARCAS.text,
+    consent_version: CONSENT_MARCAS.version,
+    ip,
+    user_agent: getUserAgent(req),
   });
   if (error) {
     console.error("[marcas] error guardando lead:", error, "UA:", getUserAgent(req));
@@ -85,15 +91,18 @@ export async function POST(req: Request) {
   }
 
   // Aviso interno (no fatal): que el equipo responda mientras está caliente.
+  // Cada campo del lead va escapado: es texto de terceros dentro de HTML.
   if (emailEnabled) {
+    const esc = (s: string) =>
+      s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     try {
       await enviarCorreo(`hola@${site.domain}`, {
         subject: `Nueva marca interesada: ${d.brandName}`,
-        html: `<p><strong>${d.brandName}</strong> — ${d.contactName} (${d.email}${
-          d.phone ? `, ${d.phone}` : ""
-        })</p><p>Formato: ${d.interest ?? "sin definir"}</p><p>${
-          d.message ? d.message.replace(/</g, "&lt;") : "Sin mensaje."
-        }</p>`,
+        html: `<p><strong>${esc(d.brandName)}</strong> — ${esc(d.contactName)} (${esc(
+          d.email
+        )}${d.phone ? `, ${esc(d.phone)}` : ""})</p><p>Formato: ${esc(
+          d.interest ?? "sin definir"
+        )}</p><p>${d.message ? esc(d.message) : "Sin mensaje."}</p>`,
       });
     } catch (err) {
       console.error("[marcas] aviso interno falló (no fatal):", err);

@@ -209,8 +209,21 @@ export function FormParticipacion({
           ref: (refInicial || getCookie(claveCookie) || "").toUpperCase(),
           turnstileToken,
           website: honeypot,
-          // Atribución: los UTM de la URL actual pisan al first-touch guardado.
-          utm: { ...utmEnvio(), ...(utm ?? {}) },
+          // Atribución: los UTM de la página pisan al first-touch guardado,
+          // pero SOLO las claves con valor (el server component manda las
+          // claves aunque vengan undefined, y eso borraba el origen real) y
+          // recortadas al tope del esquema del servidor.
+          utm: {
+            ...utmEnvio(),
+            ...Object.fromEntries(
+              Object.entries(utm ?? {})
+                .filter(([, v]) => typeof v === "string" && v)
+                .map(([k, v]) => [
+                  k,
+                  (v as string).slice(0, k === "source" || k === "medium" ? 80 : 120),
+                ])
+            ),
+          },
         }),
       });
       const data = (await res.json().catch(() => null)) as

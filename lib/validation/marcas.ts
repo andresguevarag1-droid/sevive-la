@@ -25,6 +25,8 @@ export const marcaLeadSchema = z.object({
     .or(z.literal("")),
   interest: z.enum(FORMATOS_MARCA).optional(),
   message: z.string().trim().max(1000).optional().or(z.literal("")),
+  /** Checkbox de consentimiento: obligatorio, nunca premarcado (Ley 8968). */
+  consent: z.literal(true, "Necesitamos tu consentimiento para responderte."),
   /** Token de Cloudflare Turnstile (si está habilitado). */
   turnstileToken: z.string().optional(),
   /** Honeypot anti-bot: debe venir vacío. */

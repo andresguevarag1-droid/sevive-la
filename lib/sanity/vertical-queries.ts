@@ -25,8 +25,7 @@ import {
   type RawEvento,
   type RawReel,
   type RawBeneficio,
-  type SanityImage,
-} from "@/lib/sanity/queries";
+  type SanityImage, hoyCR } from "@/lib/sanity/queries";
 
 /* ── Consulta única por vertical ── */
 const VERTICAL_QUERY = /* groq */ `{
@@ -107,7 +106,7 @@ export async function getVerticalContent(
   if (!sanityConfigured) return fallbackFor(vertical);
   try {
     const desde = new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString();
-    const hoy = new Date().toISOString().slice(0, 10);
+    const hoy = hoyCR();
     const data = await client.fetch<RawVertical>(
       VERTICAL_QUERY,
       { vertical, desde, hoy },

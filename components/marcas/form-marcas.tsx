@@ -6,8 +6,10 @@
  * atribución de origen). Estados: idle → sending → ok | error.
  */
 import { useState, type FormEvent } from "react";
+import { CONSENT_MARCAS } from "@/lib/consent";
 import { isValidEmail } from "@/lib/validation/client";
 import { TurnstileWidget } from "@/components/turnstile";
+import { ConsentText } from "@/components/consent-text";
 import { track } from "@/lib/analytics/track";
 import { utmEnvio } from "@/lib/analytics/utm-client";
 
@@ -28,6 +30,7 @@ export function FormMarcas() {
   const [telefono, setTelefono] = useState("");
   const [interes, setInteres] = useState<string>("");
   const [mensaje, setMensaje] = useState("");
+  const [consent, setConsent] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
@@ -53,6 +56,11 @@ export function FormMarcas() {
       setError("Escribí un correo válido.");
       return;
     }
+    if (!consent) {
+      setStatus("error");
+      setError("Necesitamos tu consentimiento para responderte.");
+      return;
+    }
 
     setStatus("sending");
     try {
@@ -66,6 +74,7 @@ export function FormMarcas() {
           phone: telefono.trim(),
           interest: interes || undefined,
           message: mensaje.trim(),
+          consent: true,
           turnstileToken,
           website: honeypot,
           utm: utmEnvio(),
@@ -209,6 +218,20 @@ export function FormMarcas() {
         />
       </label>
 
+      <label className="mt-6 flex items-start gap-2.5 text-sm leading-relaxed text-muted">
+        <input
+          type="checkbox"
+          required
+          checked={consent}
+          onChange={(e) => setConsent(e.target.checked)}
+          disabled={status === "sending"}
+          className="mt-0.5 h-5 w-5 shrink-0"
+        />
+        <span>
+          <ConsentText text={CONSENT_MARCAS.text} />
+        </span>
+      </label>
+
       <TurnstileWidget onToken={setTurnstileToken} />
 
       {status === "error" && error ? (
@@ -224,9 +247,6 @@ export function FormMarcas() {
       >
         {status === "sending" ? "Enviando…" : "Quiero una propuesta"}
       </button>
-      <p className="mt-3 text-xs leading-relaxed text-faint">
-        Usamos estos datos únicamente para responder tu consulta comercial.
-      </p>
     </form>
   );
 }

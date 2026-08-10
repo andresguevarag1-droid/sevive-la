@@ -17,8 +17,7 @@ import {
   eventoToStory,
   reelToStory,
   type RawEvento,
-  type RawReel,
-} from "@/lib/sanity/queries";
+  type RawReel, hoyCR } from "@/lib/sanity/queries";
 
 /* ── Agenda ── */
 
@@ -122,7 +121,7 @@ export async function getBeneficioSugerido(
 ): Promise<Beneficio | null> {
   if (!sanityConfigured) return mockBeneficios[0] ?? null;
   try {
-    const hoy = new Date().toISOString().slice(0, 10);
+    const hoy = hoyCR();
     const raw = await client.fetch<RawBeneficioFull | null>(
       /* groq */ `*[_type == "beneficio" && defined(slug.current) && (!defined(vigencia) || vigencia >= $hoy)]
         | order(select(vertical == $vertical => 0, 1) asc, orden asc, _createdAt desc)[0]{
@@ -154,7 +153,7 @@ export async function getBeneficioSugerido(
 export async function getBeneficiosTodos(): Promise<Beneficio[]> {
   if (!sanityConfigured) return mockBeneficios;
   try {
-    const hoy = new Date().toISOString().slice(0, 10);
+    const hoy = hoyCR();
     const raw = await client.fetch<RawBeneficioFull[]>(
       /* groq */ `*[_type == "beneficio" && (!defined(vigencia) || vigencia >= $hoy)] | order(orden asc, _createdAt desc)[0...24]{
         _id, title, vertical, marca, detalle, patrocinado, vigencia, cupoMaximo, imagen, "slug": slug.current

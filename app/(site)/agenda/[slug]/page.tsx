@@ -12,7 +12,7 @@ import { BotonesCalendario } from "@/components/evento/botones-calendario";
 import { InteresEvento } from "@/components/evento/interes-evento";
 import { JsonLd } from "@/components/json-ld";
 import { ArrowRightIcon } from "@/components/icons";
-import { getGuardadosPorEvento, MIN_PRUEBA_SOCIAL } from "@/lib/server/populares";
+import { getInteresadosEnEvento, MIN_PRUEBA_SOCIAL } from "@/lib/server/populares";
 
 type Params = { slug: string };
 
@@ -105,12 +105,11 @@ export default async function EventoPage({
   if (!e) notFound();
 
   const v = getVertical(e.vertical);
-  const [relacionados, guardados] = await Promise.all([
-    getEventosRelacionados(e.vertical, e.id),
-    getGuardadosPorEvento(),
-  ]);
   // Prueba social: cuánta gente guardó este plan o pidió aviso.
-  const interesados = guardados.get(e.slug) ?? 0;
+  const [relacionados, interesados] = await Promise.all([
+    getEventosRelacionados(e.vertical, e.id),
+    getInteresadosEnEvento(e.slug),
+  ]);
   const conHora = !e.horaPorConfirmar;
   const esRango = e.fin && !mismoDia(e.inicio, e.fin);
   const pasado = new Date(e.fin ?? e.inicio).getTime() < Date.now() - 12 * 60 * 60 * 1000;

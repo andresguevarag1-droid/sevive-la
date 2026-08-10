@@ -132,7 +132,8 @@ export const beneficio = defineType({
     prepare({ title, marca, vigencia, patrocinado, media }) {
       let estado = "⚪ sin vigencia";
       if (vigencia) {
-        const fin = new Date(`${vigencia}T23:59:59`);
+        // Fin del día en Costa Rica (UTC-6 fijo), no en la zona del navegador.
+        const fin = new Date(`${vigencia}T23:59:59-06:00`);
         const dias = Math.ceil((fin.getTime() - Date.now()) / 86400000);
         estado =
           dias < 0

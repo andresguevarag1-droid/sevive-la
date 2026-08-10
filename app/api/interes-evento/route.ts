@@ -95,16 +95,23 @@ export async function POST(req: Request) {
       source: "interes-evento",
       initialStatus: "pending",
     });
-    // Evento con fecha futura = lista de aviso de novedades (waitlist);
-    // pasado o crónica = interés en la próxima edición.
+    // El texto registrado debe ser EXACTAMENTE el que la persona vio
+    // (Ley 8968): la variante declarada por el formulario manda cuando es
+    // coherente con la pieza; el cálculo por fecha queda de respaldo (un
+    // evento en curso o una página ISR vieja podían hacer divergir ambos).
     const futuro =
       evento && evento.inicio && new Date(evento.inicio).getTime() > Date.now();
-    await recordConsent(
-      db,
-      persona.id,
-      consentInteresEvento(pieza.slug, futuro ? "proximo" : evento ? "evento" : "cronica"),
-      { ip, userAgent }
-    );
+    const tipo = !evento
+      ? ("cronica" as const)
+      : parsed.data.variante === "proximo" || parsed.data.variante === "evento"
+        ? parsed.data.variante
+        : futuro
+          ? ("proximo" as const)
+          : ("evento" as const);
+    await recordConsent(db, persona.id, consentInteresEvento(pieza.slug, tipo), {
+      ip,
+      userAgent,
+    });
     // Sin confirmación la persona queda 'pending' para siempre (los crons
     // solo escriben a 'active'): el correo de confirmación cierra el ciclo.
     if (persona.status === "pending" && emailEnabled) {

@@ -3,6 +3,7 @@
  * El servidor SIEMPRE re-valida (regla dura del proyecto).
  */
 import { z } from "zod";
+import { utmSchema } from "@/lib/validation/utm";
 
 export const interesEventoSchema = z.object({
   eventSlug: z
@@ -15,22 +16,14 @@ export const interesEventoSchema = z.object({
   firstName: z.string().trim().max(80).optional().or(z.literal("")),
   /** Debe ser true: checkbox de consentimiento (nunca premarcado). */
   consent: z.literal(true, "Necesitamos tu consentimiento para avisarte."),
+  /** Variante del formulario que la persona VIO (determina el texto de
+   *  consentimiento a registrar; el servidor valida su coherencia). */
+  variante: z.enum(["evento", "cronica", "proximo"]).optional(),
   /** Token de Cloudflare Turnstile (si está habilitado). */
   turnstileToken: z.string().optional(),
   /** Honeypot anti-bot: debe venir vacío. */
   website: z.literal("").optional(),
-  utm: z
-    .object({
-      source: z.string().max(80).optional(),
-      medium: z.string().max(80).optional(),
-      content: z.string().max(120).optional(),
-      campaign: z.string().max(120).optional(),
-      term: z.string().max(120).optional(),
-      referrer: z.string().max(200).optional(),
-      landing: z.string().max(120).optional(),
-    })
-    .partial()
-    .optional(),
+  utm: utmSchema,
 });
 
 export type InteresEventoInput = z.infer<typeof interesEventoSchema>;

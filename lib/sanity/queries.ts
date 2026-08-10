@@ -92,6 +92,14 @@ function cap(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
+/** Fecha de HOY en Costa Rica (YYYY-MM-DD). La vigencia de un cupón vale
+ *  todo su último día EN CR: con la fecha UTC vencía a las 6 de la tarde. */
+export function hoyCR(): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Costa_Rica",
+  }).format(new Date());
+}
+
 /** "Jue 6 · 11:00" (o "Jue 6" si la hora está por confirmar), en hora CR. */
 export function fmtEvento(inicio: string, conHora = true): string {
   const d = new Date(inicio);
@@ -194,7 +202,7 @@ export async function getHomeContent(): Promise<HomeContent> {
   if (!sanityConfigured) return FALLBACK;
   try {
     const desde = new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString();
-    const hoy = new Date().toISOString().slice(0, 10);
+    const hoy = hoyCR();
     const data = await client.fetch<RawHome>(
       HOME_QUERY,
       { desde, hoy },

@@ -109,8 +109,9 @@ export const structure: StructureResolver = (S) =>
                   S.documentList()
                     .title("Vigentes (visibles en el sitio)")
                     .filter(
-                      // vigencia es fecha (sin hora): el cupón vale TODO su último día.
-                      '_type == "beneficio" && (!defined(vigencia) || dateTime(vigencia + "T23:59:59Z") >= dateTime(now()))'
+                      // vigencia es fecha (sin hora): el cupón vale TODO su
+                      // último día EN COSTA RICA (UTC-6, sin horario de verano).
+                      '_type == "beneficio" && (!defined(vigencia) || dateTime(vigencia + "T23:59:59-06:00") >= dateTime(now()))'
                     )
                     .defaultOrdering([{ field: "orden", direction: "asc" }])
                 ),
@@ -120,7 +121,7 @@ export const structure: StructureResolver = (S) =>
                   S.documentList()
                     .title("Vencidos (ya no se muestran)")
                     .filter(
-                      '_type == "beneficio" && defined(vigencia) && dateTime(vigencia + "T23:59:59Z") < dateTime(now())'
+                      '_type == "beneficio" && defined(vigencia) && dateTime(vigencia + "T23:59:59-06:00") < dateTime(now())'
                     )
                     .defaultOrdering([{ field: "vigencia", direction: "desc" }])
                 ),

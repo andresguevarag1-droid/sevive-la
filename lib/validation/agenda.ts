@@ -3,6 +3,7 @@
  * El servidor SIEMPRE re-valida (regla dura del proyecto).
  */
 import { z } from "zod";
+import { utmSchema } from "@/lib/validation/utm";
 
 export const respaldoAgendaSchema = z.object({
   email: z.string().trim().toLowerCase().max(254).pipe(z.email("Escribí un correo válido.")),
@@ -25,18 +26,7 @@ export const respaldoAgendaSchema = z.object({
   turnstileToken: z.string().optional(),
   /** Honeypot anti-bot: debe venir vacío. */
   website: z.literal("").optional(),
-  utm: z
-    .object({
-      source: z.string().max(80).optional(),
-      medium: z.string().max(80).optional(),
-      content: z.string().max(120).optional(),
-      campaign: z.string().max(120).optional(),
-      term: z.string().max(120).optional(),
-      referrer: z.string().max(200).optional(),
-      landing: z.string().max(120).optional(),
-    })
-    .partial()
-    .optional(),
+  utm: utmSchema,
 });
 
 export type RespaldoAgendaInput = z.infer<typeof respaldoAgendaSchema>;

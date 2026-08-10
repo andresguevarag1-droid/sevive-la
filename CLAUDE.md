@@ -30,7 +30,7 @@ Next.js **15** (App Router, pinneado — no subir a 16 sin acordar) · React 19 
 
 ## Sistema de diseño
 
-**Tema claro editorial** (print/Swiss + blend moderno, pasada "anti-IA"). Tokens en `app/globals.css` (`@theme`): papel `#f6f2fb`, **lila de marca `#a190d2`** protagonista (masthead, bandas), tinta `#1a1526`. **Magenta `#c71e70` = solo CTA/acción.** Lila/morados/petróleo = superficie e identidad de vertical, no texto sobre claro (contraste). Color por vertical en `lib/site.ts` + `globals.css`. Serif Fraunces para grandes titulares; sans Inter para cuerpo y tarjetas. Nada de degradados decorativos, orbes, glow ni fade-ins uniformes. Comentarios en español; nombres de variables/funciones en inglés.
+**Tema claro editorial** (print/Swiss + blend moderno, pasada "anti-IA"). Tokens en `app/globals.css` (`@theme`): papel `#f6f2fb`, **lila de marca `#a190d2`** protagonista (masthead, bandas), tinta `#1a1526`. **Magenta `#c71e70` = solo CTA/acción.** Lila/morados/petróleo = superficie e identidad de vertical, no texto sobre claro (contraste). Color por vertical en `lib/site.ts` + `globals.css`. Serif Fraunces para grandes titulares; sans Inter para cuerpo y tarjetas. Nada de degradados decorativos, orbes, glow ni fade-ins uniformes. Comentarios en español; identificadores en español para el dominio del proyecto (`enviarCorreo`, `utmEnvio`, `consentBeneficio`…) y en inglés para lo técnico genérico — seguir la convención del módulo que se toca.
 
 ## Forma de trabajo
 

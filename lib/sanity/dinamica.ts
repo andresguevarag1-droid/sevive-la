@@ -67,12 +67,22 @@ function mapDinamica(d: RawDinamica): Dinamica {
   };
 }
 
-/** Una dinámica por slug. null si no existe o Sanity falla (→ 404 en la página). */
-export async function getDinamica(slug: string): Promise<Dinamica | null> {
+/**
+ * Una dinámica por slug. null si no existe o Sanity falla (→ 404 en la
+ * página). Con `incluirPausadas` se ignora el kill-switch `activa`: las
+ * bases legales de /legal/bases deben seguir públicas aunque la dinámica
+ * se haya retirado del sitio (quienes ya participaron tienen derecho a
+ * consultarlas).
+ */
+export async function getDinamica(
+  slug: string,
+  opts?: { incluirPausadas?: boolean }
+): Promise<Dinamica | null> {
   if (!sanityConfigured) return null;
   try {
+    const filtroActiva = opts?.incluirPausadas ? "" : " && activa != false";
     const raw = await client.fetch<RawDinamica | null>(
-      /* groq */ `*[_type == "dinamica" && slug.current == $slug && activa != false][0]{ ${DINAMICA_FIELDS} }`,
+      /* groq */ `*[_type == "dinamica" && slug.current == $slug${filtroActiva}][0]{ ${DINAMICA_FIELDS} }`,
       { slug },
       { next: { revalidate: 60 } }
     );

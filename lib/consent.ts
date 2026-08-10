@@ -72,6 +72,14 @@ export function consentInteresEvento(
   };
 }
 
+/** Consentimiento del formulario B2B "Para marcas" (lead comercial):
+ *  también son datos personales de una persona de contacto (Ley 8968). */
+export const CONSENT_MARCAS: ConsentDefinition = {
+  purpose: "marcas-b2b",
+  version: "2026-08-06.v1",
+  text: "Acepto que SeViveLa trate estos datos de contacto (nombre, correo y teléfono) para responder mi consulta comercial y darle seguimiento, según su Política de Privacidad. Puedo pedir su eliminación en cualquier momento.",
+};
+
 /** Consentimiento de participación en dinámica; el purpose lleva el slug. */
 export function consentDinamica(slug: string): ConsentDefinition {
   return {

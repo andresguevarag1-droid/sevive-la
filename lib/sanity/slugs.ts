@@ -13,7 +13,10 @@ export async function getSlugsDeTipo(
   if (!sanityConfigured) return [];
   try {
     const raw = await client.fetch<string[]>(
-      /* groq */ `*[_type == $tipo && defined(slug.current)][0...200].slug.current`,
+      // Las crónicas programadas (fecha futura) no se prerenderizan: aún
+      // no están publicadas.
+      /* groq */ `*[_type == $tipo && defined(slug.current) &&
+        (_type != "cronica" || !defined(fecha) || fecha <= now())][0...200].slug.current`,
       { tipo },
       { next: { revalidate: 3600 } }
     );

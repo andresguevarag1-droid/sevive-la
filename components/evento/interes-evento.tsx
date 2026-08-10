@@ -74,6 +74,8 @@ export function InteresEvento({
           email: email.trim().toLowerCase(),
           firstName: nombre.trim(),
           consent: true,
+          // El servidor registra el texto de ESTA variante (la que se vio).
+          variante,
           turnstileToken,
           website: honeypot,
           utm: utmEnvio(),

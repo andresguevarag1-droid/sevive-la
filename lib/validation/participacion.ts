@@ -4,6 +4,7 @@
  * Réplica del contrato del Google Form de la campaña + legal + anti-abuso.
  */
 import { z } from "zod";
+import { utmSchema } from "@/lib/validation/utm";
 import { PROVINCIAS_CR } from "@/lib/validation/client";
 
 export const participacionSchema = z.object({
@@ -42,18 +43,7 @@ export const participacionSchema = z.object({
   turnstileToken: z.string().optional(),
   /** Honeypot anti-bot: debe venir vacío. */
   website: z.literal("").optional(),
-  utm: z
-    .object({
-      source: z.string().max(80).optional(),
-      medium: z.string().max(80).optional(),
-      content: z.string().max(120).optional(),
-      campaign: z.string().max(120).optional(),
-      term: z.string().max(120).optional(),
-      referrer: z.string().max(200).optional(),
-      landing: z.string().max(120).optional(),
-    })
-    .partial()
-    .optional(),
+  utm: utmSchema,
 });
 
 export type ParticipacionInput = z.infer<typeof participacionSchema>;
