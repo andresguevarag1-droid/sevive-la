@@ -46,7 +46,9 @@ const ESQUEMA_ARTICULO = {
         type: "object",
         properties: {
           subtitulo: {
-            type: ["string", "null"],
+            // anyOf en vez de type:[…]: la validación de salidas
+            // estructuradas no acepta el arreglo de tipos.
+            anyOf: [{ type: "string" }, { type: "null" }],
             description: "Subtítulo de la sección, o null para la intro.",
           },
           parrafos: { type: "array", items: { type: "string" } },

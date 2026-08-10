@@ -132,12 +132,16 @@ export async function GET(req: Request) {
   );
 
   const creados: string[] = [];
-  const fallidos: string[] = [];
+  // Con el motivo del fallo: depurar desde el curl, sin abrir logs.
+  const fallidos: { evento: string; motivo: string }[] = [];
   for (const { e, tipo, idArticulo } of pendientes.slice(0, MAX_POR_CORRIDA)) {
     try {
       const articulo = await redactarArticulo(tipo, e);
       if (!articulo) {
-        fallidos.push(e.title);
+        fallidos.push({
+          evento: e.title,
+          motivo: "Claude declinó o la respuesta no tuvo la forma esperada.",
+        });
         continue;
       }
       const slugBase = tipo === "guia" ? `guia-${e.slug}` : `asi-se-vivio-${e.slug}`;
@@ -161,7 +165,10 @@ export async function GET(req: Request) {
       creados.push(`${tipo}: ${articulo.titulo}`);
     } catch (err) {
       console.error(`[cron articulos] falló "${e.title}":`, err);
-      fallidos.push(e.title);
+      fallidos.push({
+        evento: e.title,
+        motivo: (err instanceof Error ? err.message : String(err)).slice(0, 300),
+      });
     }
   }
 
