@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { getSlugsDeTipo } from "@/lib/sanity/slugs";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { PortableText } from "@portabletext/react";
@@ -25,10 +24,10 @@ type Search = {
 
 export const revalidate = 60;
 
-// Prerender de los slugs publicados; los nuevos caen a on-demand (ISR).
-export async function generateStaticParams() {
-  return getSlugsDeTipo("dinamica");
-}
+// SIN generateStaticParams a propósito: la landing de campaña lee
+// searchParams (UTM + código de referido), que es una API dinámica.
+// Con prerender, Next clasificaba la ruta como estática y el slug de la
+// campaña reventaba con 500 en producción al tocar searchParams.
 
 export async function generateMetadata({
   params,
