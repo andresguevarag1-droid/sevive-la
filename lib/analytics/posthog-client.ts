@@ -5,6 +5,31 @@
  * Acepta las variables del asistente de PostHog y la nuestra.
  */
 import posthog from "posthog-js";
+import type { CaptureResult } from "posthog-js";
+
+/**
+ * Ruido conocido del rastreo de excepciones que NO es un bug del sitio:
+ * extensiones y webviews (IG/TikTok) lanzan objetos vacíos o CustomEvents
+ * al manejador global. Se filtran para que los errores reales resalten.
+ */
+const EXCEPCIONES_RUIDO = [
+  "Object captured as exception with no keys",
+  "CustomEvent captured as exception",
+];
+
+function filtrarRuido(evento: CaptureResult | null): CaptureResult | null {
+  if (!evento || evento.event !== "$exception") return evento;
+  const lista = (evento.properties?.$exception_list ?? []) as {
+    type?: string;
+    value?: string;
+  }[];
+  if (lista.length === 0) return evento;
+  const esRuido = lista.every((e) => {
+    const texto = `${e.type ?? ""} ${e.value ?? ""}`.trim();
+    return !texto || EXCEPCIONES_RUIDO.some((r) => texto.includes(r));
+  });
+  return esRuido ? null : evento;
+}
 
 const token =
   process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN ||
@@ -26,6 +51,7 @@ export function initializePostHog(): boolean {
     ui_host: host,
     capture_pageview: false, // App Router: lo emitimos a mano por ruta
     capture_exceptions: true,
+    before_send: filtrarRuido,
     person_profiles: "identified_only",
     autocapture: false, // taxonomía explícita, no ruido
     debug: process.env.NODE_ENV === "development",
