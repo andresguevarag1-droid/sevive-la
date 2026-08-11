@@ -1,6 +1,7 @@
 /**
- * Cron diario (7:00 CR): artículos automáticos por evento.
- *  - GUÍA previa para eventos futuros (próximos 45 días) sin artículo.
+ * Cron diario (7:00 CR): artículos automáticos por evento. Cada evento
+ * recibe exactamente DOS artículos, en fechas cercanas a su realización:
+ *  - GUÍA previa cuando faltan ≤10 días (justo cuando la gente decide si va).
  *  - Esqueleto de COBERTURA para eventos terminados hace 12h–4 días.
  * Claude redacta en la voz de SeViveLa y el resultado queda como BORRADOR
  * en el Studio: nada se publica sin ojos humanos. Idempotente por _id
@@ -88,7 +89,8 @@ export async function GET(req: Request) {
   const db = getWriteClient()!;
 
   const ahora = new Date();
-  const en45d = new Date(ahora.getTime() + 45 * 86400000).toISOString();
+  // Ventana corta a pedido del dueño: la guía se escribe cerca del evento.
+  const en10d = new Date(ahora.getTime() + 10 * 86400000).toISOString();
   const hace12h = new Date(ahora.getTime() - 12 * 3600000).toISOString();
   const hace4d = new Date(ahora.getTime() - 4 * 86400000).toISOString();
 
@@ -98,14 +100,14 @@ export async function GET(req: Request) {
     pasados: EventoCrudo[];
   }>(
     /* groq */ `{
-      "futuros": *[_type == "evento" && !(_id in path("drafts.**")) && defined(slug.current) && defined(inicio) && inicio > $ahora && inicio < $en45d] | order(inicio asc)[0...20]{
+      "futuros": *[_type == "evento" && !(_id in path("drafts.**")) && defined(slug.current) && defined(inicio) && inicio > $ahora && inicio < $en10d] | order(inicio asc)[0...20]{
         _id, title, vertical, inicio, fin, horaPorConfirmar, lugar, precioDesde, artista, organizador, descripcion, enlace, "slug": slug.current
       },
       "pasados": *[_type == "evento" && !(_id in path("drafts.**")) && defined(slug.current) && defined(inicio) && coalesce(fin, inicio) < $hace12h && coalesce(fin, inicio) > $hace4d] | order(inicio desc)[0...10]{
         _id, title, vertical, inicio, fin, horaPorConfirmar, lugar, precioDesde, artista, organizador, descripcion, enlace, "slug": slug.current
       }
     }`,
-    { ahora: ahora.toISOString(), en45d, hace12h, hace4d }
+    { ahora: ahora.toISOString(), en10d, hace12h, hace4d }
   );
 
   // ¿Cuáles ya tienen su artículo (borrador O publicado)? El _id
