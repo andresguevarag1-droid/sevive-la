@@ -15,6 +15,8 @@ export type DatosEvento = {
   vertical: string;
   inicio?: string;
   fin?: string;
+  /** true = la hora de `inicio` es relleno: la ficha solo muestra la fecha. */
+  horaPorConfirmar?: boolean;
   lugar?: string;
   precioDesde?: string;
   artista?: string;
@@ -72,7 +74,7 @@ Voz editorial:
 
 Regla de oro: NUNCA inventés datos duros (fechas, precios, horarios, nombres, cifras). Usá solo los datos provistos; si un dato falta, escribí alrededor sin afirmarlo.`;
 
-function fmtFechaCR(iso?: string): string {
+function fmtFechaCR(iso?: string, conHora = true): string {
   if (!iso) return "";
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "";
@@ -81,19 +83,23 @@ function fmtFechaCR(iso?: string): string {
     day: "numeric",
     month: "long",
     year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
+    ...(conHora
+      ? { hour: "2-digit" as const, minute: "2-digit" as const, hour12: false }
+      : {}),
     timeZone: "America/Costa_Rica",
   }).format(d);
 }
 
 function fichaEvento(e: DatosEvento): string {
+  // Con hora por confirmar, la ficha omite la hora (es un relleno) y se lo
+  // dice a Claude para que escriba alrededor sin afirmarla.
+  const conHora = !e.horaPorConfirmar;
   const filas = [
     `Título: ${e.title}`,
     `Vertical: ${e.vertical}`,
-    e.inicio ? `Inicio: ${fmtFechaCR(e.inicio)}` : "",
-    e.fin ? `Fin: ${fmtFechaCR(e.fin)}` : "",
+    e.inicio ? `Inicio: ${fmtFechaCR(e.inicio, conHora)}` : "",
+    e.fin ? `Fin: ${fmtFechaCR(e.fin, conHora)}` : "",
+    e.horaPorConfirmar ? "Hora: por confirmar (todavía no hay hora oficial)" : "",
     e.lugar ? `Lugar: ${e.lugar}` : "",
     e.precioDesde ? `Precio: ${e.precioDesde}` : "",
     e.artista ? `Artista/elenco: ${e.artista}` : "",

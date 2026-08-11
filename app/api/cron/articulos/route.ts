@@ -99,10 +99,10 @@ export async function GET(req: Request) {
   }>(
     /* groq */ `{
       "futuros": *[_type == "evento" && !(_id in path("drafts.**")) && defined(slug.current) && defined(inicio) && inicio > $ahora && inicio < $en45d] | order(inicio asc)[0...20]{
-        _id, title, vertical, inicio, fin, lugar, precioDesde, artista, organizador, descripcion, enlace, "slug": slug.current
+        _id, title, vertical, inicio, fin, horaPorConfirmar, lugar, precioDesde, artista, organizador, descripcion, enlace, "slug": slug.current
       },
       "pasados": *[_type == "evento" && !(_id in path("drafts.**")) && defined(slug.current) && defined(inicio) && coalesce(fin, inicio) < $hace12h && coalesce(fin, inicio) > $hace4d] | order(inicio desc)[0...10]{
-        _id, title, vertical, inicio, fin, lugar, precioDesde, artista, organizador, descripcion, enlace, "slug": slug.current
+        _id, title, vertical, inicio, fin, horaPorConfirmar, lugar, precioDesde, artista, organizador, descripcion, enlace, "slug": slug.current
       }
     }`,
     { ahora: ahora.toISOString(), en45d, hace12h, hace4d }
