@@ -1,21 +1,18 @@
 import { ImageResponse } from "next/og";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { getCronica } from "@/lib/sanity/cronica";
-import { getVertical, site } from "@/lib/site";
+import { site } from "@/lib/site";
 
 /**
- * Historia de Instagram por crónica (1080×1920): foto del artículo, marco
- * brandeado lila, logo, frase clave (la bajada) y el link + @sevive.la
- * bien visibles. El botón "Instagram" de Compartir la descarga/comparte
- * lista para subir — el lector solo etiqueta o pega el link.
- * Si la crónica no existe, sale la tarjeta genérica de marca (nunca 500).
+ * Plantilla ÚNICA de historias de Instagram (1080×1920) — SOLO SERVIDOR.
+ * Marco lila de marca, logo, foto, titular serif, frase con filete del
+ * color de la vertical, líneas de datos y pie con link + @sevive.la.
+ * Todas las historias del sitio (crónica, evento, dinámica, cupón) salen
+ * de aquí: un solo lugar para retocar el diseño de marca.
  */
 
-export const runtime = "nodejs";
-
 // Espejo de globals.css (satori no lee CSS vars)
-const VERTICAL_HEX: Record<string, string> = {
+export const VERTICAL_HEX: Record<string, string> = {
   experiencias: "#c25e00",
   entretenimiento: "#9a6a12",
   cultura: "#6d4fb0",
@@ -25,13 +22,24 @@ const VERTICAL_HEX: Record<string, string> = {
   "estilo-de-vida": "#3b1f87",
 };
 
-export async function GET(
-  _req: Request,
-  { params }: { params: Promise<{ slug: string }> }
-) {
-  const { slug } = await params;
-  const [c, fraunces, inter, logoSvg] = await Promise.all([
-    getCronica(slug),
+export type DatosHistoria = {
+  /** Rótulo superior derecho (vertical, marca del cupón…). */
+  kicker?: string;
+  titulo: string;
+  /** Frase clave con filete de color (bajada, premio, detalle…). */
+  frase?: string;
+  /** Líneas de datos (fecha, lugar, precio…); `fuerte` = en tinta. */
+  lineas?: { texto: string; fuerte?: boolean }[];
+  /** URL absoluta de la foto (CDN de Sanity) — opcional. */
+  imagen?: string;
+  /** Color de acento (vertical). */
+  color: string;
+  /** Ruta en el sitio, para el pie ("/agenda/<slug>"). */
+  path: string;
+};
+
+export async function imagenHistoria(datos: DatosHistoria): Promise<ImageResponse> {
+  const [fraunces, inter, logoSvg] = await Promise.all([
     readFile(join(process.cwd(), "app/og/fraunces-600.ttf")),
     readFile(join(process.cwd(), "app/og/inter-500.ttf")),
     readFile(join(process.cwd(), "public/logo.svg"), "utf8"),
@@ -39,16 +47,13 @@ export async function GET(
   const logoSrc = `data:image/svg+xml;base64,${Buffer.from(
     logoSvg.replace(/currentColor/g, "#1a1526")
   ).toString("base64")}`;
-
-  const color = VERTICAL_HEX[c?.vertical ?? ""] ?? "#a190d2";
-  const vertical = c ? getVertical(c.vertical)?.name : undefined;
   const host = new URL(site.url).host;
-  const titulo = c?.title ?? site.name;
-  const bajada = c?.bajada;
+  const { kicker, titulo, frase, lineas, imagen, color, path } = datos;
+  // Sin foto, el texto ocupa el lienzo (tipografía protagonista, ley de la casa).
+  const conFoto = Boolean(imagen);
 
   return new ImageResponse(
     (
-      // Marco brandeado: lila de marca alrededor de todo el lienzo.
       <div
         style={{
           width: "100%",
@@ -69,7 +74,7 @@ export async function GET(
             overflow: "hidden",
           }}
         >
-          {/* Cabecera: logo sticker + sección */}
+          {/* Cabecera: logo sticker + rótulo */}
           <div
             style={{
               display: "flex",
@@ -79,7 +84,7 @@ export async function GET(
             }}
           >
             <img src={logoSrc} width={110} height={110} alt="" />
-            {vertical ? (
+            {kicker ? (
               <span
                 style={{
                   fontSize: 30,
@@ -88,21 +93,21 @@ export async function GET(
                   textTransform: "uppercase",
                 }}
               >
-                {vertical}
+                {kicker}
               </span>
             ) : null}
           </div>
 
-          {/* Foto del artículo (si tiene) */}
-          {c?.imagen ? (
+          {/* Foto (si hay) */}
+          {conFoto ? (
             <div style={{ display: "flex", padding: "0 56px" }}>
               <img
-                src={c.imagen}
+                src={imagen}
                 width={968}
-                height={760}
+                height={720}
                 style={{
                   width: 968,
-                  height: 760,
+                  height: 720,
                   objectFit: "cover",
                   borderRadius: 28,
                 }}
@@ -111,7 +116,7 @@ export async function GET(
             </div>
           ) : null}
 
-          {/* Título + frase clave */}
+          {/* Titular + frase + datos */}
           <div
             style={{
               flex: 1,
@@ -124,31 +129,59 @@ export async function GET(
             <div
               style={{
                 fontFamily: "Fraunces",
-                fontSize: titulo.length > 70 ? 52 : titulo.length > 40 ? 62 : 74,
+                fontSize: conFoto
+                  ? titulo.length > 70
+                    ? 50
+                    : titulo.length > 40
+                      ? 60
+                      : 72
+                  : titulo.length > 70
+                    ? 64
+                    : 84,
                 lineHeight: 1.05,
                 color: "#1a1526",
               }}
             >
               {titulo}
             </div>
-            {bajada ? (
+            {frase ? (
               <div
                 style={{
                   display: "flex",
                   marginTop: 28,
-                  fontSize: 34,
+                  fontSize: conFoto ? 33 : 38,
                   lineHeight: 1.35,
                   color: "#5a5568",
                   borderLeft: `10px solid ${color}`,
                   paddingLeft: 28,
                 }}
               >
-                {bajada.length > 170 ? `${bajada.slice(0, 167)}…` : bajada}
+                {frase.length > 170 ? `${frase.slice(0, 167)}…` : frase}
+              </div>
+            ) : null}
+            {lineas?.length ? (
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  marginTop: 30,
+                  fontSize: 34,
+                  lineHeight: 1.5,
+                }}
+              >
+                {lineas.map((l, i) => (
+                  <span
+                    key={i}
+                    style={{ color: l.fuerte ? "#1a1526" : "#5a5568" }}
+                  >
+                    {l.texto}
+                  </span>
+                ))}
               </div>
             ) : null}
           </div>
 
-          {/* Pie: link + arroba, sobre banda de tinta */}
+          {/* Pie: link + arroba sobre banda de tinta */}
           <div
             style={{
               display: "flex",
@@ -159,7 +192,8 @@ export async function GET(
             }}
           >
             <span style={{ fontSize: 30, color: "#f6f2fb" }}>
-              {c ? `${host}/cronica/${c.slug}` : host}
+              {host}
+              {path}
             </span>
             <span style={{ fontSize: 30, fontWeight: 500, color: "#cabce9" }}>
               @sevive.la
@@ -182,10 +216,24 @@ export async function GET(
         { name: "Inter", data: inter, weight: 500, style: "normal" },
       ],
       headers: {
-        // La historia de una crónica no cambia: cache larga en el CDN.
         "Cache-Control": "public, max-age=300, s-maxage=86400",
         "Content-Disposition": 'inline; filename="sevivela-historia.png"',
       },
     }
   );
+}
+
+/** Fecha editorial en horario de Costa Rica ("viernes 22 de agosto, 19:00"). */
+export function fechaHistoriaCR(iso?: string, conHora = true): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  const s = new Intl.DateTimeFormat("es-CR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    ...(conHora ? { hour: "2-digit" as const, minute: "2-digit" as const, hour12: false } : {}),
+    timeZone: "America/Costa_Rica",
+  }).format(d);
+  return s.charAt(0).toUpperCase() + s.slice(1);
 }

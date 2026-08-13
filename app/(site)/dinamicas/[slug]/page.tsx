@@ -6,6 +6,7 @@ import { getDinamica, estadoDinamica } from "@/lib/sanity/dinamica";
 import { getCampana } from "@/lib/sanity/campana";
 import { getVertical } from "@/lib/site";
 import { DinamicaForm } from "@/components/dinamica-form";
+import { Compartir } from "@/components/compartir";
 import { CampanaLanding } from "@/components/campana/landing-campana";
 import { CuentaRegresiva } from "@/components/campana/cuenta-regresiva";
 import { EditorialImage } from "@/components/editorial-image";
@@ -263,6 +264,14 @@ export default async function DinamicaPage({
           </div>
         )}
       </section>
+
+      {/* ── Compartir: cada participante puede traer al siguiente ── */}
+      <Compartir
+        titulo={d.title}
+        etiqueta="Compartí esta dinámica"
+        frase="participá gratis vía SeViveLa"
+        historiaUrl={`/api/historia/dinamica/${d.slug}`}
+      />
 
       {/* ── Legales siempre visibles ── */}
       <footer className="mt-8 text-center">

@@ -337,6 +337,7 @@ export default async function BeneficioPage({
         titulo={`${b.title} · ${b.marca}`}
         etiqueta="Compartí este cupón"
         frase="cupón vía SeViveLa"
+        historiaUrl={`/api/historia/beneficio/${b.slug}`}
       />
 
       {/* ── Otros beneficios (R5): la sesión no muere aquí ── */}

@@ -10,6 +10,7 @@ import { WeekIndex } from "@/components/week-index";
 import { FavoritoButton } from "@/components/evento/favorito-button";
 import { BotonesCalendario } from "@/components/evento/botones-calendario";
 import { InteresEvento } from "@/components/evento/interes-evento";
+import { Compartir } from "@/components/compartir";
 import { JsonLd } from "@/components/json-ld";
 import { ArrowRightIcon } from "@/components/icons";
 import { getInteresadosEnEvento, MIN_PRUEBA_SOCIAL } from "@/lib/server/populares";
@@ -320,6 +321,14 @@ export default async function EventoPage({
            capturado ANTES del evento (cuando más vale). */
         <InteresEvento slug={e.slug} titulo={e.title} variante="proximo" />
       )}
+
+      {/* ── Compartir: el plan viaja por WhatsApp e IG con historia lista ── */}
+      <Compartir
+        titulo={e.title}
+        etiqueta="Compartí este plan"
+        frase="plan vía SeViveLa"
+        historiaUrl={`/api/historia/evento/${e.slug}`}
+      />
 
       {/* ── Detalle largo ── */}
       {e.cuerpo?.length ? (
