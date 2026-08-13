@@ -201,7 +201,7 @@ export default async function CronicaPage({
         </div>
       ) : null}
 
-      <Compartir titulo={c.title} />
+      <Compartir titulo={c.title} historiaUrl={`/api/historia/cronica/${c.slug}`} />
 
       {/* ── Cobertura de un evento que ya pasó → captura de interés en la
            próxima edición (leads segmentados por evento). ── */}

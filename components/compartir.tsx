@@ -13,17 +13,59 @@ export function Compartir({
   titulo,
   etiqueta = "Compartí esta nota",
   frase = "lo leí en SeViveLa",
+  historiaUrl,
 }: {
   titulo: string;
   /** Rótulo del bloque ("Compartí este cupón"…). */
   etiqueta?: string;
   /** Cierre del mensaje antes del link ("cupón vía SeViveLa"…). */
   frase?: string;
+  /** URL de la imagen de historia (1080×1920): activa el botón Instagram. */
+  historiaUrl?: string;
 }) {
   const pathname = usePathname();
   const [copiado, setCopiado] = useState(false);
   const [tieneNativo, setTieneNativo] = useState(false);
   const [url, setUrl] = useState("");
+  const [generandoIg, setGenerandoIg] = useState(false);
+  const [notaIg, setNotaIg] = useState("");
+
+  /**
+   * Instagram no acepta links de compartir desde la web: la moneda es la
+   * IMAGEN. Generamos la historia brandeada y abrimos la hoja de compartir
+   * del teléfono con el archivo (IG aparece ahí); si el navegador no
+   * comparte archivos, se descarga lista para subir.
+   */
+  async function compartirInstagram() {
+    if (!historiaUrl || generandoIg) return;
+    track("share_click", { metodo: "instagram", path: pathname ?? "" });
+    setGenerandoIg(true);
+    setNotaIg("");
+    try {
+      const res = await fetch(historiaUrl);
+      if (!res.ok) throw new Error(`historia ${res.status}`);
+      const blob = await res.blob();
+      const file = new File([blob], "sevivela-historia.png", { type: "image/png" });
+      if (
+        typeof navigator !== "undefined" &&
+        "canShare" in navigator &&
+        navigator.canShare({ files: [file] })
+      ) {
+        await navigator.share({ files: [file], title: titulo });
+        setNotaIg("Al publicarla, etiquetá a @sevive.la o pegá el link 💜");
+      } else {
+        const enlace = document.createElement("a");
+        enlace.href = URL.createObjectURL(blob);
+        enlace.download = "sevivela-historia.png";
+        enlace.click();
+        URL.revokeObjectURL(enlace.href);
+        setNotaIg("Imagen descargada: subila a tu historia y etiquetá a @sevive.la 💜");
+      }
+    } catch {
+      // Compartir cancelado o red caída: sin drama, sin error ruidoso.
+    }
+    setGenerandoIg(false);
+  }
 
   useEffect(() => {
     setTieneNativo(typeof navigator !== "undefined" && "share" in navigator);
@@ -60,6 +102,21 @@ export function Compartir({
           </svg>
           WhatsApp
         </a>
+        {historiaUrl ? (
+          <button
+            type="button"
+            onClick={compartirInstagram}
+            disabled={generandoIg}
+            className={pill}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" aria-hidden>
+              <rect x="2.5" y="2.5" width="19" height="19" rx="5.5" />
+              <circle cx="12" cy="12" r="4.4" />
+              <circle cx="17.6" cy="6.4" r="1.15" fill="currentColor" stroke="none" />
+            </svg>
+            {generandoIg ? "Preparando…" : "Instagram"}
+          </button>
+        ) : null}
         <button
           type="button"
           onClick={async () => {
@@ -104,6 +161,9 @@ export function Compartir({
           </button>
         ) : null}
       </div>
+      <p aria-live="polite" className={notaIg ? "mt-3 text-sm text-muted" : "sr-only"}>
+        {notaIg}
+      </p>
     </div>
   );
 }

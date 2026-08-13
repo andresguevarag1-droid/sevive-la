@@ -63,7 +63,9 @@ export function TeleRetro({
         className="rounded-[var(--radius-xl)] border-b-8 border-deep/40 bg-lilac p-3 sm:p-5"
         style={{ boxShadow: "var(--shadow-card)" }}
       >
-        <div className="flex gap-3 sm:gap-5">
+        {/* En teléfono el panel de control baja bajo la pantalla: el tubo
+            usa TODO el ancho (el video manda). En sm+ vuelve al costado. */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:gap-5">
           {/* ── Tubo (pantalla) ── */}
           <div className="min-w-0 flex-1 rounded-[var(--radius-lg)] bg-deep p-2 sm:p-3">
             <div className="relative aspect-video w-full overflow-hidden rounded-[var(--radius-md)] bg-ink">
@@ -89,7 +91,7 @@ export function TeleRetro({
           {/* ── Panel de control ── */}
           <div
             aria-hidden="true"
-            className="flex w-12 shrink-0 flex-col items-center gap-3 py-1 sm:w-20 sm:gap-4"
+            className="flex shrink-0 items-center gap-3 px-1 sm:w-20 sm:flex-col sm:items-center sm:gap-4 sm:px-0 sm:py-1"
           >
             {/* Perillas: disco de papel con muesca de tinta. */}
             <div className="relative h-9 w-9 rounded-full border-2 border-deep bg-paper sm:h-14 sm:w-14">
@@ -98,9 +100,16 @@ export function TeleRetro({
             <div className="relative h-9 w-9 rotate-45 rounded-full border-2 border-deep bg-paper sm:h-14 sm:w-14">
               <div className="absolute left-1/2 top-1 h-3 w-0.5 -translate-x-1/2 rounded-full bg-ink sm:top-1.5 sm:h-4 sm:w-1" />
             </div>
-            {/* Parlante: ranuras horizontales. */}
+            {/* Parlante: ranuras verticales en teléfono, horizontales al costado. */}
             <div
-              className="mt-auto h-16 w-8 rounded-[var(--radius-xs)] sm:h-24 sm:w-12"
+              className="ml-auto h-9 w-24 rounded-[var(--radius-xs)] sm:hidden"
+              style={{
+                background:
+                  "repeating-linear-gradient(90deg, var(--color-deep) 0 3px, transparent 3px 8px)",
+              }}
+            />
+            <div
+              className="hidden sm:mt-auto sm:block sm:h-24 sm:w-12 sm:rounded-[var(--radius-xs)]"
               style={{
                 background:
                   "repeating-linear-gradient(0deg, var(--color-deep) 0 3px, transparent 3px 8px)",
