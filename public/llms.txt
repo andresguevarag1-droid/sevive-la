@@ -16,6 +16,7 @@
 - [Agenda](https://sevive.la/agenda): eventos próximos en Costa Rica ordenados por fecha, con filtros de hoy y fin de semana.
 - [Dinámicas](https://sevive.la/dinamicas): giveaways con premios de marcas aliadas; participación siempre gratuita, bases legales públicas.
 - [Videos](https://sevive.la/videos): reels verticales de planes y lugares.
+- [En vivo](https://sevive.la/en-vivo): transmisiones en directo de coberturas y eventos; avisos por correo al empezar.
 - [Beneficios](https://sevive.la/promociones): descuentos de marcas aliadas; el contenido patrocinado se etiqueta.
 - [Buscar](https://sevive.la/buscar): búsqueda por texto en todo el contenido.
 

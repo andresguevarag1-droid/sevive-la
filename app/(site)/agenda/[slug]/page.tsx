@@ -46,6 +46,22 @@ function mismoDia(a: string, b: string): boolean {
 }
 
 /** "Desde ₡41.700" → { price: "41700", priceCurrency: "CRC" } (null si no hay dato). */
+/**
+ * Fecha para datos estructurados: con "hora por confirmar" la hora
+ * almacenada es un relleno, así que se declara SOLO el día (YYYY-MM-DD,
+ * en día de Costa Rica) — schema.org acepta Date o DateTime, y a Google
+ * nunca se le afirma una hora que no es oficial.
+ */
+function fechaSchema(iso: string, horaPorConfirmar?: boolean): string {
+  if (!horaPorConfirmar) return iso;
+  return new Intl.DateTimeFormat("en-CA", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    timeZone: "America/Costa_Rica",
+  }).format(new Date(iso));
+}
+
 function parsePrecio(p?: string): { price: string; priceCurrency: string } | null {
   if (!p) return null;
   if (/gratis|gratuito|entrada libre/i.test(p)) return { price: "0", priceCurrency: "CRC" };
@@ -123,8 +139,8 @@ export default async function EventoPage({
           "@context": "https://schema.org",
           "@type": "Event",
           name: e.title,
-          startDate: e.inicio,
-          endDate: e.fin ?? undefined,
+          startDate: fechaSchema(e.inicio, e.horaPorConfirmar),
+          endDate: e.fin ? fechaSchema(e.fin, e.horaPorConfirmar) : undefined,
           eventStatus: "https://schema.org/EventScheduled",
           eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
           description: e.descripcion,

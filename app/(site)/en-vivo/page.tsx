@@ -3,6 +3,8 @@ import Link from "next/link";
 import { getEstadoEnVivo } from "@/lib/sanity/transmision";
 import { AvisameEnVivo } from "@/components/en-vivo/avisame";
 import { TeleRetro } from "@/components/en-vivo/tele-retro";
+import { JsonLd } from "@/components/json-ld";
+import { site } from "@/lib/site";
 
 /**
  * /en-vivo — la casa de las transmisiones.
@@ -40,9 +42,40 @@ function fmtFechaCR(iso: string): string {
 export default async function EnVivoPage() {
   const { activa, proxima } = await getEstadoEnVivo();
   const alAire = activa && activa.youtubeId ? activa : null;
+  // Datos estructurados solo cuando hay algo que declarar: la transmisión
+  // al aire, o la próxima con fecha real (nunca se afirma lo que no hay).
+  const transmisionSchema = alAire ?? (proxima?.programadaPara ? proxima : null);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 md:py-14">
+      {transmisionSchema ? (
+        <JsonLd
+          data={{
+            "@context": "https://schema.org",
+            "@type": "BroadcastEvent",
+            name: transmisionSchema.titulo,
+            description: transmisionSchema.descripcion,
+            isLiveBroadcast: Boolean(alAire),
+            ...(transmisionSchema.programadaPara
+              ? { startDate: transmisionSchema.programadaPara }
+              : {}),
+            inLanguage: site.locale,
+            broadcastOfEvent: {
+              "@type": "Event",
+              name: transmisionSchema.titulo,
+              eventAttendanceMode: "https://schema.org/OnlineEventAttendanceMode",
+              ...(transmisionSchema.programadaPara
+                ? { startDate: transmisionSchema.programadaPara }
+                : {}),
+              location: {
+                "@type": "VirtualLocation",
+                url: `${site.url}/en-vivo`,
+              },
+              organizer: { "@type": "Organization", name: site.name, url: site.url },
+            },
+          }}
+        />
+      ) : null}
       {alAire ? (
         <>
           {/* ── EN VIVO ── */}
