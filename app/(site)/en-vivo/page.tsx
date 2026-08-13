@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getEstadoEnVivo } from "@/lib/sanity/transmision";
 import { AvisameEnVivo } from "@/components/en-vivo/avisame";
+import { TeleRetro } from "@/components/en-vivo/tele-retro";
 
 /**
  * /en-vivo — la casa de las transmisiones.
@@ -61,10 +62,11 @@ export default async function EnVivoPage() {
             </p>
           ) : null}
 
-          {/* El player: iframe de YouTube en modo privacidad (nocookie).
-              Nada de SDKs ni scripts extra: el JS propio de la ruta no crece. */}
-          <div className="mt-8 overflow-hidden rounded-[var(--radius-xl)] bg-ink">
-            <div className="relative aspect-video w-full">
+          {/* El player vive dentro del televisor retro. Iframe de YouTube
+              en modo privacidad (nocookie): cero SDKs, el JS propio de la
+              ruta no crece. */}
+          <div className="mx-auto mt-8 max-w-4xl">
+            <TeleRetro>
               <iframe
                 src={`https://www.youtube-nocookie.com/embed/${alAire.youtubeId}?autoplay=1&playsinline=1&rel=0`}
                 title={alAire.titulo}
@@ -72,7 +74,7 @@ export default async function EnVivoPage() {
                 allowFullScreen
                 className="absolute inset-0 h-full w-full border-0"
               />
-            </div>
+            </TeleRetro>
           </div>
 
           <div className="mt-10 border-t border-rule pt-8">
@@ -86,29 +88,35 @@ export default async function EnVivoPage() {
         </>
       ) : (
         <>
-          {/* ── En reposo ── */}
+          {/* ── En reposo: el televisor con barras de ajuste manda ── */}
           <p className="label text-muted">Transmisiones</p>
           <h1 className="mt-3 max-w-3xl font-serif text-[clamp(1.9rem,4.5vw,3.2rem)] font-medium leading-[1.05] text-ink">
             Ahora no estamos en vivo.
           </h1>
-          {proxima?.programadaPara ? (
-            <p className="mt-4 max-w-2xl text-lg leading-relaxed text-ink">
-              La próxima transmisión ya tiene fecha:{" "}
-              <strong className="font-semibold">
-                {proxima.titulo}
-              </strong>
-              , el {fmtFechaCR(proxima.programadaPara)}.
-            </p>
-          ) : (
-            <p className="mt-4 max-w-2xl leading-relaxed text-muted">
-              Cuando haya una cobertura en directo —un evento, una apertura,
-              una experiencia— este es el lugar donde se ve.
-            </p>
-          )}
 
-          <div className="mt-8">
-            <h2 className="label text-ink">Avisame cuando empiece</h2>
-            <AvisameEnVivo />
+          <div className="mt-10 grid items-start gap-10 md:grid-cols-2 md:gap-12">
+            <div className="mx-auto w-full max-w-md md:max-w-none">
+              <TeleRetro rotulo="Fuera del aire" />
+            </div>
+            <div>
+              {proxima?.programadaPara ? (
+                <p className="text-lg leading-relaxed text-ink">
+                  La próxima transmisión ya tiene fecha:{" "}
+                  <strong className="font-semibold">{proxima.titulo}</strong>,
+                  el {fmtFechaCR(proxima.programadaPara)}.
+                </p>
+              ) : (
+                <p className="leading-relaxed text-muted">
+                  Cuando haya una cobertura en directo —un evento, una
+                  apertura, una experiencia— este es el lugar donde se ve.
+                </p>
+              )}
+
+              <div className="mt-8">
+                <h2 className="label text-ink">Avisame cuando empiece</h2>
+                <AvisameEnVivo />
+              </div>
+            </div>
           </div>
 
           <div className="mt-12 border-t border-rule pt-8">
