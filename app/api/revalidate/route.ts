@@ -67,6 +67,9 @@ export async function POST(req: NextRequest) {
       marcar("/promociones");
       if (body.slug) marcar(`/promociones/${body.slug}`);
       break;
+    case "transmision":
+      marcar("/en-vivo");
+      break;
     case "campana":
     case "dinamica":
       marcar("/dinamicas");

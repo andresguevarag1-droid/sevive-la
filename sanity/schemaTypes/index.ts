@@ -7,7 +7,8 @@ import { lugar } from "./lugar";
 import { galeria } from "./galeria";
 import { dinamica } from "./dinamica";
 import { campana } from "./campana";
+import { transmision } from "./transmision";
 
 export const schema: { types: SchemaTypeDefinition[] } = {
-  types: [cronica, reel, evento, beneficio, lugar, galeria, dinamica, campana],
+  types: [cronica, reel, evento, beneficio, lugar, galeria, dinamica, campana, transmision],
 };

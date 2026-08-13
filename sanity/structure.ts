@@ -131,6 +131,7 @@ export const structure: StructureResolver = (S) =>
             ])
         ),
       S.documentTypeListItem("campana").title("Campañas (hero de home)"),
+      S.documentTypeListItem("transmision").title("🔴 En vivo (transmisiones)"),
       S.listItem()
         .title("Dinámicas / Giveaways")
         .child(

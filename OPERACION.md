@@ -69,6 +69,42 @@ Vercel (Settings → Environment Variables → Production, y **redeploy**):
 Prueba manual de cualquier cron (sin esperar a la hora):
 `curl -H "Authorization: Bearer TU_CRON_SECRET" https://sevive-la.vercel.app/api/cron/reels`
 
+## 🔴 Transmitir en vivo desde OBS — gratis, vía YouTube oculto
+
+El sitio ya tiene todo: página **/en-vivo** (siempre visible, en reposo),
+banda "🔴 EN VIVO" en el home cuando hay transmisión y captura de correos
+("avisame cuando empiece"). El video viaja por YouTube en modo **no
+listado**: no aparece en YouTube, solo dentro del sitio. Costo: $0.
+
+**Una sola vez (preparar el canal):**
+1. Canal de YouTube de SeViveLa → [youtube.com](https://youtube.com) →
+   avatar → *Crear canal*.
+2. En [studio.youtube.com](https://studio.youtube.com) → Crear →
+   **Emitir en directo**. La primera vez pide verificar el teléfono y
+   espera **24 horas** de habilitación (por eso se hace HOY, no el día
+   del evento).
+3. En OBS: Ajustes → Emisión → Servicio **YouTube - RTMPS** → *Conectar
+   cuenta* (o pegar la clave de emisión de YouTube Studio).
+
+**Cada transmisión (5 min):**
+1. En YouTube Studio → Emitir en directo → creá la emisión con
+   visibilidad **No listado** (clave: así NO aparece en YouTube).
+2. Copiá el enlace del video (botón Compartir).
+3. En el **Studio del sitio** → **🔴 En vivo (transmisiones)** → creá el
+   documento: título, pegá el enlace, y encendé **EN VIVO** → Publish.
+   En segundos aparece la banda en el home y el video en /en-vivo.
+4. En OBS: *Iniciar transmisión*. A transmitir.
+5. Al terminar: apagá el interruptor en el Studio (→ Publish) y detené
+   OBS. La página vuelve a reposo y sigue capturando correos.
+
+💡 Si anunciás la transmisión con días de anticipación, poné la fecha en
+"Programada para": /en-vivo la muestra y junta correos desde ya (interés
+"en-vivo" en la segmentación).
+
+⚠️ Derechos: para shows/conciertos de terceros, transmitir el espectáculo
+completo requiere permiso del organizador. Coberturas propias, entrevistas
+y detrás de cámaras: sin problema.
+
 ## 🩺 Uptime (O4) — 5 min, una vez
 
 El endpoint **`/api/health`** verifica Sanity + Supabase y responde 200 (sano)

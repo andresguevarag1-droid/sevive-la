@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getHomeContent } from "@/lib/sanity/queries";
 import { getCampanaActiva } from "@/lib/sanity/campana";
+import { getEstadoEnVivo } from "@/lib/sanity/transmision";
 import { HeroCampana } from "@/components/campana/hero-campana";
+import { BandaEnVivo } from "@/components/en-vivo/banda-en-vivo";
 import { PortadaCarrusel } from "@/components/portada-carrusel";
 import { SectionHead } from "@/components/section-head";
 import { WeekIndex } from "@/components/week-index";
@@ -28,8 +30,8 @@ const quickFilters = [
 
 export default async function HomePage() {
   // Contenido desde Sanity (con fallback a mock por sección) + campaña activa.
-  const [{ portadas, week, features, videos, beneficios }, campana] =
-    await Promise.all([getHomeContent(), getCampanaActiva()]);
+  const [{ portadas, week, features, videos, beneficios }, campana, enVivo] =
+    await Promise.all([getHomeContent(), getCampanaActiva(), getEstadoEnVivo()]);
 
   // Eventos reales del índice → datos estructurados de la portada (SEO/GEO).
   const eventosLd = week.filter((s) => s.fechaIso && s.href);
@@ -67,6 +69,9 @@ export default async function HomePage() {
           }}
         />
       ) : null}
+
+      {/* ── Banda EN VIVO (solo mientras hay transmisión encendida) ── */}
+      {enVivo.activa ? <BandaEnVivo transmision={enVivo.activa} /> : null}
 
       {/* ── HERO de campaña (solo si el equipo la activó en el Studio) ── */}
       {campana ? <HeroCampana campana={campana} /> : null}

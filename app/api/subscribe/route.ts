@@ -107,10 +107,11 @@ export async function POST(req: Request) {
     // Qué canal trajo a esta persona (el argumento de venta ante marcas).
     await saveAttribution(db, persona.id, parsed.data.utm);
     // Chips marcados al suscribirse = interés declarado (peso máximo),
-    // filtrados contra la lista real de verticales.
-    const validas = new Set(verticals.map((v) => v.slug));
+    // filtrados contra la lista real de verticales + temas del sitio
+    // ("en-vivo" viene del formulario de /en-vivo: audiencia de lives).
+    const validas = new Set<string>([...verticals.map((v) => v.slug), "en-vivo"]);
     for (const s of parsed.data.intereses ?? []) {
-      if (validas.has(s as (typeof verticals)[number]["slug"])) {
+      if (validas.has(s)) {
         await declareInterest(db, persona.id, s);
       }
     }
