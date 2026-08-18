@@ -255,6 +255,426 @@ const EVENTOS: EventoSemilla[] = [
     organizador: "Nunu Producciones",
     enlace: "https://www.nunucr.com/oktoberfest",
   },
+
+  /* ── Ola 2 (investigación de prensa/ticketeras, 18 ago 2026) ── */
+  {
+    slug: "fiesta-de-la-lectura-2026",
+    title: "Fiesta de la Lectura Costa Rica",
+    vertical: "cultura",
+    inicio: "2026-09-11T12:00:00-06:00",
+    fin: "2026-09-13T23:59:00-06:00",
+    horaPorConfirmar: true,
+    lugar: "Antigua Aduana",
+    descripcion:
+      "Quinta edición del encuentro literario nacional: editoriales, autores y charlas durante tres días, con entrada gratuita.",
+    organizador: "Ministerio de Cultura y Juventud",
+    precioDesde: "Entrada gratuita",
+  },
+  {
+    slug: "jorge-drexler-taraca",
+    title: "Jorge Drexler — Gira Taracá",
+    vertical: "entretenimiento",
+    inicio: "2026-09-12T19:00:00-06:00",
+    horaPorConfirmar: false,
+    lugar: "Anfiteatro de Parque Viva",
+    descripcion:
+      "Drexler vuelve a Costa Rica con «Taracá», acompañado de siete músicos: candombe uruguayo y sus clásicos.",
+    artista: "Jorge Drexler",
+    enlace: "https://www.eticket.cr/masinformacion.aspx?idevento=9397",
+  },
+  {
+    slug: "osn-viii-temporada-2026",
+    title: "VIII Concierto de Temporada — Sinfónica Nacional",
+    vertical: "cultura",
+    inicio: "2026-09-25T12:00:00-06:00",
+    fin: "2026-09-27T23:59:00-06:00",
+    horaPorConfirmar: true,
+    lugar: "Teatro Nacional de Costa Rica",
+    descripcion:
+      "Funciones de viernes y domingo de la Temporada Oficial 2026 de la OSN, dedicada a las playas de Costa Rica.",
+    organizador: "Centro Nacional de la Música",
+    precioDesde: "Desde ₡2.220",
+    enlace: "https://boleteria.teatronacional.go.cr",
+  },
+  {
+    slug: "capmany-vive-2026",
+    title: "Capmany Vive — El Concierto",
+    vertical: "entretenimiento",
+    inicio: "2026-10-03T20:00:00-06:00",
+    horaPorConfirmar: false,
+    lugar: "Teatro Nacional de Costa Rica",
+    descripcion:
+      "Concierto homenaje al rockero costarricense José Capmany en el Teatro Nacional.",
+    enlace: "https://www.eticket.cr/masinformacion.aspx?idevento=9406",
+  },
+  {
+    slug: "gloria-trevi-parque-viva",
+    title: "Gloria Trevi",
+    vertical: "entretenimiento",
+    inicio: "2026-10-04T19:00:00-06:00",
+    horaPorConfirmar: false,
+    lugar: "Parque Viva",
+    descripcion:
+      "Regreso de Gloria Trevi a Costa Rica tras 15 años. Segunda fecha (domingo 4, mayores de 15): la del sábado 3 se agotó.",
+    artista: "Gloria Trevi",
+    precioDesde: "Desde ₡42.500",
+    enlace: "https://www.eticket.cr/masinformacion.aspx?idevento=9409",
+  },
+  {
+    slug: "iron-maiden-2026",
+    title: "Iron Maiden — Run For Your Lives",
+    vertical: "entretenimiento",
+    inicio: "2026-10-08T19:00:00-06:00",
+    horaPorConfirmar: false,
+    lugar: "Estadio Nacional",
+    descripcion:
+      "La gira del 50 aniversario de Iron Maiden vuelve al Estadio Nacional, con The Raven Age como banda invitada.",
+    artista: "Iron Maiden",
+    organizador: "Move Concerts",
+    enlace: "https://www.eticket.cr/masinformacion.aspx?idevento=9251",
+  },
+  {
+    slug: "ana-torroja-2026",
+    title: "Ana Torroja — Se Ha Acabado el Show",
+    vertical: "entretenimiento",
+    inicio: "2026-10-08T20:00:00-06:00",
+    horaPorConfirmar: false,
+    lugar: "Teatro Popular Melico Salazar",
+    descripcion:
+      "La exvocalista de Mecano regresa tras siete años con banda en vivo: éxitos de Mecano y de su carrera solista.",
+    artista: "Ana Torroja",
+    enlace: "https://www.eticket.cr/masinformacion.aspx?idevento=9431",
+  },
+  {
+    slug: "osn-ix-temporada-2026",
+    title: "IX Concierto de Temporada — Sinfónica Nacional",
+    vertical: "cultura",
+    inicio: "2026-10-09T12:00:00-06:00",
+    fin: "2026-10-11T23:59:00-06:00",
+    horaPorConfirmar: true,
+    lugar: "Teatro Nacional de Costa Rica",
+    descripcion:
+      "Dirigido por Carl St.Clair, con el barítono José Arturo Chacón y el pianista Manuel Matarrita: Mozart, Beethoven y el Réquiem de Fauré.",
+    organizador: "Centro Nacional de la Música",
+    precioDesde: "Desde ₡2.220",
+    enlace: "https://boleteria.teatronacional.go.cr",
+  },
+  {
+    slug: "beele-borondo-tour",
+    title: "Beéle — Borondo Tour",
+    vertical: "entretenimiento",
+    inicio: "2026-10-17T18:00:00-06:00",
+    horaPorConfirmar: false,
+    lugar: "Parque Viva",
+    descripcion:
+      "El colombiano Beéle vuelve a Costa Rica con su gira Borondo: «Morena», «Frente al mar» y «Santorini» en vivo.",
+    artista: "Beéle",
+    organizador: "HBarboza Producciones",
+    precioDesde: "Desde $60",
+    enlace: "https://www.kuikpei.com",
+  },
+  {
+    slug: "piazzolla-le-grand-tango",
+    title: "Astor Piazzolla Quinteto — Le Grand Tango",
+    vertical: "cultura",
+    inicio: "2026-10-23T19:00:00-06:00",
+    horaPorConfirmar: false,
+    lugar: "Teatro Nacional de Costa Rica",
+    descripcion:
+      "El Quinteto Astor Piazzolla presenta su espectáculo de tango «Le Grand Tango» en el Teatro Nacional.",
+    enlace: "https://www.eticket.cr/eventos.aspx?idlugar=462",
+  },
+  {
+    slug: "def-leppard-extreme",
+    title: "Def Leppard + Extreme",
+    vertical: "entretenimiento",
+    inicio: "2026-10-27T18:30:00-06:00",
+    horaPorConfirmar: false,
+    lugar: "Anfiteatro de Parque Viva",
+    descripcion:
+      "Primera visita de Def Leppard a Costa Rica, con Extreme como invitado especial.",
+    artista: "Def Leppard",
+    organizador: "Move Concerts",
+    enlace: "https://www.eticket.cr/masinformacion.aspx?idevento=9400",
+  },
+  {
+    slug: "osn-x-temporada-2026",
+    title: "X Concierto de Temporada — Sinfónica Nacional",
+    vertical: "cultura",
+    inicio: "2026-10-30T12:00:00-06:00",
+    fin: "2026-11-01T23:59:00-06:00",
+    horaPorConfirmar: true,
+    lugar: "Teatro Nacional de Costa Rica",
+    descripcion:
+      "Concierto de temporada con la Sinfonía n.º 41 «Júpiter» de Mozart en el programa.",
+    organizador: "Centro Nacional de la Música",
+    precioDesde: "Desde ₡2.220",
+    enlace: "https://boleteria.teatronacional.go.cr",
+  },
+  {
+    slug: "dia-mascarada-2026",
+    title: "Día Nacional de la Mascarada",
+    vertical: "cultura",
+    inicio: "2026-10-31T12:00:00-06:00",
+    horaPorConfirmar: true,
+    lugar: "Barva, Escazú, Aserrí y otros cantones",
+    descripcion:
+      "Celebración de la mascarada tradicional, símbolo nacional: pasacalles, cimarronas, exhibición de máscaras y comidas típicas en varios cantones.",
+    precioDesde: "Entrada gratuita",
+  },
+  {
+    slug: "trueno-parque-viva",
+    title: "Trueno",
+    vertical: "entretenimiento",
+    inicio: "2026-11-01T19:00:00-06:00",
+    horaPorConfirmar: false,
+    lugar: "Parque Viva",
+    descripcion:
+      "El rapero argentino Trueno trae su gira internacional a Parque Viva.",
+    artista: "Trueno",
+    organizador: "GoTime",
+    enlace: "https://www.eventcr.com/eventPage.php?id=288",
+  },
+  {
+    slug: "alejandro-sanz-2026",
+    title: "Alejandro Sanz — ¿Y Ahora Qué? Tour",
+    vertical: "entretenimiento",
+    inicio: "2026-11-07T19:00:00-06:00",
+    horaPorConfirmar: false,
+    lugar: "Parque Viva",
+    descripcion:
+      "Alejandro Sanz vuelve a Costa Rica con su gira «¿Y Ahora Qué?».",
+    artista: "Alejandro Sanz",
+    organizador: "Primo Entertainment",
+    enlace: "https://www.eticket.cr/masinformacion.aspx?idevento=9370",
+  },
+  {
+    slug: "percance-20-anos",
+    title: "Percance — 20 Años",
+    vertical: "entretenimiento",
+    inicio: "2026-11-07T19:00:00-06:00",
+    horaPorConfirmar: false,
+    lugar: "CIC ANDE, San Antonio de Belén",
+    descripcion:
+      "La banda nacional celebra 20 años con un concierto extendido, invitados especiales y aforo de 2.500 personas.",
+    artista: "Percance",
+    precioDesde: "Desde ₡28.800",
+    enlace: "https://www.eticket.cr/masinformacion.aspx?idevento=9342",
+  },
+  {
+    slug: "osn-xi-temporada-2026",
+    title: "XI Concierto de Temporada — Sinfónica Nacional",
+    vertical: "cultura",
+    inicio: "2026-11-13T12:00:00-06:00",
+    fin: "2026-11-15T23:59:00-06:00",
+    horaPorConfirmar: true,
+    lugar: "Teatro Nacional de Costa Rica",
+    descripcion:
+      "Penúltimo concierto de la Temporada Oficial 2026, dedicada a las playas costarricenses.",
+    organizador: "Centro Nacional de la Música",
+    precioDesde: "Desde ₡2.220",
+    enlace: "https://boleteria.teatronacional.go.cr",
+  },
+  {
+    slug: "gorillaz-the-mountain-tour",
+    title: "Gorillaz — The Mountain Tour",
+    vertical: "entretenimiento",
+    inicio: "2026-11-14T19:00:00-06:00",
+    horaPorConfirmar: false,
+    lugar: "Anfiteatro de Parque Viva",
+    descripcion:
+      "Primer concierto de Gorillaz en Costa Rica y única parada en Centroamérica de su gira The Mountain Tour. Mayores de 12 años; la mayoría de localidades, casi agotadas.",
+    artista: "Gorillaz",
+    organizador: "JOGO Latam",
+    precioDesde: "Desde ₡38.000",
+    enlace: "https://www.eticket.cr/masinformacion.aspx?idevento=9501",
+  },
+  {
+    slug: "carlos-rivera-vida-tour",
+    title: "Carlos Rivera — Vida México Tour",
+    vertical: "entretenimiento",
+    inicio: "2026-11-14T19:00:00-06:00",
+    horaPorConfirmar: false,
+    lugar: "Estadio Nacional",
+    descripcion:
+      "El mexicano Carlos Rivera regresa con su gira «Vida México»: «Recuérdame», «Te esperaba» y más.",
+    artista: "Carlos Rivera",
+    precioDesde: "Desde ₡25.000",
+    enlace: "https://www.eticket.cr/masinformacion.aspx?idevento=9367",
+  },
+  {
+    slug: "ca7riel-paco-amoroso-2026",
+    title: "Ca7riel & Paco Amoroso — Free Spirits",
+    vertical: "entretenimiento",
+    inicio: "2026-11-15T19:00:00-06:00",
+    horaPorConfirmar: false,
+    lugar: "Anfiteatro de Parque Viva",
+    descripcion:
+      "El dúo argentino vuelve al país con su Free Spirits World Tour. Solo mayores de 18 años.",
+    artista: "Ca7riel & Paco Amoroso",
+    enlace: "https://www.eticket.cr/masinformacion.aspx?idevento=9374",
+  },
+  {
+    slug: "eros-ramazzotti-2026",
+    title: "Eros Ramazzotti — Una Storia Importante",
+    vertical: "entretenimiento",
+    inicio: "2026-11-18T19:00:00-06:00",
+    horaPorConfirmar: false,
+    lugar: "Estadio Nacional",
+    descripcion:
+      "El italiano incluye a Costa Rica en su gira mundial, con éxitos de más de cuatro décadas.",
+    artista: "Eros Ramazzotti",
+    organizador: "Move Concerts",
+    precioDesde: "Desde ₡33.000",
+    enlace: "https://www.eticket.cr/eventos.aspx?idartista=1284",
+  },
+  {
+    slug: "fabulosos-cadillacs-2026",
+    title: "Los Fabulosos Cadillacs",
+    vertical: "entretenimiento",
+    inicio: "2026-11-19T19:00:00-06:00",
+    horaPorConfirmar: false,
+    lugar: "Parque Viva",
+    descripcion:
+      "La banda argentina de ska-rock regresa a Costa Rica: «Matador» y sus clásicos de vuelta en vivo. Solo mayores de 18 años.",
+    artista: "Los Fabulosos Cadillacs",
+    enlace: "https://www.eticket.cr/masinformacion.aspx?idevento=9450",
+  },
+  {
+    slug: "art-city-tour-noviembre",
+    title: "Art City Tour — Cierre 2026",
+    vertical: "cultura",
+    inicio: "2026-11-20T12:00:00-06:00",
+    horaPorConfirmar: true,
+    lugar: "Museos y galerías del centro de San José",
+    descripcion:
+      "Circuito gratuito de museos, galerías y edificios patrimoniales con buses entre sedes; última edición del año. Registro previo con cupo limitado.",
+    organizador: "GAM Cultural",
+    precioDesde: "Entrada gratuita",
+    enlace: "https://artcitytour.gamcultural.com/",
+  },
+  {
+    slug: "milo-j-2026",
+    title: "Milo J — La Vida Era Más Corta Tour",
+    vertical: "entretenimiento",
+    inicio: "2026-11-22T19:00:00-06:00",
+    horaPorConfirmar: false,
+    lugar: "Parque Viva",
+    descripcion:
+      "Primera visita del argentino Milo J a Costa Rica. Mayores de 12 años (menores de 18 con adulto).",
+    artista: "Milo J",
+    organizador: "JOGO Latam",
+    precioDesde: "Desde ₡28.673",
+    enlace: "https://www.eticket.cr/masinformacion.aspx?idevento=9510",
+  },
+  {
+    slug: "martin-garrix-2026",
+    title: "Martin Garrix — Americas Tour",
+    vertical: "entretenimiento",
+    // Hora en conflicto entre fuentes (7 vs 10 pm): entra por confirmar.
+    inicio: "2026-11-27T12:00:00-06:00",
+    horaPorConfirmar: true,
+    lugar: "Parque Viva",
+    descripcion:
+      "Primera visita de Martin Garrix a Costa Rica con show de producción completa, dentro de su Americas Tour de 16 ciudades.",
+    artista: "Martin Garrix",
+    precioDesde: "Desde $54",
+    enlace: "https://www.smartticket.fun/es/event/martin-garrix-en-costarica",
+  },
+  {
+    slug: "osn-xii-temporada-2026",
+    title: "XII Concierto de Temporada — Sinfónica Nacional",
+    vertical: "cultura",
+    inicio: "2026-11-27T12:00:00-06:00",
+    fin: "2026-11-29T23:59:00-06:00",
+    horaPorConfirmar: true,
+    lugar: "Teatro Nacional de Costa Rica",
+    descripcion:
+      "Concierto de clausura de la Temporada Oficial 2026 de la Sinfónica Nacional.",
+    organizador: "Centro Nacional de la Música",
+    precioDesde: "Desde ₡2.220",
+    enlace: "https://boleteria.teatronacional.go.cr",
+  },
+  {
+    slug: "karol-g-tropitour",
+    title: "Karol G — Tropitour",
+    vertical: "entretenimiento",
+    inicio: "2026-11-28T20:00:00-06:00",
+    horaPorConfirmar: false,
+    lugar: "Estadio Nacional",
+    descripcion:
+      "Karol G agotó su primera noche (viernes 27) en el Estadio Nacional y abrió esta segunda fecha dentro de su gira «Viajando por el Mundo Tropitour».",
+    artista: "Karol G",
+    organizador: "Move Concerts",
+    enlace: "https://www.eticket.cr/masinformacion.aspx?idevento=9381",
+  },
+  {
+    slug: "feria-hecho-aqui-2026",
+    title: "Feria Hecho Aquí",
+    vertical: "experiencias",
+    inicio: "2026-12-04T12:00:00-06:00",
+    fin: "2026-12-06T23:59:00-06:00",
+    horaPorConfirmar: true,
+    lugar: "Antigua Aduana y Casa del Cuño",
+    descripcion:
+      "XII edición de la principal feria de artesanía, diseño y agroindustria hecha en Costa Rica; en 2026 estrena categoría de colectivos.",
+    organizador: "Ministerio de Cultura y Juventud",
+  },
+  {
+    slug: "cascanueces-2026",
+    title: "Ballet El Cascanueces",
+    vertical: "cultura",
+    inicio: "2026-12-04T12:00:00-06:00",
+    fin: "2026-12-13T23:59:00-06:00",
+    horaPorConfirmar: true,
+    lugar: "Teatro Nacional de Costa Rica",
+    descripcion:
+      "Temporada navideña anual de «El Cascanueces», con varios elencos y jóvenes talentos nacionales.",
+    enlace: "https://boleteria.teatronacional.go.cr",
+  },
+  {
+    slug: "rawayana-2026",
+    title: "Rawayana",
+    vertical: "entretenimiento",
+    inicio: "2026-12-12T19:00:00-06:00",
+    horaPorConfirmar: false,
+    lugar: "Anfiteatro de Parque Viva",
+    descripcion:
+      "La banda venezolana reprogramó para diciembre su show de junio (pospuesto en solidaridad con Venezuela tras los terremotos); las entradas compradas siguen siendo válidas.",
+    artista: "Rawayana",
+    enlace: "https://www.eticket.cr/masinformacion.aspx?idevento=9285",
+  },
+];
+
+/**
+ * Correcciones sobre eventos YA sembrados (investigación 18 ago 2026).
+ * Solo toca campos puntuales de documentos agenda-2026-*; idempotente.
+ */
+const PARCHES: { id: string; set: Record<string, unknown>; nota: string }[] = [
+  {
+    // Prensa confirmó el show a las 9:00 p.m.
+    id: "agenda-2026-cazzu-latinaje-tour",
+    set: { inicio: "2026-09-19T21:00:00-06:00", horaPorConfirmar: false },
+    nota: "Cazzu: hora confirmada 9:00 p.m.",
+  },
+  {
+    // Ya existe la página directa del evento en eticket.
+    id: "agenda-2026-lenny-tavarez-justin-quiles",
+    set: { enlace: "https://www.eticket.cr/masinformacion.aspx?idevento=9426" },
+    nota: "Lenny Tavárez & Justin Quiles: enlace directo de entradas.",
+  },
+];
+
+/**
+ * CANCELADO (prensa, ~12 ago): Jon Batiste canceló su concierto del 3 de
+ * setiembre (reembolso automático). Se elimina el evento y la guía que el
+ * robot le haya escrito, en borrador o publicada.
+ */
+const ELIMINAR: string[] = [
+  "agenda-2026-jon-batiste-orquesta-filarmonica",
+  "drafts.agenda-2026-jon-batiste-orquesta-filarmonica",
+  "cronica-guia-agenda-2026-jon-batiste-orquesta-filarmonica",
+  "drafts.cronica-guia-agenda-2026-jon-batiste-orquesta-filarmonica",
 ];
 
 export async function GET(req: Request) {
@@ -311,9 +731,49 @@ export async function GET(req: Request) {
     }
   }
 
-  if (creados.length > 0) {
+  // Correcciones puntuales sobre lo ya sembrado (solo si el doc existe).
+  const actualizados: string[] = [];
+  for (const p of PARCHES) {
+    try {
+      const existe = await db.fetch<string | null>(
+        /* groq */ `*[_id == $id][0]._id`,
+        { id: p.id }
+      );
+      if (!existe) continue;
+      await db.patch(p.id).set(p.set).commit();
+      actualizados.push(p.nota);
+    } catch (err) {
+      fallidos.push({
+        evento: p.nota,
+        motivo: (err instanceof Error ? err.message : String(err)).slice(0, 300),
+      });
+    }
+  }
+
+  // Cancelados: fuera el evento y su artículo (borrador o publicado).
+  const eliminados: string[] = [];
+  for (const id of ELIMINAR) {
+    try {
+      const existe = await db.fetch<string | null>(
+        /* groq */ `*[_id == $id][0]._id`,
+        { id }
+      );
+      if (!existe) continue;
+      await db.delete(id);
+      eliminados.push(id);
+    } catch (err) {
+      fallidos.push({
+        evento: `eliminar ${id}`,
+        motivo: (err instanceof Error ? err.message : String(err)).slice(0, 300),
+      });
+    }
+  }
+
+  if (creados.length > 0 || actualizados.length > 0 || eliminados.length > 0) {
     revalidatePath("/");
     revalidatePath("/agenda");
+    // La página del evento cancelado debe dejar de servirse cacheada.
+    revalidatePath("/agenda/jon-batiste-orquesta-filarmonica");
   }
 
   return NextResponse.json({
@@ -321,6 +781,8 @@ export async function GET(req: Request) {
     total: EVENTOS.length,
     creados,
     yaExistian,
+    actualizados,
+    eliminados,
     fallidos,
   });
 }
