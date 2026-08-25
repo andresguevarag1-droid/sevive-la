@@ -78,6 +78,29 @@ export async function getCronica(slug: string): Promise<CronicaDetalle | null> {
   }
 }
 
+/**
+ * Los artículos DE un evento: la guía previa y la cobertura posterior.
+ * El robot (y la redacción) los publican con slug determinístico
+ * (guia-<evento> · asi-se-vivio-<evento>), así que el cruce es directo.
+ * Solo publicadas: una programada a futuro no se adelanta aquí.
+ */
+export async function getCronicasDeEvento(eventoSlug: string): Promise<Story[]> {
+  if (!sanityConfigured) return [];
+  try {
+    const raw = await client.fetch<RawCronica[]>(
+      /* groq */ `*[_type == "cronica" && slug.current in $slugs && (!defined(fecha) || fecha <= now())] | order(fecha desc)[0...2]{
+        _id, title, vertical, bajada, autor, formato, lecturaMin, imagen, "slug": slug.current
+      }`,
+      { slugs: [`guia-${eventoSlug}`, `asi-se-vivio-${eventoSlug}`] },
+      { next: { revalidate: 300 } }
+    );
+    return (raw ?? []).map(cronicaToStory);
+  } catch (err) {
+    console.error(`[sanity] crónicas del evento "${eventoSlug}" fallaron:`, err);
+    return [];
+  }
+}
+
 /** Otras crónicas de la misma vertical (para el bloque "Seguí leyendo"). */
 export async function getCronicasRelacionadas(
   vertical: VerticalSlug,

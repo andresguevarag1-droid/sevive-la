@@ -14,6 +14,9 @@ import { Compartir } from "@/components/compartir";
 import { JsonLd } from "@/components/json-ld";
 import { ArrowRightIcon } from "@/components/icons";
 import { getInteresadosEnEvento, MIN_PRUEBA_SOCIAL } from "@/lib/server/populares";
+import { getCronicasDeEvento } from "@/lib/sanity/cronica";
+import { StoryCard } from "@/components/story-card";
+import { TrackClicks } from "@/components/track-clicks";
 
 type Params = { slug: string };
 
@@ -123,9 +126,10 @@ export default async function EventoPage({
 
   const v = getVertical(e.vertical);
   // Prueba social: cuánta gente guardó este plan o pidió aviso.
-  const [relacionados, interesados] = await Promise.all([
+  const [relacionados, interesados, articulos] = await Promise.all([
     getEventosRelacionados(e.vertical, e.id),
     getInteresadosEnEvento(e.slug),
+    getCronicasDeEvento(e.slug),
   ]);
   const conHora = !e.horaPorConfirmar;
   const esRango = e.fin && !mismoDia(e.inicio, e.fin);
@@ -337,6 +341,28 @@ export default async function EventoPage({
            capturado ANTES del evento (cuando más vale). */
         <InteresEvento slug={e.slug} titulo={e.title} variante="proximo" />
       )}
+
+      {/* ── Los artículos de ESTE evento: guía previa y/o cobertura.
+           El robot los escribe con slug determinístico; aquí se cierran
+           el círculo agenda ↔ editorial. ── */}
+      {articulos.length > 0 ? (
+        <TrackClicks module="evento_articulos">
+          <section className="mt-10">
+            <div className="flex items-baseline gap-3 border-b border-ink pb-2">
+              <h2 className="label text-ink">
+                {pasado ? "Así se vivió" : "Leé antes de ir"}
+              </h2>
+            </div>
+            <div className="mt-6 grid grid-cols-1 gap-x-8 gap-y-8 sm:grid-cols-2">
+              {articulos.map((s) => (
+                <div key={s.id} data-reveal>
+                  <StoryCard story={s} />
+                </div>
+              ))}
+            </div>
+          </section>
+        </TrackClicks>
+      ) : null}
 
       {/* ── Compartir: el plan viaja por WhatsApp e IG con historia lista ── */}
       <Compartir
