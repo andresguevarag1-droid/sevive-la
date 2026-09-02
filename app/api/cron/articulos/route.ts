@@ -17,9 +17,9 @@ import {
 import {
   redaccionHabilitada,
   redactarArticulo,
-  type ArticuloRedactado,
   type DatosEvento,
 } from "@/lib/server/redaccion";
+import { aPortableText, minutosLectura } from "@/lib/server/articulo-pt";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -29,44 +29,6 @@ export const maxDuration = 300;
 const MAX_POR_CORRIDA = 2;
 
 type EventoCrudo = DatosEvento & { _id: string; slug?: string };
-
-let contadorKey = 0;
-const key = () => `auto${(++contadorKey).toString(36)}${Date.now().toString(36)}`;
-
-/** Secciones del artículo → Portable Text (bloques normal + h2). */
-function aPortableText(articulo: ArticuloRedactado) {
-  const bloques: Record<string, unknown>[] = [];
-  for (const seccion of articulo.secciones) {
-    if (seccion.subtitulo) {
-      bloques.push({
-        _type: "block",
-        _key: key(),
-        style: "h2",
-        markDefs: [],
-        children: [{ _type: "span", _key: key(), text: seccion.subtitulo, marks: [] }],
-      });
-    }
-    for (const parrafo of seccion.parrafos) {
-      if (!parrafo.trim()) continue;
-      bloques.push({
-        _type: "block",
-        _key: key(),
-        style: "normal",
-        markDefs: [],
-        children: [{ _type: "span", _key: key(), text: parrafo, marks: [] }],
-      });
-    }
-  }
-  return bloques;
-}
-
-function minutosLectura(articulo: ArticuloRedactado): number {
-  const palabras = articulo.secciones
-    .flatMap((s) => s.parrafos)
-    .join(" ")
-    .split(/\s+/).length;
-  return Math.max(1, Math.round(palabras / 200));
-}
 
 export async function GET(req: Request) {
   if (!cronAutorizado(req)) {

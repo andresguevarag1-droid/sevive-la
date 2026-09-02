@@ -69,6 +69,15 @@ Vercel (Settings → Environment Variables → Production, y **redeploy**):
 Prueba manual de cualquier cron (sin esperar a la hora):
 `curl -H "Authorization: Bearer TU_CRON_SECRET" https://sevive-la.vercel.app/api/cron/reels`
 
+**Revisor editorial** (manual, cuando haya borradores del robot acumulados):
+`curl -H "Authorization: Bearer TU_CRON_SECRET" https://sevive-la.vercel.app/api/admin/revisar-articulos`
+Corrige con IA el estilo de cada borrador del robot (ortografía, voseo,
+muletillas) y **publica** los que quedaron completos; los esqueletos de
+cobertura con `[COMPLETAR: …]` se corrigen pero siguen en borrador para
+que el equipo agregue lo vivencial. Revisa 4 por corrida: repetir el curl
+hasta que `pendientesProximaCorrida` sea 0. Lo escrito a mano por el
+equipo nunca se toca.
+
 ## 🔴 Transmitir en vivo desde OBS — gratis, vía YouTube oculto
 
 El sitio ya tiene todo: página **/en-vivo** (siempre visible, en reposo),

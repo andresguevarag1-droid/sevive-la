@@ -173,3 +173,87 @@ El equipo editorial estuvo ahí y va a completar el texto con fotos y detalles. 
     return null;
   }
 }
+
+const ESQUEMA_REVISION = {
+  type: "object" as const,
+  properties: {
+    ...ESQUEMA_ARTICULO.properties,
+    cambios: {
+      type: "array",
+      items: { type: "string" },
+      description:
+        "Lista corta de lo corregido (ej. 'tilde en «qué»', 'concordancia en la intro'). Vacía si no hizo falta tocar nada.",
+    },
+  },
+  required: ["titulo", "bajada", "secciones", "cambios"],
+  additionalProperties: false,
+};
+
+const CORRECTOR = `Sos el corrector de estilo de SeViveLa, revista digital de Costa Rica.
+
+Tu trabajo: pulir un artículo YA escrito para dejarlo listo para publicar.
+- Corregí ortografía, tildes, puntuación, concordancia y gramática.
+- Voseo costarricense correcto y consistente ("tenés", "querés"; jamás "tienes").
+- Eliminá muletillas de IA ("sumérgete", "no te lo puedes perder", "una experiencia única"), redundancias y rimbombancias; que suene a revista impresa.
+- Podés reescribir oraciones torpes, pero SIN cambiar el contenido.
+
+Reglas duras:
+- NUNCA cambiés datos duros (fechas, horas, precios, nombres, lugares, cifras) ni agregués información nueva.
+- Los marcadores con el formato [COMPLETAR: …] se conservan EXACTOS, en su propio párrafo.
+- Conservá la estructura de secciones (misma cantidad, mismos subtítulos salvo error ortográfico en ellos).
+- En "cambios" listá brevemente qué corregiste; si el texto ya estaba bien, devolvelo igual y dejá "cambios" vacía.`;
+
+/**
+ * Revisión de estilo de un artículo existente: devuelve el texto corregido
+ * y la lista de cambios. null si Claude declina o la forma no calza.
+ */
+export async function revisarArticulo(articulo: {
+  titulo: string;
+  bajada: string;
+  secciones: ArticuloRedactado["secciones"];
+}): Promise<{ articulo: ArticuloRedactado & { titulo: string; bajada: string }; cambios: string[] } | null> {
+  if (!redaccionHabilitada) return null;
+  const client = new Anthropic();
+
+  const response = await client.messages.create({
+    model: "claude-opus-5",
+    max_tokens: 8000,
+    output_config: {
+      effort: "low",
+      format: { type: "json_schema", schema: ESQUEMA_REVISION },
+    },
+    system: CORRECTOR,
+    messages: [
+      {
+        role: "user",
+        content: `Revisá y corregí este artículo (JSON):\n${JSON.stringify(articulo)}`,
+      },
+    ],
+  });
+
+  if (response.stop_reason === "refusal") return null;
+  const bloque = response.content.find((b) => b.type === "text");
+  if (!bloque || bloque.type !== "text") return null;
+  try {
+    const rev = JSON.parse(bloque.text) as ArticuloRedactado & { cambios?: string[] };
+    if (
+      typeof rev.titulo !== "string" ||
+      typeof rev.bajada !== "string" ||
+      !Array.isArray(rev.secciones) ||
+      rev.secciones.length === 0
+    ) {
+      return null;
+    }
+    return {
+      articulo: {
+        titulo: rev.titulo.slice(0, 110),
+        bajada: rev.bajada.slice(0, 220),
+        secciones: rev.secciones,
+      },
+      cambios: Array.isArray(rev.cambios) ? rev.cambios.slice(0, 12) : [],
+    };
+  } catch {
+    console.error("[redaccion] revisión no parseable para", articulo.titulo);
+    return null;
+  }
+}
