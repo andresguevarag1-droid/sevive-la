@@ -32,8 +32,10 @@ CTA magenta) — no hay que diseñar nada.
 | `/api/cron/recordatorios` | Diario 14:00 UTC (8:00 CR) | "Mañana es tu plan" a agendas respaldadas |
 | `/api/cron/boletin` | Jueves 14:00 UTC (8:00 CR) | Boletín semanal a suscriptores activos |
 | `/api/cron/articulos` | Diario 13:00 UTC (7:00 CR) | Redacta con IA 2 borradores por evento, cerca de su fecha: Guía (faltan ≤10 días) y Cobertura (terminó hace 12h–4 días) → Studio |
+| `/api/admin/revisar-articulos` | Diario 13:15 UTC (7:15 CR) | Corrige con IA el estilo de los borradores del robot y PUBLICA los completos; los esqueletos con `[COMPLETAR: …]` quedan corregidos en borrador para el equipo |
 | `/api/cron/reels` | Diario 15:00 UTC (9:00 CR) | Trae los reels nuevos de @sevive.la a la videoteca (con miniatura propia) |
 | `/api/cron/ig-eventos` | Diario 16:00 UTC (10:00 CR) | Lee los posts nuevos de @sevive.la: si anuncian un evento, lo crea en la agenda (con el arte del post) y el cron de artículos le escribe su guía |
+| `/api/cron/destacadas` | Lunes 13:30 UTC (7:30 CR) | Renueva el "Destacado" del home con las 3 crónicas más leídas de la semana (datos de PostHog; si falta lectoría, completa con lo más reciente). Necesita `POSTHOG_PERSONAL_API_KEY` + `POSTHOG_PROJECT_ID` en Vercel: [us.posthog.com](https://us.posthog.com) → Settings → *Personal API keys* (crear una con permiso de lectura de Query) y el *Project ID* está en Settings → Project |
 
 Todos son idempotentes: aunque corran dos veces, nadie recibe un correo
 repetido (tabla `email_log`) ni se duplica un artículo o reel (_id
@@ -70,14 +72,14 @@ Vercel (Settings → Environment Variables → Production, y **redeploy**):
 Prueba manual de cualquier cron (sin esperar a la hora):
 `curl -H "Authorization: Bearer TU_CRON_SECRET" https://sevive-la.vercel.app/api/cron/reels`
 
-**Revisor editorial** (manual, cuando haya borradores del robot acumulados):
+**Revisor editorial** — corre solo cada día a las 7:15 CR (ver crons),
+pero el mismo curl sirve para adelantarlo o vaciar una cola grande:
 `curl -H "Authorization: Bearer TU_CRON_SECRET" https://sevive-la.vercel.app/api/admin/revisar-articulos`
 Corrige con IA el estilo de cada borrador del robot (ortografía, voseo,
 muletillas) y **publica** los que quedaron completos; los esqueletos de
 cobertura con `[COMPLETAR: …]` se corrigen pero siguen en borrador para
-que el equipo agregue lo vivencial. Revisa 4 por corrida: repetir el curl
-hasta que `pendientesProximaCorrida` sea 0. Lo escrito a mano por el
-equipo nunca se toca.
+que el equipo agregue lo vivencial. Revisa 4 por corrida. Lo escrito a
+mano por el equipo nunca se toca.
 
 ## 🔴 Transmitir en vivo desde OBS — gratis, vía YouTube oculto
 
