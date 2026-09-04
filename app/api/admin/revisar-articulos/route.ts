@@ -67,6 +67,41 @@ export async function GET(req: Request) {
   }
   const db = getWriteClient()!;
 
+  // ── Rescate: crónicas del robot PUBLICADAS con apuntes [COMPLETAR: …]
+  // a la vista (se publicaron sin llenar). Vuelven a borrador YA: nada
+  // con huecos internos se queda al aire. ──
+  const despublicados: string[] = [];
+  const filtradas = await db.fetch<BorradorCrudo[]>(
+    /* groq */ `*[_type == "cronica" && !(_id in path("drafts.**")) && autor == "Redacción SeViveLa"]{
+      _id, title, slug, vertical, bajada, autor, formato, fecha, esPortada, destacada, cuerpo
+    }`
+  );
+  const rutasBajadas = new Set<string>();
+  for (const c of filtradas ?? []) {
+    const textos = (c.cuerpo ?? [])
+      .flatMap((b) => b.children ?? [])
+      .map((s) => s.text ?? "")
+      .join("\n");
+    if (!textos.includes("[COMPLETAR")) continue;
+    try {
+      const { _id, ...resto } = c;
+      await db
+        .transaction()
+        .createOrReplace({ ...resto, _id: `drafts.${_id}`, _type: "cronica" })
+        .delete(_id)
+        .commit();
+      despublicados.push(c.title);
+      if (c.slug?.current) rutasBajadas.add(`/cronica/${c.slug.current}`);
+      if (c.vertical) rutasBajadas.add(`/${c.vertical}`);
+    } catch (err) {
+      console.error(`[revisar] no se pudo despublicar "${c.title}":`, err);
+    }
+  }
+  if (despublicados.length > 0) {
+    revalidatePath("/");
+    for (const ruta of rutasBajadas) revalidatePath(ruta);
+  }
+
   const borradores = await db.fetch<BorradorCrudo[]>(
     /* groq */ `*[_id in path("drafts.**") && _type == "cronica" && autor == "Redacción SeViveLa"] | order(_updatedAt asc)[0...20]{
       _id, title, slug, vertical, bajada, autor, formato, fecha, esPortada, destacada, cuerpo
@@ -153,6 +188,7 @@ export async function GET(req: Request) {
   return NextResponse.json({
     ok: fallidos.length === 0,
     borradoresDelRobot: borradores?.length ?? 0,
+    despublicadosPorMarcadores: despublicados,
     publicados,
     quedanEnBorrador: enBorrador,
     fallidos,

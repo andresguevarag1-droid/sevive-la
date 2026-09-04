@@ -76,6 +76,17 @@ export const cronica = defineType({
       title: "Cuerpo de la nota",
       type: "array",
       of: [{ type: "block" }, { type: "image", options: { hotspot: true } }],
+      validation: (rule) =>
+        // Candado editorial: los esqueletos de cobertura traen apuntes
+        // internos [COMPLETAR: …]; con uno presente, el Publish se bloquea.
+        rule.custom((cuerpo?: { children?: { text?: string }[] }[]) => {
+          const conMarcador = (cuerpo ?? []).some((b) =>
+            (b.children ?? []).some((c) => (c.text ?? "").includes("[COMPLETAR"))
+          );
+          return conMarcador
+            ? "La nota todavía tiene marcadores [COMPLETAR: …]: completalos (o borralos) antes de publicar."
+            : true;
+        }),
     }),
     defineField({
       name: "fecha",
