@@ -31,6 +31,7 @@ CTA magenta) — no hay que diseñar nada.
 |---|---|---|
 | `/api/cron/recordatorios` | Diario 14:00 UTC (8:00 CR) | "Mañana es tu plan" a agendas respaldadas |
 | `/api/cron/boletin` | Jueves 14:00 UTC (8:00 CR) | Boletín semanal a suscriptores activos |
+| `/api/cron/notas-diarias` | Diario 12:40 UTC (6:40 CR) | Redactor de planta: nota de ANUNCIO por cada evento nuevo de la agenda (máx. 2/día) + roundups "La semana en planes" (lunes) y "Los planes del finde" (jueves) — completos, sin marcadores |
 | `/api/cron/articulos` | Diario 13:00 UTC (7:00 CR) | Redacta con IA 2 borradores por evento, cerca de su fecha: Guía (faltan ≤10 días) y Cobertura (terminó hace 12h–4 días) → Studio |
 | `/api/admin/revisar-articulos` | Diario 13:15 UTC (7:15 CR) | Corrige con IA el estilo de los borradores del robot y PUBLICA los completos; los esqueletos con `[COMPLETAR: …]` quedan corregidos en borrador para el equipo |
 | `/api/cron/reels` | Diario 15:00 UTC (9:00 CR) | Trae los reels nuevos de @sevive.la a la videoteca (con miniatura propia) |

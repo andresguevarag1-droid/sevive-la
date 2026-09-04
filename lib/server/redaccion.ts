@@ -90,7 +90,7 @@ function fmtFechaCR(iso?: string, conHora = true): string {
   }).format(d);
 }
 
-function fichaEvento(e: DatosEvento): string {
+export function fichaEvento(e: DatosEvento): string {
   // Con hora por confirmar, la ficha omite la hora (es un relleno) y se lo
   // dice a Claude para que escriba alrededor sin afirmarla.
   const conHora = !e.horaPorConfirmar;
@@ -170,6 +170,61 @@ El equipo editorial estuvo ahí y va a completar el texto con fotos y detalles. 
     };
   } catch {
     console.error("[redaccion] respuesta no parseable para", evento.title);
+    return null;
+  }
+}
+
+/**
+ * Redacta una nota "de escritorio" (anuncio de evento, agenda semanal,
+ * agenda del finde): formatos que salen COMPLETOS solo con los datos de
+ * la agenda — sin marcadores, listos para que el revisor los publique.
+ */
+export async function redactarNotaDeAgenda(
+  encargo: string,
+  eventos: DatosEvento[]
+): Promise<ArticuloRedactado | null> {
+  if (!redaccionHabilitada || eventos.length === 0) return null;
+  const client = new Anthropic();
+
+  const fichas = eventos
+    .map((e, i) => `--- Plan ${i + 1} ---\n${fichaEvento(e)}`)
+    .join("\n\n");
+  const response = await client.messages.create({
+    model: "claude-opus-5",
+    max_tokens: 8000,
+    output_config: {
+      effort: "medium",
+      format: { type: "json_schema", schema: ESQUEMA_ARTICULO },
+    },
+    system: VOZ_EDITORIAL,
+    messages: [
+      {
+        role: "user",
+        content: `${encargo}\n\nDatos reales (la única fuente de verdad):\n${fichas}`,
+      },
+    ],
+  });
+
+  if (response.stop_reason === "refusal") return null;
+  const bloque = response.content.find((b) => b.type === "text");
+  if (!bloque || bloque.type !== "text") return null;
+  try {
+    const articulo = JSON.parse(bloque.text) as ArticuloRedactado;
+    if (
+      typeof articulo.titulo !== "string" ||
+      typeof articulo.bajada !== "string" ||
+      !Array.isArray(articulo.secciones) ||
+      articulo.secciones.length === 0
+    ) {
+      return null;
+    }
+    return {
+      titulo: articulo.titulo.slice(0, 110),
+      bajada: articulo.bajada.slice(0, 220),
+      secciones: articulo.secciones,
+    };
+  } catch {
+    console.error("[redaccion] nota de agenda no parseable");
     return null;
   }
 }

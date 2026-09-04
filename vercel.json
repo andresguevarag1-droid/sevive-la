@@ -9,6 +9,10 @@
       "schedule": "0 14 * * 4"
     },
     {
+      "path": "/api/cron/notas-diarias",
+      "schedule": "40 12 * * *"
+    },
+    {
       "path": "/api/cron/articulos",
       "schedule": "0 13 * * *"
     },

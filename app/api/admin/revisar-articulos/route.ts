@@ -30,8 +30,9 @@ import {
 export const runtime = "nodejs";
 export const maxDuration = 300;
 
-/** Tope por corrida (cada revisión es una llamada a Claude). */
-const MAX_POR_CORRIDA = 4;
+/** Tope por corrida (cada revisión es una llamada a Claude). Da abasto
+ *  para la producción de una mañana: notas diarias + guías del día. */
+const MAX_POR_CORRIDA = 6;
 
 type BorradorCrudo = {
   _id: string;
