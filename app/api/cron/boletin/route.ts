@@ -50,6 +50,8 @@ async function armarContenido(): Promise<BoletinContenido> {
       inicio: e.inicio,
       lugar: e.lugarNombre,
       slug: e.href!.split("/")[2] ?? "",
+      // Sin hora oficial (e.hora undefined), el correo muestra solo el día.
+      horaPorConfirmar: !e.hora,
     }))
     .filter((e) => e.slug);
 

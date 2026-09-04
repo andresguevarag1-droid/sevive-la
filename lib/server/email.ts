@@ -261,7 +261,14 @@ export function plantillaConfirmarCorreo(
 
 export function plantillaRecordatorioEvento(
   email: string,
-  evento: { titulo: string; inicio: string; lugar?: string; slug: string }
+  evento: {
+    titulo: string;
+    inicio: string;
+    lugar?: string;
+    slug: string;
+    /** true = la hora guardada es relleno: el correo muestra solo el día. */
+    horaPorConfirmar?: boolean;
+  }
 ): { subject: string; html: string } {
   const url = `${site.url}/agenda/${evento.slug}?utm_source=email&utm_medium=recordatorio&utm_campaign=mi_agenda`;
   return {
@@ -273,7 +280,7 @@ export function plantillaRecordatorioEvento(
          <tr>
            <td style="padding:18px 20px;">
              <p style="margin:0;font-size:18px;font-weight:800;line-height:1.35;">${evento.titulo}</p>
-             <p style="margin:6px 0 0;font-size:14px;color:#666174;line-height:1.6;">${fmtFechaCorreo(evento.inicio)}${evento.lugar ? ` · ${evento.lugar}` : ""}</p>
+             <p style="margin:6px 0 0;font-size:14px;color:#666174;line-height:1.6;">${fmtFechaCorreo(evento.inicio, !evento.horaPorConfirmar)}${evento.lugar ? ` · ${evento.lugar}` : ""}</p>
            </td>
          </tr>
        </table>
@@ -309,7 +316,13 @@ export function plantillaRecuperarAgenda(
 /* ── Boletín semanal: los planes de la semana, curados ── */
 
 export type BoletinContenido = {
-  eventos: { titulo: string; inicio: string; lugar?: string; slug: string }[];
+  eventos: {
+    titulo: string;
+    inicio: string;
+    lugar?: string;
+    slug: string;
+    horaPorConfirmar?: boolean;
+  }[];
   cronicas: { titulo: string; slug: string }[];
   beneficio?: { titulo: string; marca: string; slug: string };
 };
@@ -325,7 +338,7 @@ export function plantillaBoletinSemanal(
         <td style="padding:12px 0;border-bottom:1px solid #eee9f5;">
           <a href="${site.url}/agenda/${e.slug}?${utm}" style="color:#1a1526;text-decoration:none;">
             <span style="font-size:16px;font-weight:800;line-height:1.35;">${e.titulo}</span><br/>
-            <span style="font-size:13px;color:#666174;">${fmtFechaCorreo(e.inicio)}${e.lugar ? ` · ${e.lugar}` : ""}</span>
+            <span style="font-size:13px;color:#666174;">${fmtFechaCorreo(e.inicio, !e.horaPorConfirmar)}${e.lugar ? ` · ${e.lugar}` : ""}</span>
           </a>
         </td>
       </tr>`

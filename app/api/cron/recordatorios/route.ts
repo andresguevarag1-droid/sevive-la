@@ -68,9 +68,34 @@ export async function GET(req: Request) {
     return NextResponse.json({ ok: false, error: "Consulta falló." }, { status: 500 });
   }
 
+  // ¿Cuáles de estos eventos tienen hora oficial? (con "hora por
+  // confirmar", el correo muestra solo el día, no el mediodía de relleno).
+  const filas = (data ?? []) as unknown as Fila[];
+  const slugsManana = [
+    ...new Set(
+      filas
+        .filter((f) => f.inicio && diaCR(f.inicio) === manana)
+        .map((f) => f.event_slug)
+    ),
+  ];
+  let sinHora = new Set<string>();
+  if (slugsManana.length > 0) {
+    try {
+      const { client } = await import("@/sanity/lib/client");
+      sinHora = new Set(
+        await client.fetch<string[]>(
+          /* groq */ `*[_type == "evento" && slug.current in $slugs && horaPorConfirmar == true].slug.current`,
+          { slugs: slugsManana }
+        )
+      );
+    } catch (err) {
+      console.warn("[cron recordatorios] no se pudo leer horaPorConfirmar:", err);
+    }
+  }
+
   let enviados = 0;
   let omitidos = 0;
-  for (const f of (data ?? []) as unknown as Fila[]) {
+  for (const f of filas) {
     if (!f.inicio || diaCR(f.inicio) !== manana) continue;
     if (!f.people?.email || f.people.status !== "active") continue;
 
@@ -96,6 +121,7 @@ export async function GET(req: Request) {
           inicio: f.inicio,
           lugar: f.lugar ?? undefined,
           slug: f.event_slug,
+          horaPorConfirmar: sinHora.has(f.event_slug),
         })
       );
       enviados++;
