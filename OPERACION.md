@@ -33,6 +33,7 @@ CTA magenta) — no hay que diseñar nada.
 | `/api/cron/boletin` | Jueves 14:00 UTC (8:00 CR) | Boletín semanal a suscriptores activos |
 | `/api/cron/articulos` | Diario 13:00 UTC (7:00 CR) | Redacta con IA 2 borradores por evento, cerca de su fecha: Guía (faltan ≤10 días) y Cobertura (terminó hace 12h–4 días) → Studio |
 | `/api/cron/reels` | Diario 15:00 UTC (9:00 CR) | Trae los reels nuevos de @sevive.la a la videoteca (con miniatura propia) |
+| `/api/cron/ig-eventos` | Diario 16:00 UTC (10:00 CR) | Lee los posts nuevos de @sevive.la: si anuncian un evento, lo crea en la agenda (con el arte del post) y el cron de artículos le escribe su guía |
 
 Todos son idempotentes: aunque corran dos veces, nadie recibe un correo
 repetido (tabla `email_log`) ni se duplica un artículo o reel (_id

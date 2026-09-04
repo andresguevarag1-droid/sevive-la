@@ -174,6 +174,118 @@ El equipo editorial estuvo ahí y va a completar el texto con fotos y detalles. 
   }
 }
 
+const ESQUEMA_EVENTO_IG = {
+  type: "object" as const,
+  properties: {
+    esEventoNuevo: {
+      type: "boolean",
+      description:
+        "true SOLO si el post anuncia UN evento concreto con fecha identificable Y no coincide con ninguno de la lista de eventos existentes.",
+    },
+    titulo: {
+      type: "string",
+      description: "Nombre editorial del evento, máx. 100 caracteres.",
+    },
+    fecha: {
+      anyOf: [{ type: "string" }, { type: "null" }],
+      description:
+        "Fecha del evento en formato YYYY-MM-DD, o null si no se puede determinar con certeza.",
+    },
+    hora: {
+      anyOf: [{ type: "string" }, { type: "null" }],
+      description: 'Hora de inicio "HH:MM" (24h) SOLO si el texto la dice; si no, null.',
+    },
+    lugar: { anyOf: [{ type: "string" }, { type: "null" }] },
+    precioDesde: {
+      anyOf: [{ type: "string" }, { type: "null" }],
+      description: 'Ej. "Desde ₡25.000", solo si el texto lo dice.',
+    },
+    vertical: {
+      type: "string",
+      enum: [
+        "experiencias",
+        "entretenimiento",
+        "cultura",
+        "ocio",
+        "gastronomia",
+        "turismo",
+        "estilo-de-vida",
+      ],
+    },
+    descripcion: {
+      anyOf: [{ type: "string" }, { type: "null" }],
+      description: "1-2 frases factuales tomadas del texto del post.",
+    },
+  },
+  required: [
+    "esEventoNuevo",
+    "titulo",
+    "fecha",
+    "hora",
+    "lugar",
+    "precioDesde",
+    "vertical",
+    "descripcion",
+  ],
+  additionalProperties: false,
+};
+
+export type EventoExtraido = {
+  esEventoNuevo: boolean;
+  titulo: string;
+  fecha: string | null;
+  hora: string | null;
+  lugar: string | null;
+  precioDesde: string | null;
+  vertical: string;
+  descripcion: string | null;
+};
+
+/**
+ * ¿Este post de Instagram anuncia un evento? Extrae los datos del caption
+ * (NUNCA inventa: lo que no está, va null) y descarta duplicados contra la
+ * lista de eventos ya publicados en la agenda.
+ */
+export async function extraerEventoDeIg(
+  caption: string,
+  fechaPost: string,
+  eventosExistentes: { titulo: string; fecha: string }[]
+): Promise<EventoExtraido | null> {
+  if (!redaccionHabilitada) return null;
+  const client = new Anthropic();
+
+  const response = await client.messages.create({
+    model: "claude-opus-5",
+    max_tokens: 2000,
+    output_config: {
+      effort: "low",
+      format: { type: "json_schema", schema: ESQUEMA_EVENTO_IG },
+    },
+    system: `Analizás posts de Instagram de SeViveLa (medio de Costa Rica) para detectar anuncios de eventos y volcarlos a la agenda del sitio.
+
+Reglas:
+- esEventoNuevo=true SOLO si el post anuncia UN evento concreto (concierto, feria, obra, festival...) con fecha identificable. Posts de ambiente, memes, sorteos, coberturas de eventos pasados o compilados de varios planes: false.
+- NUNCA inventés datos: lo que el texto no diga va en null.
+- La fecha completa se deduce del texto + la fecha del post (mismo año del post; si el mes ya pasó respecto al post, probablemente es del año siguiente). Si no hay certeza: null.
+- Si el evento coincide con uno de la lista de existentes (mismo nombre aproximado y fecha cercana), esEventoNuevo=false.`,
+    messages: [
+      {
+        role: "user",
+        content: `Post publicado el ${fechaPost}.\n\nCaption:\n${caption.slice(0, 3000)}\n\nEventos ya en la agenda (no duplicar):\n${eventosExistentes.map((e) => `- ${e.titulo} (${e.fecha})`).join("\n") || "(ninguno)"}`,
+      },
+    ],
+  });
+
+  if (response.stop_reason === "refusal") return null;
+  const bloque = response.content.find((b) => b.type === "text");
+  if (!bloque || bloque.type !== "text") return null;
+  try {
+    return JSON.parse(bloque.text) as EventoExtraido;
+  } catch {
+    return null;
+  }
+}
+
 const ESQUEMA_REVISION = {
   type: "object" as const,
   properties: {
