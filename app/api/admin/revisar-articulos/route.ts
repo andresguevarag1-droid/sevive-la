@@ -102,8 +102,10 @@ export async function GET(req: Request) {
     for (const ruta of rutasBajadas) revalidatePath(ruta);
   }
 
+  // revisadoIA != true: las coberturas ya corregidas (que esperan al
+  // equipo) no se re-revisan — cada slot de la corrida va a material nuevo.
   const borradores = await db.fetch<BorradorCrudo[]>(
-    /* groq */ `*[_id in path("drafts.**") && _type == "cronica" && autor == "Redacción SeViveLa"] | order(_updatedAt asc)[0...20]{
+    /* groq */ `*[_id in path("drafts.**") && _type == "cronica" && autor == "Redacción SeViveLa" && revisadoIA != true] | order(_updatedAt asc)[0...20]{
       _id, title, slug, vertical, bajada, autor, formato, fecha, esPortada, destacada, cuerpo
     }`
   );
@@ -154,7 +156,7 @@ export async function GET(req: Request) {
       const tieneMarcadores = JSON.stringify(articulo).includes("[COMPLETAR");
       if (tieneMarcadores) {
         // Esqueleto de cobertura: corregido, pero espera al equipo.
-        await db.createOrReplace({ ...documento, _id: b._id });
+        await db.createOrReplace({ ...documento, _id: b._id, revisadoIA: true });
         enBorrador.push({
           titulo: articulo.titulo,
           motivo: "Tiene marcadores [COMPLETAR: …]: el equipo agrega lo vivencial y publica.",

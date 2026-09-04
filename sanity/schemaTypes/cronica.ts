@@ -89,6 +89,14 @@ export const cronica = defineType({
         }),
     }),
     defineField({
+      // Marca interna del revisor automático: una cobertura ya corregida
+      // no se re-revisa (ahorra llamadas a la IA). Invisible en el Studio.
+      name: "revisadoIA",
+      title: "Revisado por IA",
+      type: "boolean",
+      hidden: true,
+    }),
+    defineField({
       name: "fecha",
       title: "Fecha de publicación",
       type: "datetime",
