@@ -632,6 +632,32 @@ const EVENTOS: EventoSemilla[] = [
       "Temporada navideña anual de «El Cascanueces», con varios elencos y jóvenes talentos nacionales.",
     enlace: "https://boleteria.teatronacional.go.cr",
   },
+  /* ── Ola 3 (hoja del equipo, 6 set 2026) ── */
+  {
+    // Ya pasó (5 set): entra como evento pasado — capta interés para la
+    // próxima edición y habilita su cobertura.
+    slug: "san-jose-diaspora-parade-2026",
+    title: "San José Diaspora Parade",
+    vertical: "cultura",
+    inicio: "2026-09-05T10:00:00-06:00",
+    horaPorConfirmar: false,
+    lugar: "Parque Morazán y centro de San José",
+    descripcion:
+      "Desfile del Festival Flores de la Diáspora Africana: más de 40 agrupaciones artísticas —incluidas 12 bandas de Limón— del Morazán a la antigua Estación al Atlántico, con feria afrodescendiente y conciertos gratuitos.",
+    organizador: "Festival Flores de la Diáspora Africana",
+    precioDesde: "Entrada gratuita",
+  },
+  {
+    slug: "whisky-fest-2026",
+    title: "Whisky Fest",
+    vertical: "gastronomia",
+    inicio: "2026-09-12T12:00:00-06:00",
+    horaPorConfirmar: true,
+    lugar: "Campo Lago (Lindora)",
+    descripcion:
+      "Festival de whisky en Campo Lago: catas, marcas invitadas y gastronomía.",
+    enlace: "https://atelierla.net/whisky-fest/",
+  },
   {
     slug: "rawayana-2026",
     title: "Rawayana",
