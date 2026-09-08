@@ -29,6 +29,21 @@ export function PortadaCarrusel({
   const sinMovimiento = useRef(false);
   const toqueX = useRef<number | null>(null);
   const total = stories.length;
+  // Altura viva: el riel mide lo que mide el slide ACTIVO (sin esto, el
+  // slide más alto fija la altura de todos y los cortos dejan un vacío).
+  const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [alto, setAlto] = useState<number | undefined>(undefined);
+
+  useEffect(() => {
+    const el = slideRefs.current[indice];
+    if (!el) return;
+    const medir = () => setAlto(el.offsetHeight);
+    medir();
+    // Re-mide cuando cargan imágenes/fuentes o cambia el ancho.
+    const ro = new ResizeObserver(medir);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [indice]);
 
   const ir = useCallback(
     (i: number, manual = false) => {
@@ -80,7 +95,10 @@ export function PortadaCarrusel({
         if (Math.abs(delta) > 48) ir(indice + (delta < 0 ? 1 : -1), true);
       }}
     >
-      <div className="overflow-hidden">
+      <div
+        className="overflow-hidden transition-[height] duration-500 ease-out motion-reduce:transition-none"
+        style={{ height: alto ? `${alto}px` : undefined }}
+      >
         <div
           className="flex items-start transition-transform duration-500 ease-out motion-reduce:transition-none"
           style={{ transform: `translateX(-${indice * 100}%)` }}
@@ -88,6 +106,9 @@ export function PortadaCarrusel({
           {stories.map((s, i) => (
             <div
               key={s.id}
+              ref={(el) => {
+                slideRefs.current[i] = el;
+              }}
               aria-hidden={i !== indice}
               className={`w-full shrink-0 ${i === indice ? "" : "pointer-events-none select-none"}`}
               // Los slides ocultos no participan del tab-order.

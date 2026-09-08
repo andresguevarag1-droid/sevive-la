@@ -14,9 +14,38 @@ import {
   escrituraSanityHabilitada,
   getWriteClient,
 } from "@/lib/server/sanity-escritura";
+import { leerConfig, guardarConfig } from "@/lib/server/config-app";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
+
+/**
+ * Acepta el ID (UC…), el @handle o la URL completa del canal. El handle
+ * se resuelve una vez contra la página pública del canal y el ID queda
+ * cacheado en app_config.
+ */
+async function resolverCanal(valor: string): Promise<string | null> {
+  const limpio = valor.trim();
+  if (/^UC[0-9A-Za-z_-]{20,}$/.test(limpio)) return limpio;
+  const handle = `@${limpio
+    .replace(/^https?:\/\/(www\.)?youtube\.com\//i, "")
+    .replace(/^@/, "")
+    .split(/[/?#]/)[0]}`;
+  const claveCache = `youtube_channel_id_${handle.toLowerCase()}`;
+  const cacheado = await leerConfig(claveCache);
+  if (cacheado) return cacheado;
+  const res = await fetch(`https://www.youtube.com/${handle}`, {
+    headers: { "User-Agent": "Mozilla/5.0 (SeViveLa cron capitulos)" },
+  });
+  if (!res.ok) return null;
+  const html = await res.text();
+  const id =
+    html.match(/"channelId":"(UC[0-9A-Za-z_-]{22})"/)?.[1] ??
+    html.match(/channel_id=(UC[0-9A-Za-z_-]{22})/)?.[1] ??
+    null;
+  if (id) await guardarConfig(claveCache, id);
+  return id;
+}
 
 export async function GET(req: Request) {
   if (!cronAutorizado(req)) {
@@ -29,13 +58,23 @@ export async function GET(req: Request) {
       motivo: "Falta SANITY_API_WRITE_TOKEN en Vercel.",
     });
   }
-  const canal = process.env.YOUTUBE_CHANNEL_ID;
-  if (!canal) {
+  const configurado = process.env.YOUTUBE_CHANNEL_ID;
+  if (!configurado) {
     return NextResponse.json({
       ok: true,
       estado: "dormido",
-      motivo: "Falta YOUTUBE_CHANNEL_ID en Vercel (ver OPERACION.md).",
+      motivo: "Falta YOUTUBE_CHANNEL_ID en Vercel (sirve el @handle, ver OPERACION.md).",
     });
+  }
+  const canal = await resolverCanal(configurado);
+  if (!canal) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: `No se pudo resolver el canal "${configurado}": revisá el @handle o usá el ID UC….`,
+      },
+      { status: 502 }
+    );
   }
 
   const res = await fetch(
