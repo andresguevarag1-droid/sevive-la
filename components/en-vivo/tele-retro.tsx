@@ -66,8 +66,10 @@ export function TeleRetro({
         {/* En teléfono el panel de control baja bajo la pantalla: el tubo
             usa TODO el ancho (el video manda). En sm+ vuelve al costado. */}
         <div className="flex flex-col gap-3 sm:flex-row sm:gap-5">
-          {/* ── Tubo (pantalla) ── */}
-          <div className="min-w-0 flex-1 rounded-[var(--radius-lg)] bg-deep p-2 sm:p-3">
+          {/* ── Tubo (pantalla) ── El justify-center reparte el bisel
+              cuando el panel lateral es más alto que la pantalla (teles
+              angostas): el tubo queda centrado, como en una tele real. */}
+          <div className="flex min-w-0 flex-1 flex-col justify-center rounded-[var(--radius-lg)] bg-deep p-2 sm:p-3">
             <div className="relative aspect-video w-full overflow-hidden rounded-[var(--radius-md)] bg-ink">
               {children ?? (
                 <>

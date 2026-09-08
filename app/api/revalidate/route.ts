@@ -70,6 +70,9 @@ export async function POST(req: NextRequest) {
     case "transmision":
       marcar("/en-vivo");
       break;
+    case "capitulo":
+      marcar("/capitulos");
+      break;
     case "campana":
     case "dinamica":
       marcar("/dinamicas");

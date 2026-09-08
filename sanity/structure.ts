@@ -159,6 +159,7 @@ export const structure: StructureResolver = (S) =>
                 .child(S.documentTypeList("dinamica").title("Todas")),
             ])
         ),
+      S.documentTypeListItem("capitulo").title("📺 Capítulos del show"),
       S.documentTypeListItem("lugar").title("Lugares"),
       S.documentTypeListItem("galeria").title("Galerías"),
     ]);

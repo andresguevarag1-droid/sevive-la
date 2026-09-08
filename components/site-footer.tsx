@@ -29,6 +29,7 @@ export async function SiteFooter() {
         { href: "/mi-agenda", label: "Mi agenda" },
         { href: "/videos", label: "Videos" },
         { href: "/en-vivo", label: "En vivo" },
+        { href: "/capitulos", label: "Capítulos" },
         { href: "/promociones", label: "Cuponera" },
         { href: "/dinamicas", label: "Dinámicas" },
         ...(campana ? [{ href: "/participar", label: "Participá" }] : []),
