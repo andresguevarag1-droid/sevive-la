@@ -54,6 +54,17 @@ export function TeleCapitulos({ capitulos }: { capitulos: Capitulo[] }) {
           {fmtFechaCR(actual.fecha)}
           {actual.descripcion ? ` — ${actual.descripcion}` : ""}
         </p>
+        {/* Salvavidas: si un reclamo de música bloquea el embed, el
+            capítulo igual queda a un toque en YouTube. */}
+        <a
+          href={`https://www.youtube.com/watch?v=${actual.youtubeId}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => track("capitulo_youtube", { capitulo: actual.titulo })}
+          className="ulink mt-2 inline-block text-sm font-medium text-ink"
+        >
+          ¿No carga? Ver en YouTube ↗
+        </a>
       </div>
 
       {capitulos.length > 1 ? (
