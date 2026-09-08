@@ -82,6 +82,19 @@ export async function SiteFooter() {
               Guía viva de entretenimiento, cultura, experiencias y ocio de Costa Rica.
             </p>
 
+            {/* ── Vivir el show: el programa, capítulo a capítulo ── */}
+            <Link
+              href="/capitulos"
+              className="pressable mt-6 inline-flex min-h-11 items-center gap-2.5 rounded-full bg-brand px-6 py-3 text-sm font-bold uppercase tracking-wide text-brand-ink transition-colors hover:bg-brand-hover"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" aria-hidden>
+                <rect x="2.5" y="6.5" width="19" height="13" rx="2.5" />
+                <path d="m8 2.5 4 4 4-4" />
+                <path d="m10.5 10.5 4.5 2.5-4.5 2.5z" fill="currentColor" stroke="none" />
+              </svg>
+              Vivir el show
+            </Link>
+
             {/* redes sociales */}
             <div className="mt-6 flex gap-2">
               {socialLinks.map((s) => {
