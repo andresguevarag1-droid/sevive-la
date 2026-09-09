@@ -133,7 +133,7 @@ export const campana = defineType({
     }),
     defineField({
       name: "requisitos",
-      title: "Requisitos de elegibilidad",
+      title: "Requisitos de elegibilidad (sí/no)",
       type: "array",
       of: [{ type: "string" }],
       options: {
@@ -145,8 +145,32 @@ export const campana = defineType({
         layout: "grid",
       },
       description:
-        "Marcá los requisitos que el participante SÍ o SÍ debe cumplir. Dejalo vacío si cualquiera puede participar sin filtros.",
+        "Marcá los requisitos que el participante SÍ o SÍ debe cumplir. Dejalo vacío si cualquiera puede participar sin filtros. No se combina con 'Pedir edad exacta'.",
       initialValue: [],
+    }),
+    defineField({
+      name: "pideEdad",
+      title: "Pedir edad exacta (en vez de preguntas sí/no)",
+      type: "boolean",
+      description:
+        "ENCENDIDO: el formulario pide la edad en años (número) y exige ser mayor de 18; también vuelve obligatorio el teléfono, para poder contactar al ganador. Pensado para concursos formales con sorteo notariado. No se combina con 'Requisitos de elegibilidad'.",
+      initialValue: false,
+    }),
+    defineField({
+      name: "preguntaInteres",
+      title: "Pregunta de interés (opcional)",
+      type: "object",
+      description:
+        "Agrega una pregunta de selección NO obligatoria al final del formulario (ej. \"Tema favorito de Connecturday\"). Dejá el texto vacío para no mostrar ninguna.",
+      fields: [
+        defineField({ name: "pregunta", title: "Texto de la pregunta", type: "string" }),
+        defineField({
+          name: "opciones",
+          title: "Opciones",
+          type: "array",
+          of: [{ type: "string" }],
+        }),
+      ],
     }),
     defineField({
       name: "bases",

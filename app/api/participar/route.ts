@@ -9,7 +9,7 @@
  */
 import { NextResponse } from "next/server";
 import { participacionSchema } from "@/lib/validation/participacion";
-import { consentParticipacion } from "@/lib/consent";
+import { consentParticipacion, consentParticipacionMarketing } from "@/lib/consent";
 import { getCampana, estadoCampana } from "@/lib/sanity/campana";
 import { getServiceClient } from "@/lib/supabase/server";
 import {
@@ -103,6 +103,29 @@ export async function POST(req: Request) {
     );
   }
 
+  // Campañas con pideEdad: 18+ es un requisito duro (concurso formal, a
+  // veces notariado) — se rechaza de una vez, sin capturar el lead.
+  if (campana.pideEdad) {
+    if (d.edad === null || d.edad === undefined) {
+      return NextResponse.json(
+        { ok: false, error: "Decinos tu edad para participar." },
+        { status: 400 }
+      );
+    }
+    if (d.edad < 18) {
+      return NextResponse.json(
+        { ok: false, error: "Este sorteo es solo para mayores de 18 años." },
+        { status: 403 }
+      );
+    }
+    if (!d.phone) {
+      return NextResponse.json(
+        { ok: false, error: "Dejanos tu teléfono para poder contactarte si ganás." },
+        { status: 400 }
+      );
+    }
+  }
+
   const db = getServiceClient();
   if (!db) {
     console.error("[participar] Supabase no configurado; lead no persistido.");
@@ -135,6 +158,13 @@ export async function POST(req: Request) {
       ip,
       userAgent,
     });
+    // Autorización de marketing: SEPARADA, opcional, solo si la marcó.
+    if (d.marketingConsent) {
+      await recordConsent(db, persona.id, consentParticipacionMarketing(campana.slug), {
+        ip,
+        userAgent,
+      });
+    }
 
     if (referidosActivos && d.ref) {
       // El código debe pertenecer a OTRA persona de la MISMA campaña.
@@ -161,6 +191,8 @@ export async function POST(req: Request) {
         is_over_21: campana.requisitos?.includes("over21") ? d.isOver21 : true,
         has_passport: campana.requisitos?.includes("passport") ? d.hasPassport : true,
         has_us_visa: campana.requisitos?.includes("us_visa") ? d.hasUsVisa : true,
+        edad: campana.pideEdad ? d.edad : null,
+        interes_respuesta: d.interesRespuesta || null,
         follows_ig: d.followsIg ?? false,
         utm: d.utm ?? {},
         referral_code: codigo,
@@ -221,9 +253,11 @@ export async function POST(req: Request) {
     }
   }
 
+  // pideEdad ya bloqueó a los menores de 18 arriba (no llegan a este punto),
+  // así que quien llega con esa modalidad siempre es elegible.
   const reqs = campana.requisitos ?? [];
   const eligible =
-    reqs.length === 0
+    campana.pideEdad || reqs.length === 0
       ? true
       : (!reqs.includes("over21") || d.isOver21 === true) &&
         (!reqs.includes("passport") || d.hasPassport === true) &&

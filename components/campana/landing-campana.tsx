@@ -145,6 +145,8 @@ export function CampanaLanding({
               premio={campana.premio}
               refInicial={refInicial}
               requisitos={campana.requisitos}
+              pideEdad={campana.pideEdad}
+              preguntaInteres={campana.preguntaInteres}
             />
           ) : (
             <div className="card px-6 py-10 text-center md:px-10">
@@ -181,7 +183,9 @@ export function CampanaLanding({
           <p className="text-sm text-muted">
             La participación es <strong>gratuita</strong> y válida{" "}
             <strong>solo para Costa Rica</strong>.{" "}
-            {campana.requisitos && campana.requisitos.length > 0 ? (
+            {campana.pideEdad ? (
+              <>Requisito del premio: ser mayor de 18 años. </>
+            ) : campana.requisitos && campana.requisitos.length > 0 ? (
               <>
                 Requisitos del premio:{" "}
                 {[

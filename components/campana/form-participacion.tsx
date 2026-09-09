@@ -8,7 +8,7 @@
  */
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
-import { consentParticipacion } from "@/lib/consent";
+import { consentParticipacion, consentParticipacionMarketing } from "@/lib/consent";
 import {
   PROVINCIAS_CR,
   isValidEmail,
@@ -57,6 +57,8 @@ export function FormParticipacion({
   premio,
   refInicial,
   requisitos,
+  pideEdad,
+  preguntaInteres,
 }: {
   campaignSlug: string;
   utm?: Utm;
@@ -66,11 +68,17 @@ export function FormParticipacion({
   refInicial?: string;
   /** Qué preguntas de elegibilidad mostrar. Undefined = muestra todas (legado). Vacío = ninguna. */
   requisitos?: string[];
+  /** true: pide edad exacta (18+) y teléfono obligatorio, en vez de `requisitos`. */
+  pideEdad?: boolean;
+  /** Pregunta de selección opcional al final del formulario. */
+  preguntaInteres?: { pregunta?: string; opciones?: string[] };
 }) {
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
   const [residence, setResidence] = useState("");
   const [phone, setPhone] = useState("");
+  const [edad, setEdad] = useState("");
+  const [interesRespuesta, setInteresRespuesta] = useState("");
   const [respuestas, setRespuestas] = useState<Record<PreguntaKey, boolean | null>>({
     isOver21: null,
     hasPassport: null,
@@ -79,6 +87,7 @@ export function FormParticipacion({
   const [followsIg, setFollowsIg] = useState(false);
   const [consent, setConsent] = useState(false);
   const [acceptsRules, setAcceptsRules] = useState(false);
+  const [marketingConsent, setMarketingConsent] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
@@ -101,6 +110,7 @@ export function FormParticipacion({
       : TODAS_LAS_PREGUNTAS.filter((p) => requisitos.includes(p.req));
 
   const consentDef = consentParticipacion(campaignSlug);
+  const marketingDef = consentParticipacionMarketing(campaignSlug);
   const claveLocal = `sv_refcode_${campaignSlug}`;
   const claveCookie = `sv_ref_${campaignSlug}`;
 
@@ -172,6 +182,15 @@ export function FormParticipacion({
       fallas.push({ campo: "f-provincia", mensaje: "Elegí tu provincia." });
     if (!isValidPhone(phone))
       fallas.push({ campo: "f-telefono", mensaje: "Escribí un teléfono válido." });
+    if (pideEdad && !phone.trim())
+      fallas.push({ campo: "f-telefono", mensaje: "Dejanos tu teléfono para contactarte si ganás." });
+    if (pideEdad) {
+      const n = Number(edad);
+      if (!edad.trim() || !Number.isInteger(n) || n < 1 || n > 120)
+        fallas.push({ campo: "f-edad", mensaje: "Decinos tu edad." });
+      else if (n < 18)
+        fallas.push({ campo: "f-edad", mensaje: "Este sorteo es solo para mayores de 18 años." });
+    }
     for (const p of preguntasActivas) {
       if (respuestas[p.key] === null)
         fallas.push({ campo: `f-eleg-${p.key}`, mensaje: `Respondé: ${p.label}` });
@@ -212,9 +231,12 @@ export function FormParticipacion({
           isOver21: preguntasActivas.some((p) => p.req === "over21") ? respuestas.isOver21 : undefined,
           hasPassport: preguntasActivas.some((p) => p.req === "passport") ? respuestas.hasPassport : undefined,
           hasUsVisa: preguntasActivas.some((p) => p.req === "us_visa") ? respuestas.hasUsVisa : undefined,
+          edad: pideEdad ? Number(edad) : undefined,
+          interesRespuesta: interesRespuesta || undefined,
           followsIg,
           consent: true,
           acceptsRules: true,
+          marketingConsent,
           ref: (refInicial || getCookie(claveCookie) || "").toUpperCase(),
           turnstileToken,
           website: honeypot,
@@ -493,12 +515,13 @@ export function FormParticipacion({
           </select>
         </label>
         <label>
-          <span className="label text-faint">Teléfono (opcional)</span>
+          <span className="label text-faint">Teléfono{pideEdad ? " *" : " (opcional)"}</span>
           <input
             id="f-telefono"
             type="tel"
             name="phone"
             aria-invalid={inv("f-telefono")}
+            required={pideEdad}
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             placeholder="8888 8888"
@@ -508,6 +531,26 @@ export function FormParticipacion({
             className={inputClass}
           />
         </label>
+        {pideEdad ? (
+          <label>
+            <span className="label text-faint">Edad *</span>
+            <input
+              id="f-edad"
+              type="number"
+              name="edad"
+              min={1}
+              max={120}
+              aria-invalid={inv("f-edad")}
+              required
+              value={edad}
+              onChange={(e) => setEdad(e.target.value)}
+              placeholder="18"
+              inputMode="numeric"
+              disabled={status === "sending"}
+              className={inputClass}
+            />
+          </label>
+        ) : null}
       </div>
 
       {/* ── Elegibilidad: solo las preguntas configuradas para esta campaña ── */}
@@ -558,6 +601,27 @@ export function FormParticipacion({
           </fieldset>
         ))}
       </div>
+      ) : null}
+
+      {/* ── Pregunta de interés: opcional, no bloquea el envío ── */}
+      {preguntaInteres?.pregunta && preguntaInteres.opciones?.length ? (
+        <label className="mt-7 block">
+          <span className="label text-faint">{preguntaInteres.pregunta} (opcional)</span>
+          <select
+            id="f-interes"
+            value={interesRespuesta}
+            onChange={(e) => setInteresRespuesta(e.target.value)}
+            disabled={status === "sending"}
+            className={`${inputClass} cursor-pointer`}
+          >
+            <option value="">Preferí no decir</option>
+            {preguntaInteres.opciones.map((o) => (
+              <option key={o} value={o}>
+                {o}
+              </option>
+            ))}
+          </select>
+        </label>
       ) : null}
 
       {/* Honeypot anti-bot: invisible para personas, irresistible para bots. */}
@@ -626,6 +690,21 @@ export function FormParticipacion({
             bases y condiciones
           </Link>
           .
+        </span>
+      </label>
+
+      {/* ── Marketing: autorización SEPARADA y opcional (nunca premarcada) ── */}
+      <label className="mt-3 flex items-start gap-2.5 text-sm leading-relaxed text-muted">
+        <input
+          id="f-marketing"
+          type="checkbox"
+          checked={marketingConsent}
+          onChange={(e) => setMarketingConsent(e.target.checked)}
+          disabled={status === "sending"}
+          className="mt-0.5 h-5 w-5 shrink-0"
+        />
+        <span>
+          <ConsentText text={marketingDef.text} />
         </span>
       </label>
 
