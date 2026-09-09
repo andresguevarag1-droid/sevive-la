@@ -31,6 +31,12 @@ export type Campana = {
   patrocinado?: boolean;
   referidosActivos?: boolean;
   chancesMaxPorReferido?: number;
+  /** Qué elegibilidades se preguntan: "over21" | "passport" | "us_visa". Vacío = sin filtros. */
+  requisitos?: string[];
+  /** true: pide edad exacta (18+) en vez de las preguntas sí/no de `requisitos`. */
+  pideEdad?: boolean;
+  /** Pregunta de selección opcional al final del formulario (ej. tema favorito). */
+  preguntaInteres?: { pregunta?: string; opciones?: string[] };
   bases?: PortableTextBlock[];
 };
 
@@ -52,13 +58,16 @@ type RawCampana = {
   patrocinado?: boolean;
   referidosActivos?: boolean;
   chancesMaxPorReferido?: number;
+  requisitos?: string[];
+  pideEdad?: boolean;
+  preguntaInteres?: { pregunta?: string; opciones?: string[] };
   bases?: PortableTextBlock[];
 };
 
 const CAMPANA_FIELDS = /* groq */ `
   _id, titulo, subtitulo, "slug": slug.current, activa, vertical,
   imagenHero{ asset, "alt": alt }, ogImage{ asset },
-  ctaTexto, microcopy, inicia, termina, premio, patrocinador, patrocinado, referidosActivos, chancesMaxPorReferido, bases
+  ctaTexto, microcopy, inicia, termina, premio, patrocinador, patrocinado, referidosActivos, chancesMaxPorReferido, requisitos, pideEdad, preguntaInteres, bases
 `;
 
 function mapCampana(c: RawCampana): Campana {
@@ -86,6 +95,12 @@ function mapCampana(c: RawCampana): Campana {
     patrocinado: c.patrocinado,
     referidosActivos: c.referidosActivos !== false,
     chancesMaxPorReferido: c.chancesMaxPorReferido ?? 10,
+    requisitos: c.requisitos ?? [],
+    pideEdad: c.pideEdad ?? false,
+    preguntaInteres:
+      c.preguntaInteres?.pregunta && (c.preguntaInteres.opciones?.length ?? 0) > 0
+        ? c.preguntaInteres
+        : undefined,
     bases: c.bases,
   };
 }

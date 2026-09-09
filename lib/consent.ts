@@ -24,15 +24,29 @@ export const CONSENT_NEWSLETTER: ConsentDefinition = {
 };
 
 /**
- * Consentimiento de participación en CAMPAÑA (ej. Latin Grammys 2026).
- * Texto y versión acordados con legal para esta campaña (spec lg-2026-v1).
+ * Consentimiento de participación en CAMPAÑA (dinámicas tipo Latin Grammys,
+ * Connecturday × Levi's, etc.). El envío de comunicaciones de marketing va
+ * SEPARADO en `consentParticipacionMarketing` (checkbox propio, opcional).
  */
 export function consentParticipacion(slug: string): ConsentDefinition {
   return {
     // Purpose propio: no colisiona con consentDinamica (texto/versión distintos).
     purpose: `campana:${slug}`,
-    version: "lg-2026-v1",
-    text: "Autorizo a SeViveLa a tratar mis datos personales (correo, nombre, residencia y teléfono) para gestionar mi participación en esta dinámica y enviarme comunicaciones, según su Política de Privacidad. Puedo darme de baja cuando quiera.",
+    version: "2026-09-v2",
+    text: "Autorizo a SeViveLa a tratar mis datos personales (correo, nombre, residencia y teléfono) para gestionar mi participación en esta dinámica, conforme a su Política de Privacidad y a las bases de la dinámica. Puedo solicitar la eliminación de mis datos cuando quiera.",
+  };
+}
+
+/**
+ * Autorización SEPARADA y opcional para recibir comunicaciones de marketing
+ * (checkbox propio, nunca premarcado, revocable en cualquier momento —
+ * distinta del consentimiento de participación de arriba).
+ */
+export function consentParticipacionMarketing(slug: string): ConsentDefinition {
+  return {
+    purpose: `campana-marketing:${slug}`,
+    version: "2026-09-v1",
+    text: "Autorizo a SeViveLa a usar mis datos de contacto para enviarme información sobre eventos, experiencias, promociones, concursos y beneficios. Puedo retirar esta autorización cuando quiera.",
   };
 }
 

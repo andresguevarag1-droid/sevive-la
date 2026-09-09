@@ -23,13 +23,19 @@ export const participacionSchema = z.object({
     .regex(/^[+]?[\d\s-]{8,20}$/, "Escribí un teléfono válido.")
     .optional()
     .or(z.literal("")),
-  isOver21: z.boolean(),
-  hasPassport: z.boolean(),
-  hasUsVisa: z.boolean(),
+  isOver21: z.boolean().nullable().optional().default(null),
+  hasPassport: z.boolean().nullable().optional().default(null),
+  hasUsVisa: z.boolean().nullable().optional().default(null),
+  /** Solo en campañas con `pideEdad` (en vez de las preguntas sí/no de arriba). */
+  edad: z.number().int().min(1).max(120).nullable().optional().default(null),
+  /** Respuesta libre a la pregunta de interés opcional de la campaña (ej. tema favorito). */
+  interesRespuesta: z.string().trim().max(60).nullable().optional().default(null),
   followsIg: z.boolean().optional().default(false),
   /** Checkboxes legales: obligatorios, nunca premarcados. */
   consent: z.literal(true, "Necesitamos tu consentimiento para participar."),
   acceptsRules: z.literal(true, "Tenés que aceptar las bases y condiciones."),
+  /** Autorización SEPARADA y opcional de comunicaciones de marketing. */
+  marketingConsent: z.boolean().optional().default(false),
   /** Código de referido con el que llegó (?ref=). Inválido → se descarta, no bloquea. */
   ref: z
     .string()

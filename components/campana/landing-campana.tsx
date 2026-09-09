@@ -144,6 +144,9 @@ export function CampanaLanding({
               utm={utm}
               premio={campana.premio}
               refInicial={refInicial}
+              requisitos={campana.requisitos}
+              pideEdad={campana.pideEdad}
+              preguntaInteres={campana.preguntaInteres}
             />
           ) : (
             <div className="card px-6 py-10 text-center md:px-10">
@@ -179,9 +182,22 @@ export function CampanaLanding({
         <footer className="mt-8 text-center">
           <p className="text-sm text-muted">
             La participación es <strong>gratuita</strong> y válida{" "}
-            <strong>solo para Costa Rica</strong>. Requisitos del premio: ser
-            mayor de 21 años y tener pasaporte y visa americana al día. Al
-            participar aceptás las{" "}
+            <strong>solo para Costa Rica</strong>.{" "}
+            {campana.pideEdad ? (
+              <>Requisito del premio: ser mayor de 18 años. </>
+            ) : campana.requisitos && campana.requisitos.length > 0 ? (
+              <>
+                Requisitos del premio:{" "}
+                {[
+                  campana.requisitos.includes("over21") && "ser mayor de 21 años",
+                  campana.requisitos.includes("passport") && "pasaporte al día",
+                  campana.requisitos.includes("us_visa") && "visa americana al día",
+                ]
+                  .filter(Boolean)
+                  .join(", ")}.{" "}
+              </>
+            ) : null}
+            Al participar aceptás las{" "}
             <Link href={`/legal/bases/${campana.slug}`} className="underline">
               bases y condiciones
             </Link>{" "}
