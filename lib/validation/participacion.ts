@@ -23,9 +23,9 @@ export const participacionSchema = z.object({
     .regex(/^[+]?[\d\s-]{8,20}$/, "Escribí un teléfono válido.")
     .optional()
     .or(z.literal("")),
-  isOver21: z.boolean(),
-  hasPassport: z.boolean(),
-  hasUsVisa: z.boolean(),
+  isOver21: z.boolean().nullable().optional().default(null),
+  hasPassport: z.boolean().nullable().optional().default(null),
+  hasUsVisa: z.boolean().nullable().optional().default(null),
   followsIg: z.boolean().optional().default(false),
   /** Checkboxes legales: obligatorios, nunca premarcados. */
   consent: z.literal(true, "Necesitamos tu consentimiento para participar."),

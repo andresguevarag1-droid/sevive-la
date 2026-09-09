@@ -43,19 +43,20 @@ function getCookie(name: string): string {
 const inputClass =
   "mt-2 w-full border-b border-rule bg-transparent pb-2 text-ink outline-none placeholder:text-faint focus:border-ink disabled:opacity-60";
 
-const preguntasElegibilidad = [
-  { key: "isOver21", label: "¿Sos mayor de 21 años?" },
-  { key: "hasPassport", label: "¿Tenés pasaporte al día?" },
-  { key: "hasUsVisa", label: "¿Tenés visa americana al día?" },
-] as const;
+const TODAS_LAS_PREGUNTAS = [
+  { key: "isOver21" as const, req: "over21", label: "¿Sos mayor de 21 años?" },
+  { key: "hasPassport" as const, req: "passport", label: "¿Tenés pasaporte al día?" },
+  { key: "hasUsVisa" as const, req: "us_visa", label: "¿Tenés visa americana al día?" },
+];
 
-type PreguntaKey = (typeof preguntasElegibilidad)[number]["key"];
+type PreguntaKey = "isOver21" | "hasPassport" | "hasUsVisa";
 
 export function FormParticipacion({
   campaignSlug,
   utm,
   premio,
   refInicial,
+  requisitos,
 }: {
   campaignSlug: string;
   utm?: Utm;
@@ -63,6 +64,8 @@ export function FormParticipacion({
   premio?: string;
   /** Código ?ref= con el que llegó la persona (de searchParams). */
   refInicial?: string;
+  /** Qué preguntas de elegibilidad mostrar. Undefined = muestra todas (legado). Vacío = ninguna. */
+  requisitos?: string[];
 }) {
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
@@ -90,6 +93,12 @@ export function FormParticipacion({
   const [copiado, setCopiado] = useState(false);
   const [puedeCompartir, setPuedeCompartir] = useState(false);
   const [restaurado, setRestaurado] = useState(false);
+
+  // undefined → campaña antigua (mostrar las 3); array → solo las configuradas
+  const preguntasActivas =
+    requisitos === undefined
+      ? TODAS_LAS_PREGUNTAS
+      : TODAS_LAS_PREGUNTAS.filter((p) => requisitos.includes(p.req));
 
   const consentDef = consentParticipacion(campaignSlug);
   const claveLocal = `sv_refcode_${campaignSlug}`;
@@ -163,7 +172,7 @@ export function FormParticipacion({
       fallas.push({ campo: "f-provincia", mensaje: "Elegí tu provincia." });
     if (!isValidPhone(phone))
       fallas.push({ campo: "f-telefono", mensaje: "Escribí un teléfono válido." });
-    for (const p of preguntasElegibilidad) {
+    for (const p of preguntasActivas) {
       if (respuestas[p.key] === null)
         fallas.push({ campo: `f-eleg-${p.key}`, mensaje: `Respondé: ${p.label}` });
     }
@@ -200,9 +209,9 @@ export function FormParticipacion({
           fullName: fullName.trim(),
           residence,
           phone: phone.trim(),
-          isOver21: respuestas.isOver21,
-          hasPassport: respuestas.hasPassport,
-          hasUsVisa: respuestas.hasUsVisa,
+          isOver21: preguntasActivas.some((p) => p.req === "over21") ? respuestas.isOver21 : undefined,
+          hasPassport: preguntasActivas.some((p) => p.req === "passport") ? respuestas.hasPassport : undefined,
+          hasUsVisa: preguntasActivas.some((p) => p.req === "us_visa") ? respuestas.hasUsVisa : undefined,
           followsIg,
           consent: true,
           acceptsRules: true,
@@ -296,9 +305,8 @@ export function FormParticipacion({
         </h3>
         {!eligible ? (
           <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted">
-            Te registramos. Ojo: este premio pide ser mayor de 21 con pasaporte
-            y visa al día — te avisaremos de dinámicas para las que sí
-            califiqués.
+            Te registramos. Ojo: este premio tiene requisitos que no cumplís —
+            te avisaremos de dinámicas para las que sí califiqués.
           </p>
         ) : null}
 
@@ -502,10 +510,10 @@ export function FormParticipacion({
         </label>
       </div>
 
-      {/* ── Elegibilidad: radios nativos estilados como pastillas (A3/U4).
-            Teclado y lector de pantalla los anuncian como grupo requerido. ── */}
+      {/* ── Elegibilidad: solo las preguntas configuradas para esta campaña ── */}
+      {preguntasActivas.length > 0 ? (
       <div className="mt-7 space-y-5">
-        {preguntasElegibilidad.map((p) => (
+        {preguntasActivas.map((p) => (
           <fieldset key={p.key} id={`f-eleg-${p.key}`} aria-invalid={inv(`f-eleg-${p.key}`)}>
             <legend className="label text-faint">{p.label} *</legend>
             <div className="mt-2 flex gap-2">
@@ -550,6 +558,7 @@ export function FormParticipacion({
           </fieldset>
         ))}
       </div>
+      ) : null}
 
       {/* Honeypot anti-bot: invisible para personas, irresistible para bots. */}
       <input

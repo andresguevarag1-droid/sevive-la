@@ -132,6 +132,23 @@ export const campana = defineType({
       validation: (rule) => rule.min(0).max(10),
     }),
     defineField({
+      name: "requisitos",
+      title: "Requisitos de elegibilidad",
+      type: "array",
+      of: [{ type: "string" }],
+      options: {
+        list: [
+          { title: "Mayor de 21 años", value: "over21" },
+          { title: "Pasaporte al día", value: "passport" },
+          { title: "Visa americana al día", value: "us_visa" },
+        ],
+        layout: "grid",
+      },
+      description:
+        "Marcá los requisitos que el participante SÍ o SÍ debe cumplir. Dejalo vacío si cualquiera puede participar sin filtros.",
+      initialValue: [],
+    }),
+    defineField({
       name: "bases",
       title: "Bases y condiciones",
       type: "array",

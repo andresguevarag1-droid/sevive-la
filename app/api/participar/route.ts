@@ -158,9 +158,9 @@ export async function POST(req: Request) {
         full_name: d.fullName,
         residence: d.residence,
         phone: d.phone || null,
-        is_over_21: d.isOver21,
-        has_passport: d.hasPassport,
-        has_us_visa: d.hasUsVisa,
+        is_over_21: campana.requisitos?.includes("over21") ? d.isOver21 : true,
+        has_passport: campana.requisitos?.includes("passport") ? d.hasPassport : true,
+        has_us_visa: campana.requisitos?.includes("us_visa") ? d.hasUsVisa : true,
         follows_ig: d.followsIg ?? false,
         utm: d.utm ?? {},
         referral_code: codigo,
@@ -221,7 +221,13 @@ export async function POST(req: Request) {
     }
   }
 
-  const eligible = d.isOver21 && d.hasPassport && d.hasUsVisa;
+  const reqs = campana.requisitos ?? [];
+  const eligible =
+    reqs.length === 0
+      ? true
+      : (!reqs.includes("over21") || d.isOver21 === true) &&
+        (!reqs.includes("passport") || d.hasPassport === true) &&
+        (!reqs.includes("us_visa") || d.hasUsVisa === true);
   return NextResponse.json({
     ok: true,
     eligible,
