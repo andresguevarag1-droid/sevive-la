@@ -76,6 +76,14 @@ export const campana = defineType({
       validation: (rule) => rule.required().max(40),
     }),
     defineField({
+      name: "formTitulo",
+      title: "Titular DENTRO del formulario",
+      type: "string",
+      description:
+        'El título que aparece arriba del formulario de captura (distinto del titular del hero). Ej. "Tu chance de llevarte la jacket empieza acá". Si lo dejás vacío, se usa uno genérico.',
+      validation: (rule) => rule.max(80),
+    }),
+    defineField({
       name: "microcopy",
       title: "Letra chica bajo el botón",
       type: "string",

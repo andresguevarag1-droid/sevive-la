@@ -23,6 +23,8 @@ export type Campana = {
   imagenHeroAlt?: string;
   ogImage?: string;
   ctaTexto: string;
+  /** Titular arriba del formulario de captura (distinto del titular del hero). */
+  formTitulo?: string;
   microcopy?: string;
   inicia: string;
   termina: string;
@@ -50,6 +52,7 @@ type RawCampana = {
   imagenHero?: (SanityImage & { alt?: string }) | null;
   ogImage?: SanityImage | null;
   ctaTexto?: string;
+  formTitulo?: string;
   microcopy?: string;
   inicia: string;
   termina: string;
@@ -67,7 +70,7 @@ type RawCampana = {
 const CAMPANA_FIELDS = /* groq */ `
   _id, titulo, subtitulo, "slug": slug.current, activa, vertical,
   imagenHero{ asset, "alt": alt }, ogImage{ asset },
-  ctaTexto, microcopy, inicia, termina, premio, patrocinador, patrocinado, referidosActivos, chancesMaxPorReferido, requisitos, pideEdad, preguntaInteres, bases
+  ctaTexto, formTitulo, microcopy, inicia, termina, premio, patrocinador, patrocinado, referidosActivos, chancesMaxPorReferido, requisitos, pideEdad, preguntaInteres, bases
 `;
 
 function mapCampana(c: RawCampana): Campana {
@@ -87,6 +90,7 @@ function mapCampana(c: RawCampana): Campana {
     imagenHeroAlt: c.imagenHero?.alt || c.titulo,
     ogImage: urlForImage(c.ogImage, 1200) ?? urlForImage(c.imagenHero, 1200),
     ctaTexto: c.ctaTexto || "Participá gratis",
+    formTitulo: c.formTitulo,
     microcopy: c.microcopy,
     inicia: c.inicia,
     termina: c.termina,

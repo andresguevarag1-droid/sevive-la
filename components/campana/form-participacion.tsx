@@ -59,6 +59,7 @@ export function FormParticipacion({
   requisitos,
   pideEdad,
   preguntaInteres,
+  formTitulo,
 }: {
   campaignSlug: string;
   utm?: Utm;
@@ -72,6 +73,8 @@ export function FormParticipacion({
   pideEdad?: boolean;
   /** Pregunta de selección al final del formulario (obligatoria si se marca así en Sanity). */
   preguntaInteres?: { pregunta?: string; opciones?: string[]; obligatoria?: boolean };
+  /** Titular arriba del formulario. Si falta, se usa uno genérico. */
+  formTitulo?: string;
 }) {
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
@@ -454,7 +457,7 @@ export function FormParticipacion({
     >
       <p className="label text-brand">Participá gratis</p>
       <h3 className="mt-2 text-[clamp(1.5rem,4vw,2rem)] uppercase">
-        Tus datos te acercan a las estrellas
+        {formTitulo || "Dejanos tus datos y quedás participando"}
       </h3>
       <p className="mt-2 text-sm leading-relaxed text-muted">
         Dejanos tu info, seguí a @sevive.la y ya estás participando.
