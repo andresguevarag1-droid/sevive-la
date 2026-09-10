@@ -2,8 +2,13 @@
 
 /**
  * Formulario de participación en campaña (reemplaza al Google Form).
- * Réplica del contrato: correo, nombre, residencia, teléfono y 3 preguntas
- * de elegibilidad. Consentimiento y bases NUNCA premarcados (Ley 8968).
+ * Campos fijos: correo, nombre, provincia, teléfono. Según cómo esté
+ * configurada la campaña en Sanity, se suman: preguntas sí/no de
+ * elegibilidad (`requisitos`), edad exacta 18+ (`pideEdad`, mutuamente
+ * excluyente con lo anterior) y una pregunta de selección extra
+ * (`preguntaInteres`, obligatoria u opcional). Consentimiento y bases
+ * NUNCA premarcados (Ley 8968); la autorización de marketing es un
+ * checkbox aparte y siempre opcional.
  * Estados: idle → sending → ok | error. Nunca se pierde lo tipeado.
  */
 import { useEffect, useRef, useState, type FormEvent } from "react";
@@ -59,6 +64,7 @@ export function FormParticipacion({
   requisitos,
   pideEdad,
   preguntaInteres,
+  formTitulo,
 }: {
   campaignSlug: string;
   utm?: Utm;
@@ -70,8 +76,10 @@ export function FormParticipacion({
   requisitos?: string[];
   /** true: pide edad exacta (18+) y teléfono obligatorio, en vez de `requisitos`. */
   pideEdad?: boolean;
-  /** Pregunta de selección opcional al final del formulario. */
-  preguntaInteres?: { pregunta?: string; opciones?: string[] };
+  /** Pregunta de selección al final del formulario (obligatoria si se marca así en Sanity). */
+  preguntaInteres?: { pregunta?: string; opciones?: string[]; obligatoria?: boolean };
+  /** Titular arriba del formulario. Si falta, se usa uno genérico. */
+  formTitulo?: string;
 }) {
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
@@ -180,10 +188,10 @@ export function FormParticipacion({
       fallas.push({ campo: "f-nombre", mensaje: "Contanos tu nombre completo." });
     if (!residence)
       fallas.push({ campo: "f-provincia", mensaje: "Elegí tu provincia." });
-    if (!isValidPhone(phone))
-      fallas.push({ campo: "f-telefono", mensaje: "Escribí un teléfono válido." });
-    if (pideEdad && !phone.trim())
+    if (!phone.trim())
       fallas.push({ campo: "f-telefono", mensaje: "Dejanos tu teléfono para contactarte si ganás." });
+    else if (!isValidPhone(phone))
+      fallas.push({ campo: "f-telefono", mensaje: "Escribí un teléfono válido." });
     if (pideEdad) {
       const n = Number(edad);
       if (!edad.trim() || !Number.isInteger(n) || n < 1 || n > 120)
@@ -195,6 +203,8 @@ export function FormParticipacion({
       if (respuestas[p.key] === null)
         fallas.push({ campo: `f-eleg-${p.key}`, mensaje: `Respondé: ${p.label}` });
     }
+    if (preguntaInteres?.obligatoria && !interesRespuesta)
+      fallas.push({ campo: "f-interes", mensaje: `Respondé: ${preguntaInteres.pregunta}` });
     if (!consent)
       fallas.push({
         campo: "f-consent",
@@ -452,7 +462,7 @@ export function FormParticipacion({
     >
       <p className="label text-brand">Participá gratis</p>
       <h3 className="mt-2 text-[clamp(1.5rem,4vw,2rem)] uppercase">
-        Tus datos te acercan a las estrellas
+        {formTitulo || "Dejanos tus datos y quedás participando"}
       </h3>
       <p className="mt-2 text-sm leading-relaxed text-muted">
         Dejanos tu info, seguí a @sevive.la y ya estás participando.
@@ -515,13 +525,13 @@ export function FormParticipacion({
           </select>
         </label>
         <label>
-          <span className="label text-faint">Teléfono{pideEdad ? " *" : " (opcional)"}</span>
+          <span className="label text-faint">Teléfono *</span>
           <input
             id="f-telefono"
             type="tel"
             name="phone"
             aria-invalid={inv("f-telefono")}
-            required={pideEdad}
+            required
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             placeholder="8888 8888"
@@ -603,18 +613,25 @@ export function FormParticipacion({
       </div>
       ) : null}
 
-      {/* ── Pregunta de interés: opcional, no bloquea el envío ── */}
+      {/* ── Pregunta de interés: obligatoria u opcional según Sanity ── */}
       {preguntaInteres?.pregunta && preguntaInteres.opciones?.length ? (
         <label className="mt-7 block">
-          <span className="label text-faint">{preguntaInteres.pregunta} (opcional)</span>
+          <span className="label text-faint">
+            {preguntaInteres.pregunta}
+            {preguntaInteres.obligatoria ? " *" : " (opcional)"}
+          </span>
           <select
             id="f-interes"
+            aria-invalid={inv("f-interes")}
+            required={preguntaInteres.obligatoria}
             value={interesRespuesta}
             onChange={(e) => setInteresRespuesta(e.target.value)}
             disabled={status === "sending"}
             className={`${inputClass} cursor-pointer`}
           >
-            <option value="">Preferí no decir</option>
+            <option value="" disabled={preguntaInteres.obligatoria}>
+              {preguntaInteres.obligatoria ? "Elegí una opción" : "Preferí no decir"}
+            </option>
             {preguntaInteres.opciones.map((o) => (
               <option key={o} value={o}>
                 {o}

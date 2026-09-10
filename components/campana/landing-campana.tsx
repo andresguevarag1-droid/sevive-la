@@ -147,6 +147,7 @@ export function CampanaLanding({
               requisitos={campana.requisitos}
               pideEdad={campana.pideEdad}
               preguntaInteres={campana.preguntaInteres}
+              formTitulo={campana.formTitulo}
             />
           ) : (
             <div className="card px-6 py-10 text-center md:px-10">

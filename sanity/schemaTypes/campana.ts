@@ -76,6 +76,14 @@ export const campana = defineType({
       validation: (rule) => rule.required().max(40),
     }),
     defineField({
+      name: "formTitulo",
+      title: "Titular DENTRO del formulario",
+      type: "string",
+      description:
+        'El título que aparece arriba del formulario de captura (distinto del titular del hero). Ej. "Tu chance de llevarte la jacket empieza acá". Si lo dejás vacío, se usa uno genérico.',
+      validation: (rule) => rule.max(80),
+    }),
+    defineField({
       name: "microcopy",
       title: "Letra chica bajo el botón",
       type: "string",
@@ -153,15 +161,15 @@ export const campana = defineType({
       title: "Pedir edad exacta (en vez de preguntas sí/no)",
       type: "boolean",
       description:
-        "ENCENDIDO: el formulario pide la edad en años (número) y exige ser mayor de 18; también vuelve obligatorio el teléfono, para poder contactar al ganador. Pensado para concursos formales con sorteo notariado. No se combina con 'Requisitos de elegibilidad'.",
+        "ENCENDIDO: el formulario pide la edad en años (número) y exige ser mayor de 18 para poder enviar el formulario. Pensado para concursos formales con sorteo notariado. No se combina con 'Requisitos de elegibilidad'. (El teléfono ya es obligatorio siempre, con o sin esto encendido.)",
       initialValue: false,
     }),
     defineField({
       name: "preguntaInteres",
-      title: "Pregunta de interés (opcional)",
+      title: "Pregunta de selección extra",
       type: "object",
       description:
-        "Agrega una pregunta de selección NO obligatoria al final del formulario (ej. \"Tema favorito de Connecturday\"). Dejá el texto vacío para no mostrar ninguna.",
+        'Agrega una pregunta de selección al final del formulario (ej. "Tema favorito de Connecturday"). Dejá el texto vacío para no mostrar ninguna.',
       fields: [
         defineField({ name: "pregunta", title: "Texto de la pregunta", type: "string" }),
         defineField({
@@ -169,6 +177,13 @@ export const campana = defineType({
           title: "Opciones",
           type: "array",
           of: [{ type: "string" }],
+        }),
+        defineField({
+          name: "obligatoria",
+          title: "Obligatoria",
+          type: "boolean",
+          description: "ENCENDIDO: hay que responderla para poder enviar el formulario.",
+          initialValue: false,
         }),
       ],
     }),
