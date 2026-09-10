@@ -1,11 +1,16 @@
 /**
- * Participación en CAMPAÑA (ej. Latin Grammys 2026). Reemplaza al Google Form.
+ * Participación en CAMPAÑA (ej. Latin Grammys 2026, Connecturday × Levi's).
+ * Reemplaza al Google Form.
  * Flujo: honeypot → Zod → rate-limit → Turnstile → verificar en Sanity que la
- * campaña existe y está ABIERTA → upsert people → consent (texto exacto,
- * versión, IP, UA) → insert campaign_entries (única por correo) → interés.
+ * campaña existe y está ABIERTA → validar requisitos duros de la campaña
+ * (18+ si pideEdad, pregunta de interés si es obligatoria) → upsert people →
+ * consent (texto exacto, versión, IP, UA) + autorización de marketing
+ * separada si la marcó → insert campaign_entries (única por correo) → interés.
  *
- * Decisión de negocio (spec §2): si la persona no cumple elegibilidad
- * (21+/pasaporte/visa) IGUAL se captura el lead con sus banderas.
+ * Decisión de negocio: con `requisitos` (preguntas sí/no de 21+/pasaporte/
+ * visa) el lead se captura IGUAL aunque no cumpla, marcado como no elegible.
+ * Con `pideEdad` (concursos formales, a veces notariados) es al revés: ser
+ * menor de 18 rechaza la participación de una vez, sin capturar el lead.
  */
 import { NextResponse } from "next/server";
 import { participacionSchema } from "@/lib/validation/participacion";

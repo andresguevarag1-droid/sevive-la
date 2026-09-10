@@ -2,8 +2,13 @@
 
 /**
  * Formulario de participación en campaña (reemplaza al Google Form).
- * Réplica del contrato: correo, nombre, residencia, teléfono y 3 preguntas
- * de elegibilidad. Consentimiento y bases NUNCA premarcados (Ley 8968).
+ * Campos fijos: correo, nombre, provincia, teléfono. Según cómo esté
+ * configurada la campaña en Sanity, se suman: preguntas sí/no de
+ * elegibilidad (`requisitos`), edad exacta 18+ (`pideEdad`, mutuamente
+ * excluyente con lo anterior) y una pregunta de selección extra
+ * (`preguntaInteres`, obligatoria u opcional). Consentimiento y bases
+ * NUNCA premarcados (Ley 8968); la autorización de marketing es un
+ * checkbox aparte y siempre opcional.
  * Estados: idle → sending → ok | error. Nunca se pierde lo tipeado.
  */
 import { useEffect, useRef, useState, type FormEvent } from "react";

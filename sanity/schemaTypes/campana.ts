@@ -161,7 +161,7 @@ export const campana = defineType({
       title: "Pedir edad exacta (en vez de preguntas sí/no)",
       type: "boolean",
       description:
-        "ENCENDIDO: el formulario pide la edad en años (número) y exige ser mayor de 18; también vuelve obligatorio el teléfono, para poder contactar al ganador. Pensado para concursos formales con sorteo notariado. No se combina con 'Requisitos de elegibilidad'.",
+        "ENCENDIDO: el formulario pide la edad en años (número) y exige ser mayor de 18 para poder enviar el formulario. Pensado para concursos formales con sorteo notariado. No se combina con 'Requisitos de elegibilidad'. (El teléfono ya es obligatorio siempre, con o sin esto encendido.)",
       initialValue: false,
     }),
     defineField({
