@@ -36,7 +36,7 @@ export type Campana = {
   /** true: pide edad exacta (18+) en vez de las preguntas sí/no de `requisitos`. */
   pideEdad?: boolean;
   /** Pregunta de selección opcional al final del formulario (ej. tema favorito). */
-  preguntaInteres?: { pregunta?: string; opciones?: string[] };
+  preguntaInteres?: { pregunta?: string; opciones?: string[]; obligatoria?: boolean };
   bases?: PortableTextBlock[];
 };
 
@@ -60,7 +60,7 @@ type RawCampana = {
   chancesMaxPorReferido?: number;
   requisitos?: string[];
   pideEdad?: boolean;
-  preguntaInteres?: { pregunta?: string; opciones?: string[] };
+  preguntaInteres?: { pregunta?: string; opciones?: string[]; obligatoria?: boolean };
   bases?: PortableTextBlock[];
 };
 

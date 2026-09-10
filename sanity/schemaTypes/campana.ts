@@ -158,10 +158,10 @@ export const campana = defineType({
     }),
     defineField({
       name: "preguntaInteres",
-      title: "Pregunta de interés (opcional)",
+      title: "Pregunta de selección extra",
       type: "object",
       description:
-        "Agrega una pregunta de selección NO obligatoria al final del formulario (ej. \"Tema favorito de Connecturday\"). Dejá el texto vacío para no mostrar ninguna.",
+        'Agrega una pregunta de selección al final del formulario (ej. "Tema favorito de Connecturday"). Dejá el texto vacío para no mostrar ninguna.',
       fields: [
         defineField({ name: "pregunta", title: "Texto de la pregunta", type: "string" }),
         defineField({
@@ -169,6 +169,13 @@ export const campana = defineType({
           title: "Opciones",
           type: "array",
           of: [{ type: "string" }],
+        }),
+        defineField({
+          name: "obligatoria",
+          title: "Obligatoria",
+          type: "boolean",
+          description: "ENCENDIDO: hay que responderla para poder enviar el formulario.",
+          initialValue: false,
         }),
       ],
     }),

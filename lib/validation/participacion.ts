@@ -20,9 +20,7 @@ export const participacionSchema = z.object({
   phone: z
     .string()
     .trim()
-    .regex(/^[+]?[\d\s-]{8,20}$/, "Escribí un teléfono válido.")
-    .optional()
-    .or(z.literal("")),
+    .regex(/^[+]?[\d\s-]{8,20}$/, "Escribí un teléfono válido."),
   isOver21: z.boolean().nullable().optional().default(null),
   hasPassport: z.boolean().nullable().optional().default(null),
   hasUsVisa: z.boolean().nullable().optional().default(null),

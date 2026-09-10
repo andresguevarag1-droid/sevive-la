@@ -118,12 +118,13 @@ export async function POST(req: Request) {
         { status: 403 }
       );
     }
-    if (!d.phone) {
-      return NextResponse.json(
-        { ok: false, error: "Dejanos tu teléfono para poder contactarte si ganás." },
-        { status: 400 }
-      );
-    }
+  }
+  // Pregunta de interés obligatoria (si la campaña la configuró así).
+  if (campana.preguntaInteres?.obligatoria && !d.interesRespuesta) {
+    return NextResponse.json(
+      { ok: false, error: `Respondé: ${campana.preguntaInteres.pregunta}` },
+      { status: 400 }
+    );
   }
 
   const db = getServiceClient();
