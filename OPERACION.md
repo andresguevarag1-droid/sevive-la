@@ -83,6 +83,29 @@ cobertura con `[COMPLETAR: …]` se corrigen pero siguen en borrador para
 que el equipo agregue lo vivencial. Revisa 4 por corrida. Lo escrito a
 mano por el equipo nunca se toca.
 
+## 📣 Activar el Meta Pixel (Facebook/Instagram Ads) — 5 min
+
+El sitio ya sabe disparar el evento **Lead** de Meta cada vez que alguien
+participa en una dinámica/campaña (el formulario de `/dinamicas/<slug>`),
+para que puedas armar campañas de conversión y públicos similares en Meta
+Ads. Hoy está **dormido** — solo falta el ID del Pixel:
+
+1. [business.facebook.com/events_manager](https://business.facebook.com/events_manager)
+   → tu Pixel de SeViveLa (o creá uno nuevo) → copiá el **ID del Pixel**
+   (un número, ej. `123456789012345`).
+2. En **Vercel → Settings → Environment Variables** agregá:
+   - `NEXT_PUBLIC_META_PIXEL_ID` = ese número
+3. **Redeploy.** Con eso:
+   - El Pixel carga en el sitio (solo para quien acepta cookies de
+     analítica en el banner — igual que PostHog, Ley 8968)
+   - Cada participación exitosa en una campaña dispara `Lead` en Meta,
+     con el slug de la campaña como `content_name`
+4. Probá: participá vos mismo en la dinámica activa → en Events Manager,
+   pestaña *Test Events*, deberías ver el evento `Lead` llegar en segundos.
+
+No hace falta ninguna conexión de Meta Ads en Claude para esto — es una
+variable de entorno, como todas las demás integraciones del sitio.
+
 ## 🔴 Transmitir en vivo desde OBS — gratis, vía YouTube oculto
 
 El sitio ya tiene todo: página **/en-vivo** (siempre visible, en reposo),
