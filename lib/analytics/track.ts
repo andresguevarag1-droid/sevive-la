@@ -18,6 +18,7 @@ const CONVERSIONES = new Set([
 ]);
 
 type PosthogLike = { capture: (evento: string, props?: Props) => void };
+type FbqLike = (...args: unknown[]) => void;
 
 export function track(evento: string, props: Props = {}): void {
   if (typeof window === "undefined") return;
@@ -29,6 +30,17 @@ export function track(evento: string, props: Props = {}): void {
   }
   try {
     if (CONVERSIONES.has(evento)) vercelTrack(evento, props);
+  } catch {
+    /* ídem */
+  }
+  try {
+    // Meta Pixel: "Lead" SOLO al participar en una campaña (form-participacion.tsx
+    // es la única fuente de form_submit_success con dynamic_slug). Otros formularios
+    // que comparten ese mismo nombre de evento (marcas, agenda…) no disparan esto.
+    if (evento === "form_submit_success" && typeof props.dynamic_slug === "string") {
+      const fbq = (window as { fbq?: FbqLike }).fbq;
+      fbq?.("track", "Lead", { content_name: props.dynamic_slug });
+    }
   } catch {
     /* ídem */
   }

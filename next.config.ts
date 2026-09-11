@@ -8,15 +8,17 @@ import type { NextConfig } from "next";
 const CSP = [
   "default-src 'self'",
   "frame-ancestors 'self'",
-  // Next inyecta estilos/scripts inline; PostHog, Turnstile y Vercel Insights son los únicos terceros.
-  "script-src 'self' 'unsafe-inline' https://*.posthog.com https://challenges.cloudflare.com https://va.vercel-scripts.com",
+  // Next inyecta estilos/scripts inline; PostHog, Meta Pixel, Turnstile y Vercel Insights son los únicos terceros.
+  "script-src 'self' 'unsafe-inline' https://*.posthog.com https://connect.facebook.net https://challenges.cloudflare.com https://va.vercel-scripts.com",
   "style-src 'self' 'unsafe-inline'",
   // CloudFront = imágenes del contenido mock (fallback cuando Sanity no responde);
   // googleusercontent/githubusercontent = avatares del login del Studio;
-  // i.ytimg.com = miniaturas de los capítulos del show.
-  "img-src 'self' https://cdn.sanity.io https://d8j0ntlcm91z4.cloudfront.net https://lh3.googleusercontent.com https://avatars.githubusercontent.com https://i.ytimg.com data: blob:",
+  // i.ytimg.com = miniaturas de los capítulos del show;
+  // facebook.com = píxel de respaldo (<noscript>) del Meta Pixel.
+  "img-src 'self' https://cdn.sanity.io https://d8j0ntlcm91z4.cloudfront.net https://lh3.googleusercontent.com https://avatars.githubusercontent.com https://i.ytimg.com https://www.facebook.com data: blob:",
   "font-src 'self'",
-  "connect-src 'self' https://*.posthog.com https://*.sanity.io https://*.supabase.co https://challenges.cloudflare.com https://vitals.vercel-insights.com",
+  // www.facebook.com = eventos del Meta Pixel (fbevents.js manda ahí, no a connect.facebook.net).
+  "connect-src 'self' https://*.posthog.com https://*.sanity.io https://*.supabase.co https://challenges.cloudflare.com https://vitals.vercel-insights.com https://www.facebook.com",
   // youtube-nocookie = el player de /en-vivo y /capitulos (modo privacidad).
   "frame-src 'self' https://challenges.cloudflare.com https://www.youtube-nocookie.com",
   "worker-src 'self' blob:",

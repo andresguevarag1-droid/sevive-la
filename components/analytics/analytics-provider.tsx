@@ -7,14 +7,21 @@
  * - Captura la atribución first-touch y emite page_view / section_view /
  *   event_detail_view en cada cambio de ruta.
  */
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import Script from "next/script";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { verticals } from "@/lib/site";
 import { captureAttribution } from "@/lib/analytics/attribution";
 import { CONSENT_EVENT, getConsentimiento } from "@/lib/analytics/consent";
 import { track } from "@/lib/analytics/track";
+
+/**
+ * Meta Pixel: mismo id público en todo el sitio (no es secreto, viaja en el
+ * HTML de cualquier página con Pixel). Dormido sin NEXT_PUBLIC_META_PIXEL_ID.
+ */
+const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID;
 
 // Import dinámico: posthog-js pesa ~50KB y solo lo paga quien consiente.
 async function cargarPostHog() {
@@ -32,6 +39,8 @@ async function cargarPostHog() {
 
 export function AnalyticsProvider() {
   const pathname = usePathname();
+  // Gatea el Meta Pixel (mismo criterio legal que PostHog: solo tras consentir).
+  const [analiticaOk, setAnaliticaOk] = useState(false);
 
   // Atribución first-touch y PostHog: SOLO tras consentir analítica
   // (el banner promete "solo si aceptás" — y se cumple).
@@ -39,12 +48,14 @@ export function AnalyticsProvider() {
     if (getConsentimiento()?.analitica) {
       captureAttribution();
       cargarPostHog();
+      setAnaliticaOk(true);
     }
     const alConsentir = (e: Event) => {
       const detalle = (e as CustomEvent<{ analitica?: boolean }>).detail;
       if (detalle?.analitica) {
         captureAttribution();
         cargarPostHog();
+        setAnaliticaOk(true);
       }
     };
     window.addEventListener(CONSENT_EVENT, alConsentir);
@@ -94,6 +105,32 @@ export function AnalyticsProvider() {
     <>
       <Analytics />
       <SpeedInsights />
+      {analiticaOk && META_PIXEL_ID ? (
+        <>
+          <Script id="meta-pixel" strategy="afterInteractive">
+            {`!function(f,b,e,v,n,t,s)
+            {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+            n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+            if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+            n.queue=[];t=b.createElement(e);t.async=!0;
+            t.src=v;s=b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t,s)}(window, document,'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+            fbq('init', '${META_PIXEL_ID}');
+            fbq('track', 'PageView');`}
+          </Script>
+          <noscript>
+            {/* eslint-disable-next-line @next/next/no-img-element -- fallback sin JS, next/image no aplica */}
+            <img
+              height="1"
+              width="1"
+              alt=""
+              style={{ display: "none" }}
+              src={`https://www.facebook.com/tr?id=${META_PIXEL_ID}&ev=PageView&noscript=1`}
+            />
+          </noscript>
+        </>
+      ) : null}
     </>
   );
 }
