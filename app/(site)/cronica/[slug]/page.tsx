@@ -6,7 +6,6 @@ import { PortableText, type PortableTextComponents } from "@portabletext/react";
 import { getCronica, getCronicasRelacionadas } from "@/lib/sanity/cronica";
 import { urlForImage } from "@/sanity/lib/image";
 import { getVertical, site } from "@/lib/site";
-import { EditorialImage } from "@/components/editorial-image";
 import { CategoryLabel } from "@/components/kicker";
 import { StoryCard } from "@/components/story-card";
 import { JsonLd } from "@/components/json-ld";
@@ -190,7 +189,17 @@ export default async function CronicaPage({
 
       {c.imagen ? (
         <figure className="mt-6">
-          <EditorialImage src={c.imagen} alt={c.imagenAlt ?? c.title} ratio="16 / 9" priority />
+          {/* Sin recorte: a diferencia de las tarjetas de grilla, la nota
+              debe mostrar la imagen completa tal como la subió el equipo. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={c.imagen}
+            alt={c.imagenAlt ?? c.title}
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
+            className="w-full rounded-[var(--radius-lg)]"
+          />
         </figure>
       ) : null}
 
