@@ -143,7 +143,7 @@ export async function SiteFooter() {
         {/* ── Colofón ── */}
         <div className="mt-12 flex flex-col gap-2 border-t border-paper/15 pt-6 md:flex-row md:items-baseline md:justify-between">
           <p className="label text-paper/60">
-            © {new Date().getFullYear()} {site.name} · Hecho en Costa Rica
+            © {new Date().getFullYear()} {site.name} Network
           </p>
           <p className="label text-paper/60">Descubrí qué vivir</p>
         </div>
