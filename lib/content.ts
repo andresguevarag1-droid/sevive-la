@@ -58,6 +58,13 @@ export function verticalColorTexto(slug: VerticalSlug): string {
   return `color-mix(in srgb, ${verticalColor(slug)} 68%, var(--color-ink))`;
 }
 
+/** Versión levemente oscurecida del color de la vertical para usar como
+ *  FONDO de una pastilla con texto blanco encima (algunas verticales, ej.
+ *  "Experiencias", no llegan a 4.5:1 de AA con el tono original). */
+export function verticalColorFondo(slug: VerticalSlug): string {
+  return `color-mix(in srgb, ${verticalColor(slug)} 90%, black)`;
+}
+
 export function verticalColor(slug: VerticalSlug): string {
   const map: Record<VerticalSlug, string> = {
     experiencias: "var(--color-experiencias)",

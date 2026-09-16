@@ -26,10 +26,16 @@ export default function SiteLayout({
       </a>
       <Masthead />
       <RevealObserver />
-      <main id="contenido" className="min-h-dvh pb-20 md:pb-0">
+      <main id="contenido" className="min-h-dvh">
         {children}
-        <SiteFooter />
       </main>
+      {/* El footer NO va dentro de <main>: semánticamente no es "contenido
+          principal", solo su hermano. El padding-bottom que antes llevaba
+          <main> (espacio para no tapar el footer con el bottom-nav fijo en
+          celular) se mueve a este envoltorio para no cambiar el look. */}
+      <div className="pb-20 md:pb-0">
+        <SiteFooter />
+      </div>
       <MobileNav />
       <CookieBanner />
       <VolverArriba />

@@ -3,6 +3,7 @@ import { getSlugsDeTipo } from "@/lib/sanity/slugs";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getBeneficio, beneficioVigente } from "@/lib/sanity/beneficio";
+import { capDescription } from "@/lib/seo";
 import { getBeneficiosTodos } from "@/lib/sanity/listados";
 import { getEmitidosPorBeneficio } from "@/lib/server/beneficio-stats";
 import { Beneficios } from "@/components/beneficios";
@@ -52,11 +53,11 @@ export async function generateMetadata({
   const { slug } = await params;
   const b = await getBeneficio(slug);
   if (!b) return {};
-  const description = `${b.detalle} en ${b.marca}. ${
+  const description = capDescription(`${b.detalle} en ${b.marca}. ${
     b.cuponMedible
       ? "Reclamá tu cupón gratuito con código y QR, y canjealo en el local — un solo uso por persona."
       : "Un beneficio exclusivo para la comunidad de SeViveLa."
-  }${b.vigencia ? ` Válido hasta el ${fmtVigencia(b.vigencia)}.` : ""}`;
+  }${b.vigencia ? ` Válido hasta el ${fmtVigencia(b.vigencia)}.` : ""}`);
   return {
     title: `${b.title} · ${b.marca}`,
     description,

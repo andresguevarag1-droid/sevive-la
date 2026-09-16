@@ -326,7 +326,7 @@ export function FormParticipacion({
     };
 
     return (
-      <div aria-live="polite" className="card px-6 py-10 text-center md:px-10">
+      <div className="card px-6 py-10 text-center md:px-10">
         <p className="label text-brand">
           {yaParticipaba ? "Ya estabas dentro" : "Participación registrada"}
         </p>
@@ -391,9 +391,14 @@ export function FormParticipacion({
               ) : null}
             </div>
 
-            {/* contador en vivo */}
+            {/* Contador en vivo: aria-live ACOTADO a este párrafo — se
+                actualiza solo cada 30s, y no queremos que el bloque entero
+                (link, botones de compartir) se re-anuncie cada vez. */}
             {contador ? (
-              <p className="tnum mt-4 rounded-[var(--radius-md)] bg-paper-2 px-4 py-3 text-center text-sm font-semibold text-ink">
+              <p
+                aria-live="polite"
+                className="tnum mt-4 rounded-[var(--radius-md)] bg-paper-2 px-4 py-3 text-center text-sm font-semibold text-ink"
+              >
                 {contador.referrals === 0
                   ? "Todavía nadie entró con tu link — ¡compartilo!"
                   : `${contador.referrals} ${contador.referrals === 1 ? "amigo ya entró" : "amigos ya entraron"} con tu link`}
@@ -447,6 +452,9 @@ export function FormParticipacion({
 
   // ¿Este campo está en la lista de errores? (para aria-invalid)
   const inv = (id: string) => (errores.some((f) => f.campo === id) ? true : undefined);
+  // Enlaza el input con su mensaje de error puntual (aria-describedby), que
+  // vive en el resumen de abajo — el lector de pantalla lo anuncia al enfocar.
+  const desc = (id: string) => (inv(id) ? `${id}-msg` : undefined);
 
   return (
     <form
@@ -476,6 +484,7 @@ export function FormParticipacion({
             type="email"
             name="email"
             aria-invalid={inv("f-email")}
+            aria-describedby={desc("f-email")}
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -493,6 +502,7 @@ export function FormParticipacion({
             type="text"
             name="fullName"
             aria-invalid={inv("f-nombre")}
+            aria-describedby={desc("f-nombre")}
             required
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
@@ -508,6 +518,7 @@ export function FormParticipacion({
             id="f-provincia"
             name="residence"
             aria-invalid={inv("f-provincia")}
+            aria-describedby={desc("f-provincia")}
             required
             value={residence}
             onChange={(e) => setResidence(e.target.value)}
@@ -531,6 +542,7 @@ export function FormParticipacion({
             type="tel"
             name="phone"
             aria-invalid={inv("f-telefono")}
+            aria-describedby={desc("f-telefono")}
             required
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
@@ -551,6 +563,7 @@ export function FormParticipacion({
               min={1}
               max={120}
               aria-invalid={inv("f-edad")}
+              aria-describedby={desc("f-edad")}
               required
               value={edad}
               onChange={(e) => setEdad(e.target.value)}
@@ -567,7 +580,7 @@ export function FormParticipacion({
       {preguntasActivas.length > 0 ? (
       <div className="mt-7 space-y-5">
         {preguntasActivas.map((p) => (
-          <fieldset key={p.key} id={`f-eleg-${p.key}`} aria-invalid={inv(`f-eleg-${p.key}`)}>
+          <fieldset key={p.key} id={`f-eleg-${p.key}`} aria-describedby={desc(`f-eleg-${p.key}`)}>
             <legend className="label text-faint">{p.label} *</legend>
             <div className="mt-2 flex gap-2">
               {[
@@ -623,6 +636,7 @@ export function FormParticipacion({
           <select
             id="f-interes"
             aria-invalid={inv("f-interes")}
+            aria-describedby={desc("f-interes")}
             required={preguntaInteres.obligatoria}
             value={interesRespuesta}
             onChange={(e) => setInteresRespuesta(e.target.value)}
@@ -681,6 +695,7 @@ export function FormParticipacion({
           type="checkbox"
           required
           aria-invalid={inv("f-consent")}
+          aria-describedby={desc("f-consent")}
           checked={consent}
           onChange={(e) => setConsent(e.target.checked)}
           disabled={status === "sending"}
@@ -696,6 +711,7 @@ export function FormParticipacion({
           type="checkbox"
           required
           aria-invalid={inv("f-bases")}
+          aria-describedby={desc("f-bases")}
           checked={acceptsRules}
           onChange={(e) => setAcceptsRules(e.target.checked)}
           disabled={status === "sending"}
@@ -741,7 +757,7 @@ export function FormParticipacion({
           <ul className="mt-1.5 space-y-1">
             {errores.map((f) => (
               <li key={f.campo}>
-                <a href={`#${f.campo}`} className="text-sm text-error underline">
+                <a id={`${f.campo}-msg`} href={`#${f.campo}`} className="text-sm text-error underline">
                   {f.mensaje}
                 </a>
               </li>

@@ -1,4 +1,4 @@
-import { verticalColor } from "@/lib/content";
+import { verticalColorFondo } from "@/lib/content";
 import type { VerticalSlug } from "@/lib/site";
 
 /**
@@ -12,7 +12,7 @@ export function ReelSinFoto({ vertical }: { vertical: VerticalSlug }) {
     <div
       aria-hidden
       className="relative h-full w-full"
-      style={{ background: verticalColor(vertical) }}
+      style={{ background: verticalColorFondo(vertical) }}
     >
       <span
         className="absolute right-2 top-1/2 -translate-y-1/2 text-xl font-black uppercase tracking-[0.4em] text-white/20"
