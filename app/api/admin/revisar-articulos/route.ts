@@ -26,6 +26,8 @@ import {
   desdePortableText,
   minutosLectura,
 } from "@/lib/server/articulo-pt";
+import { checkRateLimit } from "@/lib/server/rate-limit";
+import { getClientIp } from "@/lib/server/request-meta";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -49,6 +51,12 @@ type BorradorCrudo = {
 };
 
 export async function GET(req: Request) {
+  // Rate-limit ANTES de evaluar la clave: los intentos fallidos también
+  // consumen cuota (anti fuerza bruta).
+  const { allowed } = await checkRateLimit("admin", getClientIp(req));
+  if (!allowed) {
+    return NextResponse.json({ ok: false, error: "Demasiados intentos." }, { status: 429 });
+  }
   if (!cronAutorizado(req)) {
     return NextResponse.json({ ok: false, error: "No autorizado." }, { status: 401 });
   }

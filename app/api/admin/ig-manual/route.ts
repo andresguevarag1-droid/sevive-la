@@ -17,6 +17,8 @@ import {
   getWriteClient,
 } from "@/lib/server/sanity-escritura";
 import { redaccionHabilitada, extraerEventoDeIg } from "@/lib/server/redaccion";
+import { checkRateLimit } from "@/lib/server/rate-limit";
+import { getClientIp } from "@/lib/server/request-meta";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -38,6 +40,12 @@ function slugDeTitulo(titulo: string): string {
 }
 
 export async function POST(req: Request) {
+  // Rate-limit ANTES de evaluar la clave: los intentos fallidos también
+  // consumen cuota (anti fuerza bruta).
+  const { allowed } = await checkRateLimit("admin", getClientIp(req));
+  if (!allowed) {
+    return NextResponse.json({ ok: false, error: "Demasiados intentos." }, { status: 429 });
+  }
   const autorizado = cronAutorizado(req) || (adminConfigured && checkAdminKey(req));
   if (!autorizado) {
     return NextResponse.json({ ok: false, error: "Clave incorrecta." }, { status: 401 });
