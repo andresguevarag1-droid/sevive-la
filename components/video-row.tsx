@@ -1,5 +1,5 @@
 import type { Story } from "@/lib/content";
-import { verticalColor } from "@/lib/content";
+import { verticalColorFondo } from "@/lib/content";
 import { getVertical } from "@/lib/site";
 import { PlayIcon } from "@/components/icons";
 import { ReelSinFoto } from "@/components/reel-sin-foto";
@@ -48,7 +48,7 @@ export function VideoRow({ items }: { items: Story[] }) {
               {/* categoría (pill sólida arriba) */}
               <span
                 className="absolute left-2.5 top-2.5 rounded-full px-2 py-0.5 text-[10px] font-semibold text-white"
-                style={{ background: verticalColor(v.vertical) }}
+                style={{ background: verticalColorFondo(v.vertical) }}
               >
                 {vert?.name}
               </span>

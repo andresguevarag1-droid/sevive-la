@@ -6,7 +6,7 @@ import Link from "next/link";
  * Consentimiento NO premarcado; el texto mostrado es EXACTAMENTE el que
  * registra el servidor. Estados: idle → sending → ok | error.
  */
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { consentDinamica } from "@/lib/consent";
 import { isValidEmail, isValidPhone } from "@/lib/validation/client";
 import { TurnstileWidget } from "@/components/turnstile";
@@ -15,6 +15,7 @@ import { track } from "@/lib/analytics/track";
 import { utmEnvio } from "@/lib/analytics/utm-client";
 
 type Status = "idle" | "sending" | "ok" | "error";
+type ErrorCampo = { campo: string; mensaje: string };
 
 const inputClass =
   "mt-2 w-full border-b border-rule bg-transparent pb-2 text-ink outline-none placeholder:text-faint focus:border-ink disabled:opacity-60";
@@ -34,7 +35,9 @@ export function DinamicaForm({
   const [turnstileToken, setTurnstileToken] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
+  const [errores, setErrores] = useState<ErrorCampo[]>([]);
   const [repetido, setRepetido] = useState(false);
+  const resumenRef = useRef<HTMLDivElement>(null);
 
   const consentDef = consentDinamica(slug);
 
@@ -43,27 +46,27 @@ export function DinamicaForm({
     if (status === "sending") return;
     setError("");
 
-    // Validación ligera en cliente; el servidor re-valida con Zod (fuente de verdad).
+    // Validación ligera en cliente; el servidor re-valida con Zod (fuente de
+    // verdad). Se recogen TODOS los errores y se anuncian juntos (A1/A7).
     const honeypot =
       (new FormData(e.currentTarget).get("website") as string) || "";
-    if (firstName.trim().length < 2) {
+    const fallas: ErrorCampo[] = [];
+    if (firstName.trim().length < 2)
+      fallas.push({ campo: "d-nombre", mensaje: "Contanos tu nombre." });
+    if (!isValidEmail(email))
+      fallas.push({ campo: "d-email", mensaje: "Escribí un correo válido." });
+    if (!isValidPhone(phone))
+      fallas.push({ campo: "d-telefono", mensaje: "Escribí un teléfono válido." });
+    if (!consent)
+      fallas.push({
+        campo: "d-consent",
+        mensaje: "Necesitamos tu consentimiento para participar.",
+      });
+
+    setErrores(fallas);
+    if (fallas.length > 0) {
       setStatus("error");
-      setError("Contanos tu nombre.");
-      return;
-    }
-    if (!isValidEmail(email)) {
-      setStatus("error");
-      setError("Escribí un correo válido.");
-      return;
-    }
-    if (!isValidPhone(phone)) {
-      setStatus("error");
-      setError("Escribí un teléfono válido.");
-      return;
-    }
-    if (!consent) {
-      setStatus("error");
-      setError("Necesitamos tu consentimiento para participar.");
+      requestAnimationFrame(() => resumenRef.current?.focus());
       return;
     }
 
@@ -130,6 +133,10 @@ export function DinamicaForm({
     );
   }
 
+  // ¿Este campo está en la lista de errores? (para aria-invalid)
+  const inv = (id: string) => (errores.some((f) => f.campo === id) ? true : undefined);
+  const desc = (id: string) => (inv(id) ? `${id}-msg` : undefined);
+
   return (
     <form
       onSubmit={handleSubmit}
@@ -142,8 +149,11 @@ export function DinamicaForm({
         <label>
           <span className="label text-faint">Nombre *</span>
           <input
+            id="d-nombre"
             type="text"
             name="firstName"
+            aria-invalid={inv("d-nombre")}
+            aria-describedby={desc("d-nombre")}
             required
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
@@ -156,8 +166,11 @@ export function DinamicaForm({
         <label>
           <span className="label text-faint">Correo *</span>
           <input
+            id="d-email"
             type="email"
             name="email"
+            aria-invalid={inv("d-email")}
+            aria-describedby={desc("d-email")}
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -170,8 +183,11 @@ export function DinamicaForm({
         <label className="sm:col-span-2">
           <span className="label text-faint">Teléfono (opcional)</span>
           <input
+            id="d-telefono"
             type="tel"
             name="phone"
+            aria-invalid={inv("d-telefono")}
+            aria-describedby={desc("d-telefono")}
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             placeholder="+506 8888 8888"
@@ -209,7 +225,10 @@ export function DinamicaForm({
 
       <label className="mt-6 flex items-start gap-2.5 text-sm leading-relaxed text-muted">
         <input
+          id="d-consent"
           type="checkbox"
+          aria-invalid={inv("d-consent")}
+          aria-describedby={desc("d-consent")}
           required
           checked={consent}
           onChange={(e) => setConsent(e.target.checked)}
@@ -222,6 +241,29 @@ export function DinamicaForm({
       </label>
 
       <TurnstileWidget onToken={setTurnstileToken} />
+
+      {/* ── Resumen de errores accesible: se anuncia y recibe el foco (A1/A7) ── */}
+      {errores.length > 0 ? (
+        <div
+          ref={resumenRef}
+          role="alert"
+          tabIndex={-1}
+          className="mt-5 border-l-2 border-error bg-paper px-4 py-3 outline-none"
+        >
+          <p className="text-sm font-bold text-ink">
+            Revisá {errores.length === 1 ? "este campo" : "estos campos"}:
+          </p>
+          <ul className="mt-1.5 space-y-1">
+            {errores.map((f) => (
+              <li key={f.campo}>
+                <a id={`${f.campo}-msg`} href={`#${f.campo}`} className="text-sm text-error underline">
+                  {f.mensaje}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
 
       {status === "error" && error ? (
         <p role="alert" className="mt-4 text-sm font-medium text-error">

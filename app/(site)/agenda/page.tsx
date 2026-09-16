@@ -195,7 +195,7 @@ export default async function AgendaPage({
 
       <TrackClicks module="agenda_filtros">
         {/* ── Filtros de fecha + acceso a lo guardado ── */}
-        <nav aria-label="Filtros de fecha" className="mt-6 flex flex-wrap items-center gap-2">
+        <div role="group" aria-label="Filtros de fecha" className="mt-6 flex flex-wrap items-center gap-2">
           <Link
             href="/mi-agenda"
             className="chip pressable ml-auto order-last border"
@@ -225,10 +225,10 @@ export default async function AgendaPage({
               </Link>
             );
           })}
-        </nav>
+        </div>
 
         {/* ── Filtros por sección (color de cada vertical) ── */}
-        <nav aria-label="Filtros por sección" className="mt-2.5 flex flex-wrap items-center gap-2">
+        <div role="group" aria-label="Filtros por sección" className="mt-2.5 flex flex-wrap items-center gap-2">
           {verticalsVisibles.map((vert) => {
             const activo = vert.slug === verticalActiva;
             const color = verticalColor(vert.slug);
@@ -259,7 +259,7 @@ export default async function AgendaPage({
               </Link>
             );
           })}
-        </nav>
+        </div>
 
         {/* ── Salto rápido por día (sticky al hacer scroll) ── */}
         {diasConEventos.length > 2 ? (

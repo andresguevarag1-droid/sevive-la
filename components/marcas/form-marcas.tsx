@@ -5,7 +5,7 @@
  * consulta comercial en brand_leads (pipeline de ventas medible, con
  * atribución de origen). Estados: idle → sending → ok | error.
  */
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { CONSENT_MARCAS } from "@/lib/consent";
 import { isValidEmail } from "@/lib/validation/client";
 import { TurnstileWidget } from "@/components/turnstile";
@@ -14,6 +14,7 @@ import { track } from "@/lib/analytics/track";
 import { utmEnvio } from "@/lib/analytics/utm-client";
 
 type Status = "idle" | "sending" | "ok" | "error";
+type ErrorCampo = { campo: string; mensaje: string };
 
 const FORMATOS: { valor: string; etiqueta: string }[] = [
   { valor: "dinamica", etiqueta: "Dinámica / giveaway" },
@@ -34,6 +35,8 @@ export function FormMarcas() {
   const [turnstileToken, setTurnstileToken] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
+  const [errores, setErrores] = useState<ErrorCampo[]>([]);
+  const resumenRef = useRef<HTMLDivElement>(null);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -41,24 +44,23 @@ export function FormMarcas() {
     setError("");
 
     const honeypot = (new FormData(e.currentTarget).get("website") as string) || "";
-    if (marca.trim().length < 2) {
+    const fallas: ErrorCampo[] = [];
+    if (marca.trim().length < 2)
+      fallas.push({ campo: "m-marca", mensaje: "Contanos el nombre de tu marca." });
+    if (nombre.trim().length < 2)
+      fallas.push({ campo: "m-nombre", mensaje: "Contanos tu nombre." });
+    if (!isValidEmail(email))
+      fallas.push({ campo: "m-email", mensaje: "Escribí un correo válido." });
+    if (!consent)
+      fallas.push({
+        campo: "m-consent",
+        mensaje: "Necesitamos tu consentimiento para responderte.",
+      });
+
+    setErrores(fallas);
+    if (fallas.length > 0) {
       setStatus("error");
-      setError("Contanos el nombre de tu marca.");
-      return;
-    }
-    if (nombre.trim().length < 2) {
-      setStatus("error");
-      setError("Contanos tu nombre.");
-      return;
-    }
-    if (!isValidEmail(email)) {
-      setStatus("error");
-      setError("Escribí un correo válido.");
-      return;
-    }
-    if (!consent) {
-      setStatus("error");
-      setError("Necesitamos tu consentimiento para responderte.");
+      requestAnimationFrame(() => resumenRef.current?.focus());
       return;
     }
 
@@ -111,6 +113,10 @@ export function FormMarcas() {
   const campo =
     "mt-2 w-full border-b border-rule bg-transparent pb-2 text-ink outline-none placeholder:text-faint focus:border-ink disabled:opacity-60";
 
+  // ¿Este campo está en la lista de errores? (para aria-invalid)
+  const inv = (id: string) => (errores.some((f) => f.campo === id) ? true : undefined);
+  const desc = (id: string) => (inv(id) ? `${id}-msg` : undefined);
+
   return (
     <form
       onSubmit={handleSubmit}
@@ -121,7 +127,10 @@ export function FormMarcas() {
         <label>
           <span className="label text-faint">Marca / empresa *</span>
           <input
+            id="m-marca"
             type="text"
+            aria-invalid={inv("m-marca")}
+            aria-describedby={desc("m-marca")}
             value={marca}
             onChange={(e) => setMarca(e.target.value)}
             placeholder="Tu marca"
@@ -134,7 +143,10 @@ export function FormMarcas() {
         <label>
           <span className="label text-faint">Tu nombre *</span>
           <input
+            id="m-nombre"
             type="text"
+            aria-invalid={inv("m-nombre")}
+            aria-describedby={desc("m-nombre")}
             value={nombre}
             onChange={(e) => setNombre(e.target.value)}
             placeholder="Nombre y apellido"
@@ -147,7 +159,10 @@ export function FormMarcas() {
         <label>
           <span className="label text-faint">Correo *</span>
           <input
+            id="m-email"
             type="email"
+            aria-invalid={inv("m-email")}
+            aria-describedby={desc("m-email")}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="tu@empresa.com"
@@ -220,7 +235,10 @@ export function FormMarcas() {
 
       <label className="mt-6 flex items-start gap-2.5 text-sm leading-relaxed text-muted">
         <input
+          id="m-consent"
           type="checkbox"
+          aria-invalid={inv("m-consent")}
+          aria-describedby={desc("m-consent")}
           required
           checked={consent}
           onChange={(e) => setConsent(e.target.checked)}
@@ -233,6 +251,29 @@ export function FormMarcas() {
       </label>
 
       <TurnstileWidget onToken={setTurnstileToken} />
+
+      {/* ── Resumen de errores accesible: se anuncia y recibe el foco (A1/A7) ── */}
+      {errores.length > 0 ? (
+        <div
+          ref={resumenRef}
+          role="alert"
+          tabIndex={-1}
+          className="mt-5 border-l-2 border-error bg-paper px-4 py-3 outline-none"
+        >
+          <p className="text-sm font-bold text-ink">
+            Revisá {errores.length === 1 ? "este campo" : "estos campos"}:
+          </p>
+          <ul className="mt-1.5 space-y-1">
+            {errores.map((f) => (
+              <li key={f.campo}>
+                <a id={`${f.campo}-msg`} href={`#${f.campo}`} className="text-sm text-error underline">
+                  {f.mensaje}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
 
       {status === "error" && error ? (
         <p role="alert" className="mt-4 text-sm font-medium text-error">
