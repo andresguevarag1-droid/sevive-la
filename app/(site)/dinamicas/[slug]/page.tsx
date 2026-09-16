@@ -13,6 +13,7 @@ import { EditorialImage } from "@/components/editorial-image";
 import { CategoryLabel } from "@/components/kicker";
 import { JsonLd } from "@/components/json-ld";
 import { site } from "@/lib/site";
+import { capDescription } from "@/lib/seo";
 
 type Params = { slug: string };
 type Search = {
@@ -41,7 +42,9 @@ export async function generateMetadata({
   const c = await getCampana(slug);
   if (c) {
     const title = c.subtitulo.replace(/\.$/, "");
-    const description = `${c.premio} Participar no cuesta nada. Válido solo para Costa Rica.`;
+    const description = capDescription(
+      `${c.premio} Participar no cuesta nada. Válido solo para Costa Rica.`
+    );
     return {
       title,
       description,
@@ -56,7 +59,7 @@ export async function generateMetadata({
 
   const d = await getDinamica(slug);
   if (!d) return {};
-  const description = `Participá gratis: ${d.premio}`;
+  const description = capDescription(`Participá gratis: ${d.premio}`);
   return {
     title: d.title,
     description,

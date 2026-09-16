@@ -3,13 +3,15 @@ import Link from "next/link";
 import { getDinamicasAbiertas } from "@/lib/sanity/dinamica";
 import { EditorialImage } from "@/components/editorial-image";
 import { CategoryLabel } from "@/components/kicker";
+import { JsonLd } from "@/components/json-ld";
+import { site } from "@/lib/site";
 
 export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "Dinámicas",
   description:
-    "Participá gratis en las dinámicas de SeViveLa y ganate experiencias, cenas y planes en Costa Rica.",
+    "Participá gratis en las dinámicas de SeViveLa y ganate experiencias, entradas y planes en Costa Rica. Sin costo: llenás el formulario y ya quedás participando.",
   alternates: { canonical: "/dinamicas" },
 };
 
@@ -26,6 +28,27 @@ export default async function DinamicasPage() {
           Participar nunca cuesta nada.
         </p>
       </header>
+
+      {dinamicas.length > 0 ? (
+        <JsonLd
+          data={{
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            name: "Dinámicas abiertas de SeViveLa",
+            itemListElement: dinamicas.slice(0, 20).map((d, i) => ({
+              "@type": "Event",
+              position: i + 1,
+              name: d.title,
+              startDate: d.inicio,
+              endDate: d.cierre,
+              eventAttendanceMode: "https://schema.org/OnlineEventAttendanceMode",
+              image: d.imagen,
+              url: `${site.url}/dinamicas/${d.slug}`,
+              offers: { "@type": "Offer", price: "0", priceCurrency: "CRC" },
+            })),
+          }}
+        />
+      ) : null}
 
       {dinamicas.length === 0 ? (
         /* ── Estado vacío ── */

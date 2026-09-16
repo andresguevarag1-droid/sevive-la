@@ -21,7 +21,7 @@ export const revalidate = 60;
 export const metadata: Metadata = {
   title: "En vivo",
   description:
-    "Transmisiones en vivo de SeViveLa: coberturas, eventos y experiencias de Costa Rica, en directo.",
+    "Transmisiones en vivo de SeViveLa: coberturas, entrevistas y eventos de entretenimiento y cultura en Costa Rica, en directo desde nuestras redes.",
   alternates: { canonical: "/en-vivo" },
 };
 

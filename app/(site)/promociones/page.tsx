@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { getBeneficiosTodos } from "@/lib/sanity/listados";
 import { Beneficios } from "@/components/beneficios";
+import { JsonLd } from "@/components/json-ld";
+import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Cuponera",
   description:
-    "Descuentos y beneficios de marcas aliadas de SeViveLa: restaurantes, tours y experiencias en Costa Rica.",
+    "Descuentos de marcas aliadas de SeViveLa: restaurantes, tours y experiencias en Costa Rica. Cupones gratis, canjeables desde el celular en el local.",
   alternates: { canonical: "/promociones" },
 };
 
@@ -24,6 +26,27 @@ export default async function PromocionesPage() {
           siempre está etiquetado.
         </p>
       </header>
+
+      {beneficios.length > 0 ? (
+        <JsonLd
+          data={{
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            name: "Cuponera de SeViveLa",
+            itemListElement: beneficios
+              .filter((b) => b.href)
+              .slice(0, 20)
+              .map((b, i) => ({
+                "@type": "Product",
+                position: i + 1,
+                name: b.title,
+                description: b.dek,
+                image: b.img,
+                url: `${site.url}${b.href}`,
+              })),
+          }}
+        />
+      ) : null}
 
       {beneficios.length === 0 ? (
         /* ── Estado vacío ── */

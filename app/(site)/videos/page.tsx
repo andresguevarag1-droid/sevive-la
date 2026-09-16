@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
 import { getReels } from "@/lib/sanity/listados";
-import { verticalColor } from "@/lib/content";
-import { getVertical } from "@/lib/site";
+import { verticalColorFondo } from "@/lib/content";
+import { getVertical, site } from "@/lib/site";
 import { PlayIcon } from "@/components/icons";
 import { ReelSinFoto } from "@/components/reel-sin-foto";
 import { ReelCardLink } from "@/components/reel-card-link";
+import { JsonLd } from "@/components/json-ld";
 
 export const metadata: Metadata = {
   title: "Videos",
   description:
-    "Reels de SeViveLa: sodas, volcanes, festivales y planes de Costa Rica en video vertical.",
+    "Reels de SeViveLa: sodas, volcanes, festivales y planes de Costa Rica en video vertical, cortos y directo al punto para ver desde el celular.",
   alternates: { canonical: "/videos" },
 };
 
@@ -28,6 +29,27 @@ export default async function VideosPage() {
           en el feed.
         </p>
       </header>
+
+      {reels.length > 0 ? (
+        <JsonLd
+          data={{
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            name: "Videoteca de SeViveLa",
+            itemListElement: reels
+              .filter((v) => v.href)
+              .slice(0, 20)
+              .map((v, i) => ({
+                "@type": "VideoObject",
+                position: i + 1,
+                name: v.title,
+                thumbnailUrl: v.img,
+                contentUrl: v.href,
+                publisher: { "@type": "Organization", name: site.name, url: site.url },
+              })),
+          }}
+        />
+      ) : null}
 
       {reels.length === 0 ? (
         /* ── Estado vacío ── */
@@ -70,7 +92,7 @@ export default async function VideosPage() {
                 />
                 <span
                   className="absolute left-2.5 top-2.5 rounded-full px-2 py-0.5 text-[10px] font-semibold text-white"
-                  style={{ background: verticalColor(v.vertical) }}
+                  style={{ background: verticalColorFondo(v.vertical) }}
                 >
                   {vert?.name}
                 </span>

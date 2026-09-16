@@ -7,6 +7,7 @@ import { getVertical, site } from "@/lib/site";
 import { CategoryLabel } from "@/components/kicker";
 import { WeekIndex } from "@/components/week-index";
 import { JsonLd } from "@/components/json-ld";
+import { capDescription } from "@/lib/seo";
 
 /**
  * Detalle de lugar — SEO local puro: cada restaurante, bar o destino con
@@ -27,12 +28,19 @@ export async function generateMetadata({
   const { slug } = await params;
   const l = await getLugar(slug);
   if (!l) return {};
-  const description =
-    l.descripcion?.slice(0, 155) ??
-    `${l.title}${l.ubicacion ? ` en ${l.ubicacion}` : ""} — descubrilo en ${site.name}.`;
+  const description = capDescription(
+    l.descripcion ??
+      `${l.title}${l.ubicacion ? ` en ${l.ubicacion}` : ""} — descubrilo en ${site.name}.`,
+    155
+  );
   return {
     title: l.title,
     description,
+    openGraph: {
+      title: l.title,
+      description,
+      ...(l.imagen ? { images: [{ url: l.imagen }] } : {}),
+    },
     alternates: { canonical: `/lugares/${l.slug}` },
   };
 }
@@ -65,6 +73,26 @@ export default async function LugarPage({
             addressCountry: "CR",
           },
           url: `${site.url}/lugares/${l.slug}`,
+        }}
+      />
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Inicio", item: site.url },
+            ...(v
+              ? [
+                  {
+                    "@type": "ListItem" as const,
+                    position: 2,
+                    name: v.name,
+                    item: `${site.url}/${v.slug}`,
+                  },
+                ]
+              : []),
+            { "@type": "ListItem", position: v ? 3 : 2, name: l.title },
+          ],
         }}
       />
 

@@ -18,7 +18,7 @@ export const revalidate = 300;
 export const metadata: Metadata = {
   title: "Capítulos",
   description:
-    "El show de SeViveLa, capítulo a capítulo: mirá cada programa completo, directo desde nuestro canal.",
+    "El show de SeViveLa, capítulo a capítulo: mirá cada programa completo con entrevistas, música y cultura de Costa Rica, directo desde nuestro canal de YouTube.",
   alternates: { canonical: "/capitulos" },
 };
 

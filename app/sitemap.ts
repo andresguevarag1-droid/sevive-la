@@ -4,7 +4,7 @@ import { getDinamicasAbiertas } from "@/lib/sanity/dinamica";
 import { getCampanaActiva } from "@/lib/sanity/campana";
 import { getEventosProximos, getBeneficiosTodos } from "@/lib/sanity/listados";
 import { getCronicasParaSitemap } from "@/lib/sanity/cronica";
-import { getSlugsDeTipo } from "@/lib/sanity/slugs";
+import { getSlugsDeTipo, getUltimaEdicionPorTipo } from "@/lib/sanity/slugs";
 
 /**
  * Sitemap: rutas estáticas + verticales + dinámicas abiertas.
@@ -36,14 +36,34 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   // Dinámicas abiertas (si Sanity falla, devuelve [] y el sitemap no revienta).
-  const [dinamicas, campana, eventos, cronicas, beneficios, lugares] = await Promise.all([
+  const [
+    dinamicas,
+    campana,
+    eventos,
+    cronicas,
+    beneficios,
+    lugares,
+    editadoEvento,
+    editadoBeneficio,
+    editadoDinamica,
+    editadoLugar,
+  ] = await Promise.all([
     getDinamicasAbiertas(),
     getCampanaActiva(),
     getEventosProximos(),
     getCronicasParaSitemap(),
     getBeneficiosTodos(),
     getSlugsDeTipo("lugar"),
+    // "Última edición real" (_updatedAt) por tipo, para el freshness signal
+    // del sitemap — no solo las crónicas, como antes.
+    getUltimaEdicionPorTipo("evento"),
+    getUltimaEdicionPorTipo("beneficio"),
+    getUltimaEdicionPorTipo("dinamica"),
+    getUltimaEdicionPorTipo("lugar"),
   ]);
+  /** Último segmento del href ("/agenda/mi-slug" → "mi-slug"). */
+  const slugDeHref = (href?: string) => href?.split("/").pop();
+
   const deCronicas: MetadataRoute.Sitemap = cronicas.map((c) => ({
     url: `${site.url}/cronica/${c.slug}`,
     lastModified: new Date(c.fecha),
@@ -52,23 +72,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
   const deEventos: MetadataRoute.Sitemap = eventos
     .filter((e) => e.href)
-    .map((e) => ({
-      url: `${site.url}${e.href}`,
-     
-      changeFrequency: "weekly",
-      priority: 0.7,
-    }));
+    .map((e) => {
+      const editado = editadoEvento[slugDeHref(e.href) ?? ""];
+      return {
+        url: `${site.url}${e.href}`,
+        ...(editado ? { lastModified: new Date(editado) } : {}),
+        changeFrequency: "weekly",
+        priority: 0.7,
+      };
+    });
   // Las páginas de conversión comercial también se indexan.
   const deBeneficios: MetadataRoute.Sitemap = beneficios
     .filter((b) => b.href)
-    .map((b) => ({
-      url: `${site.url}${b.href}`,
-      changeFrequency: "weekly",
-      priority: 0.7,
-    }));
+    .map((b) => {
+      const editado = editadoBeneficio[slugDeHref(b.href) ?? ""];
+      return {
+        url: `${site.url}${b.href}`,
+        ...(editado ? { lastModified: new Date(editado) } : {}),
+        changeFrequency: "weekly",
+        priority: 0.7,
+      };
+    });
   const deDinamicas: MetadataRoute.Sitemap = dinamicas.map((d) => ({
     url: `${site.url}/dinamicas/${d.slug}`,
-   
+    ...(editadoDinamica[d.slug] ? { lastModified: new Date(editadoDinamica[d.slug]) } : {}),
     changeFrequency: "daily",
     priority: 0.8,
   }));
@@ -76,7 +103,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ? [
         {
           url: `${site.url}/dinamicas/${campana.slug}`,
-         
           changeFrequency: "daily",
           priority: 0.9,
         },
@@ -86,6 +112,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // SEO local: cada lugar con página propia también se indexa.
   const deLugares: MetadataRoute.Sitemap = lugares.map((l) => ({
     url: `${site.url}/lugares/${l.slug}`,
+    ...(editadoLugar[l.slug] ? { lastModified: new Date(editadoLugar[l.slug]) } : {}),
     changeFrequency: "monthly",
     priority: 0.6,
   }));
