@@ -176,10 +176,16 @@ o 503 (falla). Montá el monitor gratis:
 
 ## 🔑 Recordatorios de seguridad
 
-- Migración pendiente de aplicar en Supabase (SQL Editor):
-  `0011_config_app.sql` (guarda el token renovado de Instagram; sin ella
-  el cron de reels funciona igual, pero el token vence a los 60 días y
-  hay que pegarlo de nuevo a mano). Las 0001–0010 ya están aplicadas.
+- Confirmá en Supabase (SQL Editor → `select * from supabase_migrations.schema_migrations order by version desc limit 5;`, o revisando las tablas a mano) que estas dos migraciones ya están aplicadas — si falta alguna, correr su archivo de `supabase/migrations/`:
+  - `0011_config_app.sql`: guarda el token renovado de Instagram; sin ella
+    el cron de reels funciona igual, pero el token vence a los 60 días y
+    hay que pegarlo de nuevo a mano.
+  - `0012_campana_edad_interes.sql`: columnas `edad`/`interes_respuesta` en
+    `campaign_entries`. **Sin ella, CUALQUIER campaña (no solo las que
+    piden edad) falla al guardar la participación** — el insert las
+    manda siempre. Si ya activaste una campaña con éxito después del 9 de
+    setiembre de 2026, ya está aplicada.
+  Las 0001–0010 ya están aplicadas.
 - `ADMIN_PANEL_KEY` en Vercel para el panel (`/admin/datos` y `/admin/locales`).
 - `SENTRY_DSN` cuando abras la cuenta (el código ya está listo).
 - Rotar/borrar el token de escritura de Sanity al terminar las siembras.
