@@ -6,7 +6,7 @@ import "server-only";
 import type { PortableTextBlock } from "@portabletext/types";
 import { client } from "@/sanity/lib/client";
 import { sanityConfigured } from "@/sanity/env";
-import { urlForImage } from "@/sanity/lib/image";
+import { urlForImage, aspectRatioDeAsset } from "@/sanity/lib/image";
 import type { Story } from "@/lib/content";
 import type { VerticalSlug } from "@/lib/site";
 import {
@@ -27,6 +27,8 @@ export type CronicaDetalle = {
   fecha: string;
   imagen?: string;
   imagenAlt?: string;
+  /** Relación de aspecto real ("1600 / 900") para reservar el espacio y evitar CLS. */
+  imagenRatio?: string;
   cuerpo?: PortableTextBlock[];
 };
 
@@ -70,6 +72,7 @@ export async function getCronica(slug: string): Promise<CronicaDetalle | null> {
       fecha: raw.fecha,
       imagen: urlForImage(raw.imagen, 1600),
       imagenAlt: raw.imagen?.alt || raw.title,
+      imagenRatio: aspectRatioDeAsset(raw.imagen),
       cuerpo: raw.cuerpo,
     };
   } catch (err) {

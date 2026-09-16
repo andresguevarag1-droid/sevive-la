@@ -4,7 +4,8 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { PortableText, type PortableTextComponents } from "@portabletext/react";
 import { getCronica, getCronicasRelacionadas } from "@/lib/sanity/cronica";
-import { urlForImage } from "@/sanity/lib/image";
+import { getUltimaEdicion } from "@/lib/sanity/slugs";
+import { urlForImage, aspectRatioDeAsset } from "@/sanity/lib/image";
 import { getVertical, site } from "@/lib/site";
 import { CategoryLabel } from "@/components/kicker";
 import { StoryCard } from "@/components/story-card";
@@ -50,8 +51,9 @@ const componentesCuerpo: PortableTextComponents = {
     image: ({ value }) => {
       const src = urlForImage(value, 1400);
       if (!src) return null;
+      const ratio = aspectRatioDeAsset(value as { asset?: { _ref?: string } });
       return (
-        <figure className="my-8">
+        <figure className="my-8" style={ratio ? { aspectRatio: ratio } : undefined}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={src}
@@ -106,6 +108,7 @@ export default async function CronicaPage({
 
   const v = getVertical(c.vertical);
   const relacionadas = await getCronicasRelacionadas(c.vertical, c.id);
+  const editado = await getUltimaEdicion("cronica", c.slug);
 
   return (
     <article className="mx-auto max-w-3xl px-4 py-8 md:py-12">
@@ -118,6 +121,7 @@ export default async function CronicaPage({
           headline: c.title,
           description: c.bajada,
           datePublished: c.fecha,
+          ...(editado ? { dateModified: editado } : {}),
           inLanguage: site.locale,
           image: c.imagen,
           articleSection: v?.name,
@@ -188,9 +192,11 @@ export default async function CronicaPage({
       </header>
 
       {c.imagen ? (
-        <figure className="mt-6">
+        <figure className="mt-6" style={c.imagenRatio ? { aspectRatio: c.imagenRatio } : undefined}>
           {/* Sin recorte: a diferencia de las tarjetas de grilla, la nota
-              debe mostrar la imagen completa tal como la subió el equipo. */}
+              debe mostrar la imagen completa tal como la subió el equipo.
+              El aspect-ratio real (leído del asset de Sanity) reserva el
+              espacio exacto de antemano para no saltar al cargar (CLS). */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={c.imagen}
