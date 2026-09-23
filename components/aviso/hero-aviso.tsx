@@ -1,0 +1,134 @@
+import Link from "next/link";
+import type { Aviso } from "@/lib/sanity/aviso";
+
+/**
+ * Hero de Aviso en la home — MISMO look festivo que el hero de campaña
+ * (components/campana/hero-campana.tsx: degradado naranja→magenta,
+ * estrellas, franja arcoíris), pero sin formulario: es un cartel con un
+ * botón, para anuncios que no son una dinámica/sorteo (ej. "sintonizanos
+ * los viernes en OPA Canal 38"). Server component: cero JS.
+ */
+
+/** Estrella de cuatro puntas (como las del flyer), SVG liviano. */
+function Estrella({
+  size,
+  color,
+  className,
+  style,
+}: {
+  size: number;
+  color: string;
+  className?: string;
+  style?: React.CSSProperties;
+}) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill={color}
+      aria-hidden
+      className={className}
+      style={style}
+    >
+      <path d="M12 0c1 6.5 4.5 10 12 12-7.5 2-11 5.5-12 12-1-6.5-4.5-10-12-12 7.5-2 11-5.5 12-12z" />
+    </svg>
+  );
+}
+
+export function HeroAviso({ aviso }: { aviso: Aviso }) {
+  const interno = aviso.ctaHref.startsWith("/");
+
+  return (
+    <section
+      aria-label={aviso.titulo}
+      className="relative overflow-hidden"
+      style={{
+        background:
+          "linear-gradient(160deg, #f7941d 0%, #ef4136 38%, #c71e70 72%, #7a1f6e 100%)",
+      }}
+    >
+      {/* estrellas decorativas con titileo lento (se apaga con reduced-motion) */}
+      <Estrella size={54} color="#ffd200" className="twinkle absolute left-[4%] top-8 opacity-80" />
+      <Estrella
+        size={30}
+        color="#ffffff"
+        className="twinkle absolute right-[8%] top-14 opacity-60"
+        style={{ animationDelay: "1.4s" }}
+      />
+      <Estrella
+        size={40}
+        color="#3b1f87"
+        className="twinkle absolute bottom-10 left-[12%] opacity-50"
+        style={{ animationDelay: "2.6s" }}
+      />
+
+      {/* velo de tinta: sube el contraste del texto sobre el degradado */}
+      <div aria-hidden className="absolute inset-0 bg-[rgba(26,21,38,0.05)]" />
+      <div className="relative mx-auto grid max-w-6xl items-center gap-8 px-4 py-12 md:grid-cols-[1.2fr_1fr] md:gap-12 md:py-16">
+        <div className="relative">
+          {/* Titular en mayúsculas y minúsculas, serif editorial */}
+          <h1 className="text-[clamp(2.4rem,7vw,4.6rem)] leading-[1.02] text-white [text-wrap:balance]">
+            {aviso.titulo}
+          </h1>
+
+          <p className="mt-4 max-w-xl text-lg font-semibold leading-snug text-white/95 md:text-2xl">
+            {aviso.subtitulo}
+          </p>
+
+          <div className="mt-8 flex flex-col items-start gap-3">
+            {interno ? (
+              <Link
+                href={aviso.ctaHref}
+                className="pressable inline-block rounded-[var(--radius-full)] bg-lilac px-8 py-4 text-base font-bold uppercase tracking-wide text-ink shadow-[0_10px_30px_-8px_rgba(0,0,0,0.45)] ring-2 ring-white/90 transition-all hover:brightness-105"
+              >
+                {aviso.ctaTexto}
+              </Link>
+            ) : (
+              <a
+                href={aviso.ctaHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="pressable inline-block rounded-[var(--radius-full)] bg-lilac px-8 py-4 text-base font-bold uppercase tracking-wide text-ink shadow-[0_10px_30px_-8px_rgba(0,0,0,0.45)] ring-2 ring-white/90 transition-all hover:brightness-105"
+              >
+                {aviso.ctaTexto}
+              </a>
+            )}
+            {aviso.microcopy ? (
+              <p className="label text-white/85">{aviso.microcopy}</p>
+            ) : null}
+          </div>
+        </div>
+
+        {/* arte del aviso (flyer), como afiche pegado */}
+        {aviso.imagenHero ? (
+          <div className="relative mx-auto w-full max-w-xs md:max-w-sm">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={aviso.imagenHeroSet?.s800 ?? aviso.imagenHero}
+              srcSet={
+                aviso.imagenHeroSet
+                  ? `${aviso.imagenHeroSet.s480} 480w, ${aviso.imagenHeroSet.s800} 800w, ${aviso.imagenHeroSet.s1200} 1200w`
+                  : undefined
+              }
+              sizes="(min-width: 768px) 384px, 90vw"
+              alt={aviso.imagenHeroAlt ?? aviso.titulo}
+              width={480}
+              height={600}
+              fetchPriority="high"
+              decoding="async"
+              className="w-full -rotate-2 rounded-[var(--radius-lg)] shadow-[0_24px_60px_-16px_rgba(0,0,0,0.5)] transition-transform duration-500 ease-[var(--ease-out)] hover:rotate-0"
+            />
+          </div>
+        ) : null}
+      </div>
+
+      {/* arcoíris inferior (capas de color, como el flyer) */}
+      <div aria-hidden className="flex h-3 w-full">
+        <div className="h-full flex-1" style={{ background: "#ffd200" }} />
+      </div>
+      <div aria-hidden className="flex h-2.5 w-full" style={{ background: "#f7941d" }} />
+      <div aria-hidden className="flex h-2 w-full" style={{ background: "#a190d2" }} />
+    </section>
+  );
+}
