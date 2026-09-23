@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getHomeContent } from "@/lib/sanity/queries";
 import { getCampanaActiva } from "@/lib/sanity/campana";
+import { getAvisoActivo } from "@/lib/sanity/aviso";
 import { getEstadoEnVivo } from "@/lib/sanity/transmision";
 import { HeroCampana } from "@/components/campana/hero-campana";
+import { HeroAviso } from "@/components/aviso/hero-aviso";
 import { BandaEnVivo } from "@/components/en-vivo/banda-en-vivo";
 import { PortadaCarrusel } from "@/components/portada-carrusel";
 import { SectionHead } from "@/components/section-head";
@@ -30,8 +32,16 @@ const quickFilters = [
 
 export default async function HomePage() {
   // Contenido desde Sanity (con fallback a mock por sección) + campaña activa.
-  const [{ portadas, week, features, videos, beneficios }, campana, enVivo] =
-    await Promise.all([getHomeContent(), getCampanaActiva(), getEstadoEnVivo()]);
+  const [{ portadas, week, features, videos, beneficios }, campana, aviso, enVivo] =
+    await Promise.all([
+      getHomeContent(),
+      getCampanaActiva(),
+      getAvisoActivo(),
+      getEstadoEnVivo(),
+    ]);
+  // La campaña/sorteo manda si hay una activa; el aviso es el respaldo
+  // (ej. "sintonizanos los viernes") cuando no hay ninguna dinámica corriendo.
+  const heroActivo = campana ? "campana" : aviso ? "aviso" : null;
 
   // Eventos reales del índice → datos estructurados de la portada (SEO/GEO).
   const eventosLd = week.filter((s) => s.fechaIso && s.href);
@@ -74,7 +84,7 @@ export default async function HomePage() {
       {enVivo.activa ? <BandaEnVivo transmision={enVivo.activa} /> : null}
 
       {/* ── HERO de campaña (solo si el equipo la activó en el Studio) ── */}
-      {campana ? <HeroCampana campana={campana} /> : null}
+      {campana ? <HeroCampana campana={campana} /> : aviso ? <HeroAviso aviso={aviso} /> : null}
 
       {/* ── Barra de servicio: búsqueda + filtros rápidos ── */}
       <div className="border-b border-rule">
@@ -107,7 +117,7 @@ export default async function HomePage() {
       {/* ── Portada(s): con varias notas marcadas, carrusel que rota solo ── */}
       {portadas.length > 0 ? (
         <section className="mx-auto max-w-6xl px-4 pt-8 pb-12 md:pt-12 md:pb-16">
-          <PortadaCarrusel stories={portadas} as={campana ? "h2" : "h1"} />
+          <PortadaCarrusel stories={portadas} as={heroActivo ? "h2" : "h1"} />
         </section>
       ) : null}
 
