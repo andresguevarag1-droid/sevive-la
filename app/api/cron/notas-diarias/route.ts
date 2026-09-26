@@ -21,6 +21,30 @@ import {
   type DatosEvento,
 } from "@/lib/server/redaccion";
 import { aPortableText, minutosLectura } from "@/lib/server/articulo-pt";
+import { portadaGenerada } from "@/lib/server/portada-generada";
+
+/**
+ * Sube la portada de marca generada como asset y la deja lista para
+ * `imagen` en el createIfNotExists. Si falla (fuente rota, etc.), la
+ * crónica igual se crea sin foto — nunca bloquea la publicación.
+ */
+async function imagenDeMarca(
+  db: ReturnType<typeof getWriteClient>,
+  titulo: string,
+  vertical: string,
+  idParaArchivo: string
+): Promise<Record<string, unknown> | undefined> {
+  try {
+    const buffer = await portadaGenerada(titulo, vertical);
+    const asset = await db!.assets.upload("image", buffer, {
+      filename: `portada-${idParaArchivo}.png`,
+    });
+    return { _type: "image", asset: { _type: "reference", _ref: asset._id } };
+  } catch (err) {
+    console.error("[notas-diarias] portada generada falló (crónica sin foto):", err);
+    return undefined;
+  }
+}
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -106,6 +130,7 @@ Estructura: intro que diga qué se confirmó y por qué interesa (sección con s
         continue;
       }
       const idArticulo = `cronica-anuncio-${e._id.replace(/[^a-zA-Z0-9-]/g, "")}`;
+      const imagen = await imagenDeMarca(db, articulo.titulo, e.vertical, idArticulo);
       await db.createIfNotExists({
         _id: `drafts.${idArticulo}`,
         _type: "cronica",
@@ -117,6 +142,7 @@ Estructura: intro que diga qué se confirmó y por qué interesa (sección con s
         formato: "Nota",
         lecturaMin: minutosLectura(articulo),
         cuerpo: aPortableText(articulo),
+        ...(imagen ? { imagen } : {}),
         fecha: new Date().toISOString(),
         esPortada: false,
         destacada: false,
@@ -169,6 +195,7 @@ Estructura: intro breve con el ánimo del fin de semana (sección con subtitulo 
         if ((eventos ?? []).length >= 2) {
           const articulo = await redactarNotaDeAgenda(roundup.encargo, eventos!);
           if (articulo) {
+            const imagen = await imagenDeMarca(db, articulo.titulo, "ocio", roundup.id);
             await db.createIfNotExists({
               _id: `drafts.${roundup.id}`,
               _type: "cronica",
@@ -179,6 +206,7 @@ Estructura: intro breve con el ánimo del fin de semana (sección con subtitulo 
               autor: "Redacción SeViveLa",
               formato: "Agenda",
               lecturaMin: minutosLectura(articulo),
+              ...(imagen ? { imagen } : {}),
               cuerpo: aPortableText(articulo),
               fecha: new Date().toISOString(),
               esPortada: false,
