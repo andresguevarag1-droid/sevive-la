@@ -4,7 +4,7 @@ import { getHomeContent } from "@/lib/sanity/queries";
 import { getCampanasActivas } from "@/lib/sanity/campana";
 import { getAvisoActivo } from "@/lib/sanity/aviso";
 import { getEstadoEnVivo } from "@/lib/sanity/transmision";
-import { HeroCampana } from "@/components/campana/hero-campana";
+import { HeroCampanaCarrusel } from "@/components/campana/hero-campana-carrusel";
 import { HeroAviso } from "@/components/aviso/hero-aviso";
 import { BandaEnVivo } from "@/components/en-vivo/banda-en-vivo";
 import { PortadaCarrusel } from "@/components/portada-carrusel";
@@ -84,14 +84,12 @@ export default async function HomePage() {
       {/* ── Banda EN VIVO (solo mientras hay transmisión encendida) ── */}
       {enVivo.activa ? <BandaEnVivo transmision={enVivo.activa} /> : null}
 
-      {/* ── HERO de campaña (una o varias apiladas; solo si el equipo las activó en el Studio) ── */}
-      {campanas.length > 0
-        ? campanas.map((c, i) => (
-            <HeroCampana key={c.id} campana={c} as={i === 0 ? "h1" : "h2"} />
-          ))
-        : aviso
-          ? <HeroAviso aviso={aviso} />
-          : null}
+      {/* ── HERO de campaña (una o varias en carrusel automático; solo si el equipo las activó en el Studio) ── */}
+      {campanas.length > 0 ? (
+        <HeroCampanaCarrusel campanas={campanas} />
+      ) : aviso ? (
+        <HeroAviso aviso={aviso} />
+      ) : null}
 
       {/* ── Barra de servicio: búsqueda + filtros rápidos ── */}
       <div className="border-b border-rule">
