@@ -34,7 +34,14 @@ function Estrella({
   );
 }
 
-export function HeroCampana({ campana }: { campana: Campana }) {
+export function HeroCampana({
+  campana,
+  as: Titular = "h1",
+}: {
+  campana: Campana;
+  /** "h1" por defecto; usar "h2" si se apila más de una campaña a la vez. */
+  as?: "h1" | "h2";
+}) {
   return (
     <section
       aria-label={`Campaña: ${campana.titulo}`}
@@ -69,9 +76,9 @@ export function HeroCampana({ campana }: { campana: Campana }) {
           </span>
 
           {/* Titular en mayúsculas y minúsculas, serif editorial */}
-          <h1 className="mt-5 text-[clamp(2.4rem,7vw,4.6rem)] leading-[1.02] text-white [text-wrap:balance]">
+          <Titular className="mt-5 text-[clamp(2.4rem,7vw,4.6rem)] leading-[1.02] text-white [text-wrap:balance]">
             {campana.titulo}
-          </h1>
+          </Titular>
 
           <p className="mt-4 max-w-xl text-lg font-semibold leading-snug text-white/95 md:text-2xl">
             {campana.subtitulo}

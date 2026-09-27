@@ -125,6 +125,27 @@ export async function getCampanaActiva(): Promise<Campana | null> {
   }
 }
 
+/**
+ * TODAS las campañas activas y dentro de su ventana (para apilar más de
+ * un sorteo en el hero de la home a la vez, ej. dos premios de marcas
+ * distintas corriendo en simultáneo). La más reciente (`inicia` más nuevo)
+ * queda primera/arriba.
+ */
+export async function getCampanasActivas(): Promise<Campana[]> {
+  if (!sanityConfigured) return [];
+  try {
+    const raw = await client.fetch<RawCampana[]>(
+      /* groq */ `*[_type == "campana" && activa == true && inicia <= now() && termina >= now()] | order(inicia desc){ ${CAMPANA_FIELDS} }`,
+      {},
+      { next: { revalidate: 60 } }
+    );
+    return (raw ?? []).map(mapCampana);
+  } catch (err) {
+    console.error("[sanity] campañas activas falló:", err);
+    return [];
+  }
+}
+
 /** Una campaña por slug (aunque esté pausada: la landing informa el estado). */
 export async function getCampana(slug: string): Promise<Campana | null> {
   if (!sanityConfigured) return null;
