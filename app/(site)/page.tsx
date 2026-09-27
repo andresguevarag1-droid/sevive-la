@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getHomeContent } from "@/lib/sanity/queries";
-import { getCampanaActiva } from "@/lib/sanity/campana";
+import { getCampanasActivas } from "@/lib/sanity/campana";
 import { getAvisoActivo } from "@/lib/sanity/aviso";
 import { getEstadoEnVivo } from "@/lib/sanity/transmision";
 import { HeroCampana } from "@/components/campana/hero-campana";
@@ -31,17 +31,18 @@ const quickFilters = [
 ];
 
 export default async function HomePage() {
-  // Contenido desde Sanity (con fallback a mock por sección) + campaña activa.
-  const [{ portadas, week, features, videos, beneficios }, campana, aviso, enVivo] =
+  // Contenido desde Sanity (con fallback a mock por sección) + campañas activas.
+  const [{ portadas, week, features, videos, beneficios }, campanas, aviso, enVivo] =
     await Promise.all([
       getHomeContent(),
-      getCampanaActiva(),
+      getCampanasActivas(),
       getAvisoActivo(),
       getEstadoEnVivo(),
     ]);
-  // La campaña/sorteo manda si hay una activa; el aviso es el respaldo
-  // (ej. "sintonizanos los viernes") cuando no hay ninguna dinámica corriendo.
-  const heroActivo = campana ? "campana" : aviso ? "aviso" : null;
+  // Las campañas/sorteos mandan si hay alguna activa (pueden ser varias a
+  // la vez, apiladas); el aviso es el respaldo (ej. "sintonizanos los
+  // viernes") cuando no hay ninguna dinámica corriendo.
+  const heroActivo = campanas.length > 0 ? "campana" : aviso ? "aviso" : null;
 
   // Eventos reales del índice → datos estructurados de la portada (SEO/GEO).
   const eventosLd = week.filter((s) => s.fechaIso && s.href);
@@ -83,8 +84,14 @@ export default async function HomePage() {
       {/* ── Banda EN VIVO (solo mientras hay transmisión encendida) ── */}
       {enVivo.activa ? <BandaEnVivo transmision={enVivo.activa} /> : null}
 
-      {/* ── HERO de campaña (solo si el equipo la activó en el Studio) ── */}
-      {campana ? <HeroCampana campana={campana} /> : aviso ? <HeroAviso aviso={aviso} /> : null}
+      {/* ── HERO de campaña (una o varias apiladas; solo si el equipo las activó en el Studio) ── */}
+      {campanas.length > 0
+        ? campanas.map((c, i) => (
+            <HeroCampana key={c.id} campana={c} as={i === 0 ? "h1" : "h2"} />
+          ))
+        : aviso
+          ? <HeroAviso aviso={aviso} />
+          : null}
 
       {/* ── Barra de servicio: búsqueda + filtros rápidos ── */}
       <div className="border-b border-rule">
