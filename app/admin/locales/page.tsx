@@ -19,6 +19,9 @@ export default function AdminLocalesPage() {
         <Link href="/admin/datos" className="label text-faint hover:text-ink">
           Datos
         </Link>
+        <Link href="/admin/participantes" className="label text-faint hover:text-ink">
+          Participantes
+        </Link>
         <Link href="/admin/locales" className="label text-ink underline">
           Locales
         </Link>
