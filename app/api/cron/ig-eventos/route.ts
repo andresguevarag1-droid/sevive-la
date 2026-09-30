@@ -16,7 +16,7 @@ import {
   escrituraSanityHabilitada,
   getWriteClient,
 } from "@/lib/server/sanity-escritura";
-import { leerConfig, guardarConfig } from "@/lib/server/config-app";
+import { leerConfig, guardarConfig, marcarSaludInstagram } from "@/lib/server/config-app";
 import { redaccionHabilitada, extraerEventoDeIg } from "@/lib/server/redaccion";
 
 export const runtime = "nodejs";
@@ -87,17 +87,14 @@ export async function GET(req: Request) {
   if (!res.ok) {
     const detalle = await res.text().catch(() => "");
     console.error("[cron ig-eventos] Instagram respondió", res.status, detalle.slice(0, 300));
-    return NextResponse.json(
-      {
-        ok: false,
-        error:
-          res.status === 400 || res.status === 401
-            ? "El token de Instagram venció o no es válido (ver OPERACION.md)."
-            : `Instagram respondió ${res.status}.`,
-      },
-      { status: 502 }
-    );
+    const error =
+      res.status === 400 || res.status === 401
+        ? "El token de Instagram venció o no es válido (ver OPERACION.md)."
+        : `Instagram respondió ${res.status}.`;
+    await marcarSaludInstagram({ ok: false, cron: "ig-eventos", motivo: error });
+    return NextResponse.json({ ok: false, error }, { status: 502 });
   }
+  await marcarSaludInstagram({ ok: true, cron: "ig-eventos" });
   const { data } = (await res.json()) as { data?: MediaIG[] };
   const posts = (data ?? []).filter((m) => (m.caption ?? "").trim().length >= 20);
 

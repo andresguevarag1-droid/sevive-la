@@ -36,3 +36,25 @@ export async function guardarConfig(key: string, value: string): Promise<void> {
     console.warn(`[config] no se pudo guardar "${key}":`, err);
   }
 }
+
+/**
+ * Registro de salud de la conexión con Instagram: los crons de reels e
+ * ig-eventos avisan acá cada vez que corren, para que el panel de admin
+ * pueda mostrar "el token murió tal día" en vez de que nadie se entere
+ * hasta que alguien pregunte por qué dejó de entrar contenido.
+ */
+export async function marcarSaludInstagram(estado: {
+  ok: boolean;
+  cron: "reels" | "ig-eventos";
+  motivo?: string;
+}): Promise<void> {
+  const fecha = new Date().toISOString();
+  if (estado.ok) {
+    await guardarConfig("instagram_ultimo_ok", JSON.stringify({ cron: estado.cron, fecha }));
+  } else {
+    await guardarConfig(
+      "instagram_ultimo_error",
+      JSON.stringify({ cron: estado.cron, motivo: estado.motivo ?? "Error desconocido", fecha })
+    );
+  }
+}
