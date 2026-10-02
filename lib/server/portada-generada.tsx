@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
+import type { SanityClient } from "@sanity/client";
 import { site } from "@/lib/site";
 import { VERTICAL_HEX } from "@/lib/server/historia";
 
@@ -84,4 +85,29 @@ export async function portadaGenerada(
     }
   );
   return Buffer.from(await respuesta.arrayBuffer());
+}
+
+/**
+ * Genera la portada de marca, la sube como asset de Sanity y devuelve el
+ * campo `imagen` listo para un createIfNotExists/patch. Reutilizable desde
+ * cualquier robot (crónicas, eventos). Si algo falla (fuente rota, red),
+ * devuelve undefined: el documento igual se crea/actualiza, solo sin foto
+ * — nunca bloquea la publicación por esto.
+ */
+export async function subirPortadaGenerada(
+  db: SanityClient,
+  titulo: string,
+  vertical: string,
+  idParaArchivo: string
+): Promise<Record<string, unknown> | undefined> {
+  try {
+    const buffer = await portadaGenerada(titulo, vertical);
+    const asset = await db.assets.upload("image", buffer, {
+      filename: `portada-${idParaArchivo}.png`,
+    });
+    return { _type: "image", asset: { _type: "reference", _ref: asset._id } };
+  } catch (err) {
+    console.error("[portada-generada] subida falló (queda sin foto):", err);
+    return undefined;
+  }
 }

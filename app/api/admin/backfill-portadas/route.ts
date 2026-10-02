@@ -1,12 +1,13 @@
 /**
- * Arreglo retroactivo, UNA SOLA VEZ (a mano, con curl):
+ * Arreglo retroactivo (a mano, con curl, o repetible las veces que haga
+ * falta — es idempotente, nunca pisa una foto real):
  *   curl -H "Authorization: Bearer $CRON_SECRET" .../api/admin/backfill-portadas
  *
- * Las crónicas del redactor de planta (notas de anuncio y roundups) que
- * salieron publicadas ANTES de que el cron generara su propia portada de
- * marca se quedaron con el recuadro gris vacío en tarjetas/carrusel. Este
- * endpoint les pone la portada de marca ahora, sin tocar lo escrito a mano
- * por el equipo (solo toca autor == "Redacción SeViveLa").
+ * Les pone la portada de marca a TODAS las crónicas y eventos publicados
+ * que todavía no tienen `imagen` — sin importar quién los escribió. Es el
+ * parche "mientras no haya fotos reales": en cuanto el equipo suba una foto
+ * de verdad en el Studio (o llegue el banco de fotos), esa pisa a la
+ * generada sin que haga falta tocar nada acá.
  */
 import { NextResponse } from "next/server";
 import { cronAutorizado } from "@/lib/server/cron-auth";
@@ -15,16 +16,16 @@ import {
   escrituraSanityHabilitada,
   getWriteClient,
 } from "@/lib/server/sanity-escritura";
-import { portadaGenerada } from "@/lib/server/portada-generada";
+import { subirPortadaGenerada } from "@/lib/server/portada-generada";
 import { checkRateLimit } from "@/lib/server/rate-limit";
 import { getClientIp } from "@/lib/server/request-meta";
 
 export const runtime = "nodejs";
-export const maxDuration = 120;
+export const maxDuration = 180;
 
-const MAX_POR_CORRIDA = 10;
+const MAX_POR_CORRIDA = 24;
 
-type CronicaSinFoto = { _id: string; title: string; vertical: string };
+type DocSinFoto = { _id: string; _type: "cronica" | "evento"; title: string; vertical: string };
 
 export async function GET(req: Request) {
   const { allowed } = await checkRateLimit("admin", getClientIp(req));
@@ -44,25 +45,29 @@ export async function GET(req: Request) {
   }
   const db = getWriteClient()!;
 
-  const sinFoto = await db.fetch<CronicaSinFoto[]>(
-    /* groq */ `*[_type == "cronica" && !(_id in path("drafts.**")) && autor == "Redacción SeViveLa" && !defined(imagen)][0...${MAX_POR_CORRIDA}]{ _id, title, vertical }`
+  const sinFoto = await db.fetch<DocSinFoto[]>(
+    /* groq */ `*[
+      (_type == "cronica" || _type == "evento") &&
+      !(_id in path("drafts.**")) &&
+      defined(vertical) &&
+      !defined(imagen)
+    ][0...${MAX_POR_CORRIDA}]{ _id, _type, title, vertical }`
   );
 
   const arregladas: string[] = [];
   const fallidas: { titulo: string; motivo: string }[] = [];
-  for (const c of sinFoto ?? []) {
+  for (const d of sinFoto ?? []) {
     try {
-      const buffer = await portadaGenerada(c.title, c.vertical);
-      const asset = await db.assets.upload("image", buffer, {
-        filename: `portada-${c._id}.png`,
-      });
-      await db.patch(c._id).set({
-        imagen: { _type: "image", asset: { _type: "reference", _ref: asset._id } },
-      }).commit();
-      arregladas.push(c.title);
+      const imagen = await subirPortadaGenerada(db, d.title, d.vertical, d._id);
+      if (!imagen) {
+        fallidas.push({ titulo: d.title, motivo: "La generación de la portada falló." });
+        continue;
+      }
+      await db.patch(d._id).set({ imagen }).commit();
+      arregladas.push(`${d._type === "evento" ? "evento" : "crónica"}: ${d.title}`);
     } catch (err) {
       fallidas.push({
-        titulo: c.title,
+        titulo: d.title,
         motivo: (err instanceof Error ? err.message : String(err)).slice(0, 300),
       });
     }

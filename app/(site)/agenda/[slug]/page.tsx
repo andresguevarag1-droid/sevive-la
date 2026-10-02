@@ -5,6 +5,7 @@ import Link from "next/link";
 import { PortableText } from "@portabletext/react";
 import { getEvento, getEventosRelacionados } from "@/lib/sanity/evento";
 import { getVertical, site } from "@/lib/site";
+import { verticalColorFondo } from "@/lib/content";
 import { CategoryLabel } from "@/components/kicker";
 import { WeekIndex } from "@/components/week-index";
 import { FavoritoButton } from "@/components/evento/favorito-button";
@@ -238,7 +239,18 @@ export default async function EventoPage({
             className="mx-auto max-h-[75vh] w-auto max-w-full rounded-[var(--radius-lg)] shadow-[var(--shadow-card)]"
           />
         </figure>
-      ) : null}
+      ) : (
+        // Mientras no haya flyer/afiche real: bloque de marca del color de
+        // la vertical en vez de dejar el evento sin nada arriba de la ficha.
+        <figure
+          aria-hidden
+          className="mx-auto mt-6 flex max-w-2xl items-center justify-center rounded-[var(--radius-lg)]"
+          style={{ aspectRatio: "3 / 2", background: verticalColorFondo(e.vertical) }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.svg" alt="" className="h-12 w-12 opacity-90 invert" />
+        </figure>
+      )}
 
       {/* ── Ficha: cuándo, dónde, cuánto ── */}
       <dl className="mt-6 divide-y divide-rule border-y border-rule">

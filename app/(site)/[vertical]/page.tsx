@@ -145,6 +145,7 @@ export default async function VerticalPage({
                     alt=""
                     ratio="4 / 3"
                     priority
+                    vertical={v.slug}
                   />
                 </Link>
                 <div>

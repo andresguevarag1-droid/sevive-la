@@ -18,6 +18,7 @@ import {
 } from "@/lib/server/sanity-escritura";
 import { leerConfig, guardarConfig, marcarSaludInstagram } from "@/lib/server/config-app";
 import { redaccionHabilitada, extraerEventoDeIg } from "@/lib/server/redaccion";
+import { subirPortadaGenerada } from "@/lib/server/portada-generada";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -160,7 +161,8 @@ export async function GET(req: Request) {
         continue;
       }
 
-      // El arte del post = imagen del evento (asset propio, nunca CDN de IG).
+      // El arte del post = imagen del evento (asset propio, nunca CDN de IG);
+      // si el post no trae una usable, cae a la portada de marca generada.
       let imagen: Record<string, unknown> | undefined;
       const urlImagen = m.media_type === "VIDEO" ? m.thumbnail_url : m.media_url;
       if (urlImagen) {
@@ -176,6 +178,9 @@ export async function GET(req: Request) {
             alt: extraido.titulo,
           };
         }
+      }
+      if (!imagen) {
+        imagen = await subirPortadaGenerada(db, extraido.titulo, extraido.vertical, `evento-ig-${m.id}`);
       }
 
       await db.createIfNotExists({

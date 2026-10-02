@@ -17,6 +17,7 @@ import {
   getWriteClient,
 } from "@/lib/server/sanity-escritura";
 import { redaccionHabilitada, extraerEventoDeIg } from "@/lib/server/redaccion";
+import { subirPortadaGenerada } from "@/lib/server/portada-generada";
 import { checkRateLimit } from "@/lib/server/rate-limit";
 import { getClientIp } from "@/lib/server/request-meta";
 
@@ -115,7 +116,9 @@ export async function POST(req: Request) {
     });
   }
 
-  // Imagen opcional: se sube como asset propio (nunca se depende del CDN ajeno).
+  // Imagen: la pegada a mano (asset propio, nunca se depende del CDN
+  // ajeno) o, si no hay, la portada de marca generada — el evento nunca
+  // sale sin foto.
   let imagen: Record<string, unknown> | undefined;
   if (imagenUrl) {
     try {
@@ -135,8 +138,11 @@ export async function POST(req: Request) {
         }
       }
     } catch {
-      /* sin imagen: el evento igual sale (con tarjeta generada) */
+      /* sigue abajo: cae a la portada generada */
     }
+  }
+  if (!imagen) {
+    imagen = await subirPortadaGenerada(db, extraido.titulo, extraido.vertical, `evento-manual-${slug}`);
   }
 
   await db.createIfNotExists({
