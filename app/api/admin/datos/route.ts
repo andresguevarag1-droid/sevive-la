@@ -8,6 +8,10 @@ import { adminConfigured, checkAdminKey } from "@/lib/server/admin";
 import { getServiceClient } from "@/lib/supabase/server";
 import { checkRateLimit } from "@/lib/server/rate-limit";
 import { getClientIp } from "@/lib/server/request-meta";
+import { leerConfig } from "@/lib/server/config-app";
+import { escrituraSanityHabilitada } from "@/lib/server/sanity-escritura";
+import { redaccionHabilitada } from "@/lib/server/redaccion";
+import { emailEnabled } from "@/lib/server/email";
 
 export const runtime = "nodejs";
 
@@ -60,6 +64,9 @@ export async function GET(req: Request) {
       { data: cuponesEstados },
       { data: interesEventos },
       { data: respaldos },
+      igUltimoOk,
+      igUltimoError,
+      igTokenVence,
     ] = await Promise.all([
       db
         .from("campaign_entries")
@@ -75,6 +82,9 @@ export async function GET(req: Request) {
       // Tablas nuevas: si la migración aún no corrió, data llega null y no rompe.
       db.from("event_interest").select("event_slug, event_title").limit(5000),
       db.from("saved_events").select("event_slug, event_title, person_id").limit(5000),
+      leerConfig("instagram_ultimo_ok"),
+      leerConfig("instagram_ultimo_error"),
+      leerConfig("instagram_token_vence"),
     ]);
 
     const lista = (entradas ?? []) as EntradaCruda[];
@@ -141,6 +151,29 @@ export async function GET(req: Request) {
       ((respaldos ?? []) as { person_id: string }[]).map((r) => r.person_id)
     ).size;
 
+    // Salud de las automatizaciones: booleanos (nunca los valores de las
+    // llaves) + lo último que reportaron los crons de Instagram, para que
+    // se note en el panel el día que el token muera, en vez de enterarse
+    // semanas después porque "ya no entra contenido".
+    const parseoJson = (raw: string | null) => {
+      if (!raw) return null;
+      try {
+        return JSON.parse(raw) as { cron: string; fecha: string; motivo?: string };
+      } catch {
+        return null;
+      }
+    };
+    const salud = {
+      sanityEscritura: escrituraSanityHabilitada,
+      redaccionIA: redaccionHabilitada,
+      email: emailEnabled,
+      instagram: {
+        ultimoOk: parseoJson(igUltimoOk),
+        ultimoError: parseoJson(igUltimoError),
+        tokenVence: igTokenVence,
+      },
+    };
+
     return NextResponse.json({
       ok: true,
       participaciones: {
@@ -165,6 +198,7 @@ export async function GET(req: Request) {
         porBeneficio: statsCupones ?? [],
         porEstado: aLista(cuponesPorEstado),
       },
+      salud,
     });
   } catch (err) {
     console.error("[admin] tablero falló:", err);

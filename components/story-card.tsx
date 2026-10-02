@@ -23,7 +23,13 @@ export function StoryCard({ story }: { story: Story }) {
   return (
     <article>
       <Enlace className="imgzoom block">
-        <EditorialImage src={story.img} alt="" ratio="3 / 2" sizes="(min-width: 768px) 33vw, 100vw" />
+        <EditorialImage
+          src={story.img}
+          alt=""
+          ratio="3 / 2"
+          sizes="(min-width: 768px) 33vw, 100vw"
+          vertical={story.vertical}
+        />
       </Enlace>
       <div className="pt-3.5">
         <CategoryLabel vertical={story.vertical} type={story.type} />

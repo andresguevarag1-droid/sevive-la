@@ -7,6 +7,7 @@ import { getCronica, getCronicasRelacionadas } from "@/lib/sanity/cronica";
 import { getUltimaEdicion } from "@/lib/sanity/slugs";
 import { urlForImage, aspectRatioDeAsset } from "@/sanity/lib/image";
 import { getVertical, site } from "@/lib/site";
+import { verticalColorFondo } from "@/lib/content";
 import { CategoryLabel } from "@/components/kicker";
 import { StoryCard } from "@/components/story-card";
 import { JsonLd } from "@/components/json-ld";
@@ -207,7 +208,18 @@ export default async function CronicaPage({
             className="w-full rounded-[var(--radius-lg)]"
           />
         </figure>
-      ) : null}
+      ) : (
+        // Mientras no haya foto real: bloque de marca del color de la
+        // vertical en vez de dejar la nota sin nada arriba del cuerpo.
+        <figure
+          aria-hidden
+          className="mt-6 flex items-center justify-center rounded-[var(--radius-lg)]"
+          style={{ aspectRatio: "3 / 2", background: verticalColorFondo(c.vertical) }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.svg" alt="" className="h-12 w-12 opacity-90 invert" />
+        </figure>
+      )}
 
       {/* ── Cuerpo ── */}
       {c.cuerpo?.length ? (

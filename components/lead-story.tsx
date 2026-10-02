@@ -47,6 +47,7 @@ export function LeadStory({
             alt=""
             ratio="3 / 2"
             priority={prioridad}
+            vertical={story.vertical}
           />
           {/* barra de identidad de la vertical sobre la foto */}
           <span

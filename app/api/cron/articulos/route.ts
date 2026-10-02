@@ -20,6 +20,7 @@ import {
   type DatosEvento,
 } from "@/lib/server/redaccion";
 import { aPortableText, minutosLectura } from "@/lib/server/articulo-pt";
+import { subirPortadaGenerada } from "@/lib/server/portada-generada";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -28,7 +29,11 @@ export const maxDuration = 300;
  *  en las corridas siguientes (el cron es diario). */
 const MAX_POR_CORRIDA = 2;
 
-type EventoCrudo = DatosEvento & { _id: string; slug?: string };
+type EventoCrudo = DatosEvento & {
+  _id: string;
+  slug?: string;
+  imagen?: { asset?: { _ref?: string } };
+};
 
 export async function GET(req: Request) {
   if (!cronAutorizado(req)) {
@@ -63,10 +68,10 @@ export async function GET(req: Request) {
   }>(
     /* groq */ `{
       "futuros": *[_type == "evento" && !(_id in path("drafts.**")) && defined(slug.current) && defined(inicio) && inicio > $ahora && inicio < $en10d] | order(inicio asc)[0...20]{
-        _id, title, vertical, inicio, fin, horaPorConfirmar, lugar, precioDesde, artista, organizador, descripcion, enlace, "slug": slug.current
+        _id, title, vertical, inicio, fin, horaPorConfirmar, lugar, precioDesde, artista, organizador, descripcion, enlace, imagen{asset}, "slug": slug.current
       },
       "pasados": *[_type == "evento" && !(_id in path("drafts.**")) && defined(slug.current) && defined(inicio) && coalesce(fin, inicio) < $hace12h && coalesce(fin, inicio) > $hace4d] | order(inicio desc)[0...10]{
-        _id, title, vertical, inicio, fin, horaPorConfirmar, lugar, precioDesde, artista, organizador, descripcion, enlace, "slug": slug.current
+        _id, title, vertical, inicio, fin, horaPorConfirmar, lugar, precioDesde, artista, organizador, descripcion, enlace, imagen{asset}, "slug": slug.current
       }
     }`,
     { ahora: ahora.toISOString(), en10d, hace12h, hace4d }
@@ -109,6 +114,11 @@ export async function GET(req: Request) {
         continue;
       }
       const slugBase = tipo === "guia" ? `guia-${e.slug}` : `asi-se-vivio-${e.slug}`;
+      // Preferí la foto real del evento (flyer de IG, subida a mano); si no
+      // tiene, generá la portada de marca — nunca sale sin imagen.
+      const imagen = e.imagen?.asset?._ref
+        ? { _type: "image", asset: { _type: "reference", _ref: e.imagen.asset._ref } }
+        : await subirPortadaGenerada(db, articulo.titulo, e.vertical, idArticulo);
       // createIfNotExists sobre drafts.<id>: nace como BORRADOR en el
       // Studio y jamás pisa un artículo que el equipo ya esté editando.
       await db.createIfNotExists({
@@ -122,6 +132,7 @@ export async function GET(req: Request) {
         formato: tipo === "guia" ? "Guía" : "Cobertura",
         lecturaMin: minutosLectura(articulo),
         cuerpo: aPortableText(articulo),
+        ...(imagen ? { imagen } : {}),
         fecha: new Date().toISOString(),
         esPortada: false,
         destacada: false,

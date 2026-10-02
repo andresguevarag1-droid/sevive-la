@@ -41,7 +41,41 @@ type Datos = {
     }[];
     porEstado: { clave: string; total: number }[];
   };
+  salud?: {
+    sanityEscritura: boolean;
+    redaccionIA: boolean;
+    email: boolean;
+    instagram: {
+      ultimoOk: { cron: string; fecha: string } | null;
+      ultimoError: { cron: string; fecha: string; motivo?: string } | null;
+      tokenVence: string | null;
+    };
+  };
 };
+
+function Estado({ ok, texto }: { ok: boolean; texto: string }) {
+  return (
+    <span className="flex items-center gap-2 text-sm">
+      <span
+        aria-hidden
+        className={`inline-block h-2.5 w-2.5 rounded-full ${ok ? "bg-lilac" : "bg-error"}`}
+      />
+      <span className={ok ? "text-ink" : "text-error font-medium"}>{texto}</span>
+    </span>
+  );
+}
+
+function fmtFechaCorta(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  return new Intl.DateTimeFormat("es-CR", {
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "America/Costa_Rica",
+  }).format(d);
+}
 
 function Tile({ titulo, valor, nota }: { titulo: string; valor: number | string; nota?: string }) {
   return (
@@ -199,6 +233,41 @@ export function PanelDatos() {
 
       {datos ? (
         <>
+          {/* ── Salud del sistema: lo primero, para que un token vencido
+              se note acá en vez de enterarse semanas después ── */}
+          {datos.salud ? (
+            <section className="card mt-6 px-5 py-4">
+              <p className="label text-faint">Salud del sistema</p>
+              <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 md:grid-cols-4">
+                <Estado ok={datos.salud.sanityEscritura} texto="Sanity (escritura)" />
+                <Estado ok={datos.salud.redaccionIA} texto="Redacción IA" />
+                <Estado ok={datos.salud.email} texto="Correo (Resend)" />
+                <Estado
+                  ok={!datos.salud.instagram.ultimoError}
+                  texto="Instagram"
+                />
+              </div>
+              {datos.salud.instagram.tokenVence ? (
+                <p className="tnum mt-3 text-sm text-muted">
+                  Token de Instagram vence: {fmtFechaCorta(datos.salud.instagram.tokenVence)}
+                </p>
+              ) : null}
+              {datos.salud.instagram.ultimoOk ? (
+                <p className="tnum mt-1 text-sm text-muted">
+                  Última corrida OK ({datos.salud.instagram.ultimoOk.cron}):{" "}
+                  {fmtFechaCorta(datos.salud.instagram.ultimoOk.fecha)}
+                </p>
+              ) : null}
+              {datos.salud.instagram.ultimoError ? (
+                <p className="mt-1 text-sm font-semibold text-error">
+                  Último error ({datos.salud.instagram.ultimoError.cron},{" "}
+                  {fmtFechaCorta(datos.salud.instagram.ultimoError.fecha)}):{" "}
+                  {datos.salud.instagram.ultimoError.motivo ?? "sin detalle"}
+                </p>
+              ) : null}
+            </section>
+          ) : null}
+
           {/* ── Totales ── */}
           <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4">
             <Tile titulo="Participaciones" valor={p!.total} nota={`${p!.elegibles} elegibles`} />
