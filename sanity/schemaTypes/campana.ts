@@ -69,6 +69,23 @@ export const campana = defineType({
       ],
     }),
     defineField({
+      name: "coloresFondo",
+      title: "Colores del fondo del hero",
+      type: "array",
+      of: [{ type: "string" }],
+      options: { layout: "grid" },
+      description:
+        "Opcional. 2 a 4 colores HEX (ej. #019793) para el degradado del hero, en orden de arriba hacia abajo. Sirve para diferenciar esta campaña de otras. Si lo dejás vacío, usa el degradado festivo por defecto (naranja→magenta).",
+      validation: (rule) =>
+        rule.max(4).custom((cols?: string[]) => {
+          if (!cols || cols.length === 0) return true;
+          if (cols.length < 2) return "Poné al menos 2 colores (o ninguno).";
+          return cols.every((c) => /^#([0-9a-fA-F]{6})$/.test(c))
+            ? true
+            : "Usá HEX de 6 dígitos, ej. #019793";
+        }),
+    }),
+    defineField({
       name: "ctaTexto",
       title: "Texto del botón",
       type: "string",
