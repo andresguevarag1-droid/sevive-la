@@ -2,8 +2,9 @@ import Link from "next/link";
 import type { Campana } from "@/lib/sanity/campana";
 
 /**
- * Hero de campaña en la home — se permite que "grite" (fiesta naranja→magenta)
- * pero con el CTA en el magenta de marca y los radios del sistema.
+ * Hero de campaña en la home — se permite que "grite". El fondo sale de
+ * `coloresFondo` (Sanity) para diferenciar campañas; si no, degradado festivo
+ * por defecto. CTA siempre en el lila de marca y radios del sistema.
  * Server component: cero JS. Texto vivo (SEO/a11y), el arte es capa visual.
  */
 
@@ -34,6 +35,29 @@ function Estrella({
   );
 }
 
+/** Degradado festivo por defecto (naranja→magenta, estilo Latin Grammys). */
+const FONDO_DEFAULT =
+  "linear-gradient(160deg, #f7941d 0%, #ef4136 38%, #c71e70 72%, #7a1f6e 100%)";
+
+/**
+ * Fallback turnkey de paleta por campaña mientras el documento no defina
+ * `coloresFondo` en Sanity (fuente de verdad preferida). Solo cubre el
+ * arranque de campañas puntuales; cualquier campaña nueva se pinta desde
+ * el Studio sin tocar código.
+ */
+const PALETAS_POR_SLUG: Record<string, string[]> = {
+  // Miss Universe 2026 — paleta del flyer, para diferenciarla de Latin Grammys.
+  "te-llevamos-a-miss-universe-2026": ["#019793", "#015d9d", "#253053"],
+};
+
+/** Arma un linear-gradient repartiendo las paradas de forma pareja. */
+function degradadoDesde(cols: string[]): string {
+  const paradas = cols
+    .map((c, i) => `${c} ${Math.round((i / (cols.length - 1)) * 100)}%`)
+    .join(", ");
+  return `linear-gradient(160deg, ${paradas})`;
+}
+
 export function HeroCampana({
   campana,
   as: Titular = "h1",
@@ -42,26 +66,37 @@ export function HeroCampana({
   /** "h1" por defecto; usar "h2" si se apila más de una campaña a la vez. */
   as?: "h1" | "h2";
 }) {
+  // Paleta: el campo de Sanity manda; si no, un default por slug; si no, el festivo.
+  const paleta =
+    campana.coloresFondo && campana.coloresFondo.length >= 2
+      ? campana.coloresFondo
+      : PALETAS_POR_SLUG[campana.slug];
+  const fondo = paleta ? degradadoDesde(paleta) : FONDO_DEFAULT;
+  // Acentos coherentes con la paleta (estrellas y barras del borde inferior).
+  const estrellas = paleta
+    ? ["#ffffff", "#ffffff", paleta[0]]
+    : ["#ffd200", "#ffffff", "#3b1f87"];
+  const barras = paleta
+    ? [paleta[0], paleta[1] ?? paleta[0], "#a190d2"]
+    : ["#ffd200", "#f7941d", "#a190d2"];
+
   return (
     <section
       aria-label={`Campaña: ${campana.titulo}`}
       className="relative overflow-hidden"
-      style={{
-        background:
-          "linear-gradient(160deg, #f7941d 0%, #ef4136 38%, #c71e70 72%, #7a1f6e 100%)",
-      }}
+      style={{ background: fondo }}
     >
       {/* estrellas decorativas con titileo lento (se apaga con reduced-motion) */}
-      <Estrella size={54} color="#ffd200" className="twinkle absolute left-[4%] top-8 opacity-80" />
+      <Estrella size={54} color={estrellas[0]} className="twinkle absolute left-[4%] top-8 opacity-80" />
       <Estrella
         size={30}
-        color="#ffffff"
+        color={estrellas[1]}
         className="twinkle absolute right-[8%] top-14 opacity-60"
         style={{ animationDelay: "1.4s" }}
       />
       <Estrella
         size={40}
-        color="#3b1f87"
+        color={estrellas[2]}
         className="twinkle absolute bottom-10 left-[12%] opacity-50"
         style={{ animationDelay: "2.6s" }}
       />
@@ -122,10 +157,10 @@ export function HeroCampana({
 
       {/* arcoíris inferior (capas de color, como el flyer) */}
       <div aria-hidden className="flex h-3 w-full">
-        <div className="h-full flex-1" style={{ background: "#ffd200" }} />
+        <div className="h-full flex-1" style={{ background: barras[0] }} />
       </div>
-      <div aria-hidden className="flex h-2.5 w-full" style={{ background: "#f7941d" }} />
-      <div aria-hidden className="flex h-2 w-full" style={{ background: "#a190d2" }} />
+      <div aria-hidden className="flex h-2.5 w-full" style={{ background: barras[1] }} />
+      <div aria-hidden className="flex h-2 w-full" style={{ background: barras[2] }} />
     </section>
   );
 }

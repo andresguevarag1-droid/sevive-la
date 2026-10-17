@@ -22,6 +22,8 @@ export type Campana = {
   imagenHeroSet?: { s480: string; s800: string; s1200: string };
   imagenHeroAlt?: string;
   ogImage?: string;
+  /** 2–4 colores HEX para el degradado del hero. Vacío = degradado por defecto. */
+  coloresFondo?: string[];
   ctaTexto: string;
   /** Titular arriba del formulario de captura (distinto del titular del hero). */
   formTitulo?: string;
@@ -51,6 +53,7 @@ type RawCampana = {
   vertical: VerticalSlug;
   imagenHero?: (SanityImage & { alt?: string }) | null;
   ogImage?: SanityImage | null;
+  coloresFondo?: string[];
   ctaTexto?: string;
   formTitulo?: string;
   microcopy?: string;
@@ -69,7 +72,7 @@ type RawCampana = {
 
 const CAMPANA_FIELDS = /* groq */ `
   _id, titulo, subtitulo, "slug": slug.current, activa, vertical,
-  imagenHero{ asset, "alt": alt }, ogImage{ asset },
+  imagenHero{ asset, "alt": alt }, ogImage{ asset }, coloresFondo,
   ctaTexto, formTitulo, microcopy, inicia, termina, premio, patrocinador, patrocinado, referidosActivos, chancesMaxPorReferido, requisitos, pideEdad, preguntaInteres, bases
 `;
 
@@ -89,6 +92,9 @@ function mapCampana(c: RawCampana): Campana {
       s480 && s800 && s1200 ? { s480, s800, s1200 } : undefined,
     imagenHeroAlt: c.imagenHero?.alt || c.titulo,
     ogImage: urlForImage(c.ogImage, 1200) ?? urlForImage(c.imagenHero, 1200),
+    coloresFondo: Array.isArray(c.coloresFondo)
+      ? c.coloresFondo.filter((x) => /^#([0-9a-fA-F]{6})$/.test(x))
+      : undefined,
     ctaTexto: c.ctaTexto || "Participá gratis",
     formTitulo: c.formTitulo,
     microcopy: c.microcopy,

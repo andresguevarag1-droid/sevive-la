@@ -189,3 +189,21 @@ o 503 (falla). Montá el monitor gratis:
 - `ADMIN_PANEL_KEY` en Vercel para el panel (`/admin/datos` y `/admin/locales`).
 - `SENTRY_DSN` cuando abras la cuenta (el código ya está listo).
 - Rotar/borrar el token de escritura de Sanity al terminar las siembras.
+
+## Meta Conversions API (evento Lead de campañas) — opcional
+
+Medición de conversiones de la pauta sin pixel de terceros en el cliente: el
+evento `Lead` se manda server-to-server desde `POST /api/participar`, con
+correo/teléfono **hasheados** (SHA-256), y SOLO cuando la persona marcó la
+autorización de marketing (opt-in explícito). Duerme sin credenciales.
+
+Env en Vercel (Production + Preview), solo servidor (NO `NEXT_PUBLIC_`):
+
+- `META_PIXEL_ID` — ID del dataset/pixel de Meta.
+- `META_CAPI_TOKEN` — token de acceso del Conversions API (Events Manager → Configuración → Conversions API).
+- `META_CAPI_TEST_CODE` — opcional, para "Probar eventos" en el Events Manager mientras se valida.
+
+**Antes de encender (Ley 8968):** la copia de consentimiento de marketing y la
+Política de Privacidad deben declarar la medición de conversiones con Meta
+(datos hasheados, servidor a servidor). Sin ese texto actualizado, dejar las
+env vacías. Implementación en `lib/server/meta-capi.ts`.

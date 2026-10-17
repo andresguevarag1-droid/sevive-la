@@ -33,6 +33,8 @@ import {
   agregarAAudiencia,
   plantillaParticipacion,
 } from "@/lib/server/email";
+import { enviarLeadCapi } from "@/lib/server/meta-capi";
+import { randomUUID } from "node:crypto";
 
 export const runtime = "nodejs";
 
@@ -257,6 +259,25 @@ export async function POST(req: Request) {
     } catch (err) {
       console.error("[participar] correo/audiencia falló (no fatal):", err);
     }
+  }
+
+  // ── Meta Conversions API (server-side) — evento "Lead" ──
+  // Solo si la persona autorizó marketing (opt-in explícito) y hay credenciales
+  // (META_PIXEL_ID + META_CAPI_TOKEN). Datos hasheados, server-to-server.
+  // Fire-and-forget: la fuente de verdad es Supabase; esto nunca bloquea ni
+  // rompe la respuesta. Se llega aquí solo con un lead NUEVO (el repetido
+  // retorna antes), así que no duplica conversiones.
+  if (d.marketingConsent) {
+    void enviarLeadCapi({
+      email: d.email,
+      phone: d.phone,
+      firstName: d.fullName,
+      ciudad: d.residence,
+      ip,
+      userAgent,
+      eventId: randomUUID(),
+      eventSourceUrl: `${baseUrl}/dinamicas/${d.campaignSlug}`,
+    });
   }
 
   // pideEdad ya bloqueó a los menores de 18 arriba (no llegan a este punto),
