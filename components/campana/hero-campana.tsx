@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Campana } from "@/lib/sanity/campana";
+import { fondoCampana, paletaCampana } from "@/lib/campana-paleta";
 
 /**
  * Hero de campaña en la home — se permite que "grite". El fondo sale de
@@ -35,29 +36,6 @@ function Estrella({
   );
 }
 
-/** Degradado festivo por defecto (naranja→magenta, estilo Latin Grammys). */
-const FONDO_DEFAULT =
-  "linear-gradient(160deg, #f7941d 0%, #ef4136 38%, #c71e70 72%, #7a1f6e 100%)";
-
-/**
- * Fallback turnkey de paleta por campaña mientras el documento no defina
- * `coloresFondo` en Sanity (fuente de verdad preferida). Solo cubre el
- * arranque de campañas puntuales; cualquier campaña nueva se pinta desde
- * el Studio sin tocar código.
- */
-const PALETAS_POR_SLUG: Record<string, string[]> = {
-  // Miss Universe 2026 — paleta del flyer, para diferenciarla de Latin Grammys.
-  "te-llevamos-a-miss-universe-2026": ["#019793", "#015d9d", "#253053"],
-};
-
-/** Arma un linear-gradient repartiendo las paradas de forma pareja. */
-function degradadoDesde(cols: string[]): string {
-  const paradas = cols
-    .map((c, i) => `${c} ${Math.round((i / (cols.length - 1)) * 100)}%`)
-    .join(", ");
-  return `linear-gradient(160deg, ${paradas})`;
-}
-
 export function HeroCampana({
   campana,
   as: Titular = "h1",
@@ -67,11 +45,8 @@ export function HeroCampana({
   as?: "h1" | "h2";
 }) {
   // Paleta: el campo de Sanity manda; si no, un default por slug; si no, el festivo.
-  const paleta =
-    campana.coloresFondo && campana.coloresFondo.length >= 2
-      ? campana.coloresFondo
-      : PALETAS_POR_SLUG[campana.slug];
-  const fondo = paleta ? degradadoDesde(paleta) : FONDO_DEFAULT;
+  const paleta = paletaCampana(campana);
+  const fondo = fondoCampana(campana);
   // Acentos coherentes con la paleta (estrellas y barras del borde inferior).
   const estrellas = paleta
     ? ["#ffffff", "#ffffff", paleta[0]]
