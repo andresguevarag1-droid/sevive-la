@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Campana } from "@/lib/sanity/campana";
 import { estadoCampana } from "@/lib/sanity/campana";
+import { fondoCampana, paletaCampana } from "@/lib/campana-paleta";
 import { FormParticipacion } from "@/components/campana/form-participacion";
 import { CuentaRegresiva } from "@/components/campana/cuenta-regresiva";
 import { JsonLd } from "@/components/json-ld";
@@ -43,6 +44,9 @@ export function CampanaLanding({
   refInicial?: string;
 }) {
   const estado = estadoCampana(campana);
+  const paleta = paletaCampana(campana);
+  // Barra de acento bajo el header, coherente con la paleta del hero de home.
+  const barraAcento = paleta ? paleta[0] : "#ffd200";
 
   return (
     <article>
@@ -61,10 +65,7 @@ export function CampanaLanding({
       {/* ── Cabecera festiva (versión compacta del hero) ── */}
       <header
         className="relative overflow-hidden"
-        style={{
-          background:
-            "linear-gradient(160deg, #f7941d 0%, #ef4136 38%, #c71e70 72%, #7a1f6e 100%)",
-        }}
+        style={{ background: fondoCampana(campana) }}
       >
         <div className="mx-auto grid max-w-4xl items-center gap-6 px-4 py-10 md:grid-cols-[1.4fr_1fr] md:py-12">
           <div>
@@ -105,7 +106,7 @@ export function CampanaLanding({
             </div>
           ) : null}
         </div>
-        <div aria-hidden className="h-2.5 w-full" style={{ background: "#ffd200" }} />
+        <div aria-hidden className="h-2.5 w-full" style={{ background: barraAcento }} />
       </header>
 
       <div className="mx-auto max-w-3xl px-4 py-8 md:py-10">
